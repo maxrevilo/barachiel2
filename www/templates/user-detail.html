@@ -1,0 +1,82 @@
+<ion-view title="{{ user.name }}">
+
+    <ion-content id="user-detail" class="has-header">
+        <div class="picture">
+            <img src="http://placehold.it/1200" />
+        </div>
+
+        <a  id="send_wave_btn"
+            class="button button-large button-block button-clear button-calm"
+            ng-click=""
+            translate>
+            %profile.send_wave
+        </a>
+        
+        <div class="list">
+            <div class="item">
+                <span class="content name" translate>
+                    {{ user.name }}
+                    Oliver a perez c
+                </span>
+            </div>
+
+            <label class="item item-input"  ng-if="user.phone">
+                <span class="input-label" translate>
+                    %profile.form.phone
+                </span>
+                <span class="content">{{ user.phone }}</span>
+            </label>
+            
+            <label class="item item-input"  ng-if="user.email">
+                <span class="input-label" translate>
+                    %profile.form.email
+                </span>
+                <span class="content">{{ user.email }}</span>
+            </label>
+
+            <label class="item item-input"  ng-if="user.sex_str">
+                <span class="input-label" translate>
+                    %profile.form.sex
+                </span>
+                <span class="content" translate>{{ user.sex_str }}</span>
+            </label>
+
+            <label class="item item-input"  ng-if="user.age">
+                <span class="input-label" translate>
+                    %profile.form.age
+                </span>
+                <span class="content">{{ user.age }}</span>
+            </label>
+
+            <label class="item item-input"  ng-if="user.interested_str">
+                <span class="input-label" translate>
+                    %profile.form.interested
+                </span>
+                <span class="content" translate>{{ user.interested_str }}</span>
+            </label>
+            
+            <label class="item item-input" ng-if="user.sentimental_status_str">
+                <span class="input-label" translate>
+                    %profile.form.sentimental_status
+                </span>
+                <span class="content" translate>{{ user.sentimental_status_str }}</span>
+            </label>
+
+            <label class="item item-input" ng-if="user.bio">
+                <span class="input-label" translate>
+                    %profile.form.bio
+                </span>
+                <span class="content">{{ user.bio }}</span>
+            </label>
+            
+            <a href="#" class="item item-icon-right">
+                <span translate> %profile.flag.button </span>
+                <i class="icon ion-ios7-flag assertive"></i>
+            </a>
+
+        </div><!-- class=list -->
+
+        
+
+    </ion-content>
+</ion-view>

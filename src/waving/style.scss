@@ -1,0 +1,184 @@
+// The path to the root from the css folder
+$base-url: "../";
+
+// // The path for our ionicons font files, relative to the built CSS in www/css
+$ionicons-font-path: "#{$base-url}lib/ionic/fonts" !default;
+
+$positive:  #0579f8 !default;
+$calm:      rgb(77, 204, 255) !default;
+/*
+$light:       #fff !default;
+$stable:      #f8f8f8 !default;
+$positive:    #4a87ee !default;
+$calm:        #43cee6 !default;
+$balanced:    #66cc33 !default;
+$energized:   #f0b840 !default;
+$assertive:   #ef4e3a !default;
+$royal:       #8a6de9 !default;
+$dark:        #444 !default;
+*/
+
+@import "www/lib/ionic/scss/ionic";
+@import "auth/style";
+@import "tutorial/tutorial";
+
+@font-face {
+    font-family: main_font;
+    src: url('fonts/trench.otf');
+}
+
+body, input {
+    font-family: main_font;
+    font-size: 16px;
+}
+
+h1, h2, h3, h4, h5, h6 { font-family: main_font; }
+
+@mixin tab-icon($icon_name) {
+    background-repeat: no-repeat;
+    background-position: center;
+    background-image: url("../img/#{$icon_name}.png");
+    background-size: auto 100%;
+    margin-top: 5px !important;
+    height: 37px !important;
+}
+
+ion-nav-back-button {
+    width: 40px;
+}
+
+.bar {
+    .title {
+        font-family: main_font;
+        font-size: 28px;
+        font-weight: bold;
+    }
+}
+
+.tabs {
+    .radar-icon { @include tab-icon("radar"); }
+    .likers-icon { @include tab-icon("likers-list"); }
+    .profile-icon { @include tab-icon("profile"); }
+
+    .radar-icon-active { @include tab-icon("radar-active"); }
+    .likers-icon-active { @include tab-icon("likers-list-active"); }
+    .profile-icon-active { @include tab-icon("profile-active"); }
+}
+
+ion-nav-bar .button { color: $calm !important; }
+
+
+#tab-radar {
+    .list {
+        .item-divider {
+            background-color: initial;
+            color: $positive;
+            padding-left: 20px;
+        }
+    }
+}
+
+yg-user-item, [yg-user-item], .yg-user-item {
+    
+    padding-right: 16px !important;
+    padding-left: 82px !important;
+
+    .picture {
+        position: absolute;
+        top: 10px;
+        left: 16px;
+        width: 58px;
+        height: 58px;
+        border-radius: 50%;
+        border: 2px solid $positive;
+        overflow: hidden;
+
+        img {
+            height: 100%;
+            border-radius: 50%;
+        }
+    }
+    .name {
+        font-family: main_font;
+        font-size: 18px;
+        color: black;
+    }
+    .status { display: inline; }
+    .sex { float: right; }
+    .wavers {
+        padding-right: 0;
+        right: 16px;
+        color: black;
+        b {
+            font-size: 18px;
+            color: $energized;
+        }
+    }
+}
+
+
+#profile-view, #user-detail {
+    .picture {
+        margin-top: 10px;
+        text-align: center;
+        height: 300px;
+        overflow: hidden;
+
+        img {
+            height: 100%;
+            width: auto;
+            font-size: 18px;
+            border-radius: 5px;
+        }
+    }
+
+    #send_wave_btn {
+        font-weight: bold;
+    }
+
+    .list {
+        .item {
+            color: black;
+            // border: none;
+            input, .content {
+                text-align: right;
+                font-size: 20px;
+
+                &.name {
+                    text-align: center;
+                    display: block;
+                }
+            }
+        }
+    }
+
+    #logout_btn {
+        // float: right;
+        font-weight: bold;
+    }
+}
+
+#wave-detail {
+    .picture {
+        img {
+            width: 100%;
+            height: auto;
+            border-radius: 5px;
+        }
+    }
+    p {
+        text-align: justify;
+
+        .name {
+            font-weight: bold;
+        }
+    }
+}
+
+#settings {
+    .list {
+        .item {
+            white-space: initial;
+        }
+    }
+}

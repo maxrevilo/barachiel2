@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html ng-app="barachiel">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no, width=device-width">
+        <title></title>
+
+        <script type="text/javascript">
+            window.BASE_URL = 'https://barachiel-addon.firebaseio.com';
+            window.VERSION = '0.1.b';
+
+            //Base error handling:
+            window.onerror = function(errorMsg, url, lineNumber) {
+                var params = {
+                    'version':  String(VERSION),
+                    'line':  String(lineNumber),
+                    'url':  String(url),
+                    'msg':  String(errorMsg),
+                    'user_agent': String(navigator.userAgent),
+                    'app_name':  String(navigator.appName),
+                    'app_version':  String(navigator.appVersion),
+                    'platform':  String(navigator.platform),
+                };
+                ajax = new XMLHttpRequest();
+
+                ajax.open("POST", BASE_URL+"/error-reports.json", true);
+                ajax.setRequestHeader("Content-type", 'application/json');
+                ajax.send(JSON.stringify(params));
+            };
+        </script>
+
+        <link href="css/style.css" rel="stylesheet">
+
+        <!-- Base framework -->
+        <script src="cordova.js"></script>
+        <script src="lib/ionic/js/ionic.bundle.js"></script>
+
+        <!-- Libs -->
+        <script src="lib/angular-translate/angular-translate.js"></script>
+        <script src="lib/angular-mocks/angular-mocks.js"></script>
+        <script src="lib/angular-cookies/angular-cookies.js"></script>
+        <script src="lib/angular-translate-loader-static-files/angular-translate-loader-static-files.js"></script>
+        <script src="lib/underscore/underscore.js"></script>
+        <script src="lib/angular-underscore-module/angular-underscore-module.js"></script>
+
+        <!-- Main App-->
+        <script src="js/merge.js"></script>
+        <script src="js/application.js"></script>
+
+    </head>
+    <body animation="slide-left-right-ios7">
+
+        <!-- Navigation bar -->
+        <ion-nav-bar class="bar-positive nav-title-slide-ios7">
+
+            <ion-nav-back-button class="button-icon icon ion-ios7-arrow-back">
+            </ion-nav-back-button>
+
+        </ion-nav-bar>
+
+        <!-- Content view -->
+        <ion-nav-view></ion-nav-view>
+    </body>
+</html>

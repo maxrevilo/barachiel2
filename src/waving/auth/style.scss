@@ -1,0 +1,28 @@
+#loginForm, #signupForm, #forgotPassword {
+    text-align: center !important;
+
+    .input-label {
+        margin: auto;
+        padding-right: 18px;
+        text-align: center;
+    }
+
+    input {
+        font-size: 24px !important;
+        text-align: center;
+    }
+
+    .item {
+        error {
+            display: block;
+            margin-left: -18px;
+            color: $assertive;
+        }
+    }
+
+    .button-large {
+        font-size: 24px;
+        font-weight: bold;
+    }
+
+}

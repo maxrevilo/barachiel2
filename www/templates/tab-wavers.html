@@ -1,0 +1,12 @@
+<ion-view title="{{ '%wavers.title' | translate }}">
+    <ion-content class="has-header">
+        <ion-list>
+            <yg-user-item ion-item 
+                ng-repeat="waver in wavers"
+                user="waver"
+                class="item item-avatar"
+                href="#/tab/waver/{{waver.id}}">
+            </yg-user-item>
+        </ion-list>
+    </ion-content>
+</ion-view>

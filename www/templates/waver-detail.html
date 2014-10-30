@@ -1,0 +1,33 @@
+<ion-view title="{{ '%wave.title' | translate }}">
+    <ion-content id="wave-detail" has-header="true" padding="true">
+        <h3 class="text-center" translate>
+            %wave.profile.title
+        </h3>
+
+        <div class="picture">
+            <img src="http://placehold.it/1024" />
+        </div>
+
+
+        <div ng-if="!anonymous">
+            <p ng-bind-html="
+                '%wave.profile.details.not_anon_[val]'
+                | translate:'{\'val\': waver.__safe__name}'
+                ">
+            </p>
+
+            <a class="button button-large button-clear button-block button-positive" 
+                ui-sref="tab.waver-user-detail({userId: waver.user_id})"
+                translate>
+                %global.see_full_profile
+            </a>
+        </div>
+
+        <div ng-if="anonymous">
+            <p translate>
+                %wave.profile.details.anon
+            </p>
+        </div>
+
+    </ion-content>
+</ion-view>

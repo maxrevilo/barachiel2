@@ -1,0 +1,36 @@
+<!-- 
+    Create tabs with an icon and label, using the tabs-positive style. 
+    Each tab's child <ion-nav-view> directive will have its own 
+    navigation history that also transitions its views in and out.
+-->
+<ion-view>
+    <ion-header-bar class="bar-positive">
+        <ion-nav-buttons side="right">
+            <a class="button button-icon icon ion-navicon" ng-click="open_settings()"></a>
+        </ion-nav-buttons>
+    </ion-header-bar>
+
+    <ion-tabs class="tabs-striped tabs-icon-only tabs-background-positive tabs-calm">
+
+        <!-- Radar Tab -->
+        <ion-tab title="{{ '%radar.title' | translate }}" href="#/tab/radar"
+            icon-on="radar-icon-active" icon-off="radar-icon">
+            <ion-nav-view name="tab-radar"></ion-nav-view>
+        </ion-tab>
+
+
+        <!-- Wavers Tab -->
+        <ion-tab title="{{ '%wavers.title' | translate }}" href="#/tab/wavers"
+            icon-on="likers-icon-active" icon-off="likers-icon">
+            <ion-nav-view name="tab-wavers"></ion-nav-view>
+        </ion-tab>
+
+
+        <!-- Profile Tab -->
+        <ion-tab title="{{ '%profile.title' | translate }}" href="#/tab/profile"
+            icon-on="profile-icon-active" icon-off="profile-icon">
+            <ion-nav-view name="tab-profile"></ion-nav-view>
+        </ion-tab>
+
+    </ion-tabs>
+</ion-view>

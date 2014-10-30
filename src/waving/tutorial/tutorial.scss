@@ -1,0 +1,480 @@
+#tutorial_screen {
+    .slider {
+        height: 100%;
+
+        .slider-pager { bottom: 52px; }
+
+        .m-item {
+            display: inline-block;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            max-width: 100%;
+            min-height: 100%;
+
+            .content_box {
+                position: absolute;
+                display: block;
+                float: none;
+                width: 100%;
+                height: auto;
+                margin-right: auto;
+                margin-left: auto;
+            }
+
+            .screen {
+                display: inline-block;
+                width: 100%;
+                height: auto;
+                overflow: hidden;
+                margin: auto;
+            }
+
+            .p1 {
+                bottom:25%;
+            }
+            .p2 {
+                top:10%;
+            }
+            .p3, .p6, .p3, .p8  {
+                bottom:10%;
+            }
+            .p5 {
+                top:50%;
+            }
+            .p4 {
+                top:30%;
+            }
+            .p7 {
+                top:33%;
+            }
+            .p9 {
+                top:12%;
+            }
+            .p10 {
+                bottom:25%;
+            }
+            .p10 .nav3 {
+                position: relative;
+                display: inline-block;
+                float: none;
+                width: 85%;
+                height: auto;
+                margin: 25px auto 0px;
+            }
+            .p10 .nav3 .exit {
+                display:block;
+                position: relative;
+                float: none;
+                width: 37%;
+                margin-left: auto;
+                margin-right: auto;
+                font-size: 14px;
+                line-height: 31px;
+                text-align: center;
+                font-weight: lighter;
+                background-color: #3476FB;
+                color: #fff;
+            }
+            .p10 .nav2 {
+                left:2px;
+                bottom:-1px;
+            }
+            .p10 .nav2 .prev {
+                position: relative;
+                display: block;
+                width: 100%;
+                height: 100%;
+                background-image: url('#{$base-url}/img/tutorial/prev.png');
+                background-repeat: no-repeat;
+                background-size: 100%;
+                border:#3476FB solid thin;
+                color:#3476FB;
+            }
+            .p10 .title2, .p10 .text {
+                text-align: center !important;
+
+            }
+            .p4 .nav2, .p5 .nav2, .p3 .nav2, .p6 .nav2, .p7 .nav2, .p8 .nav2, .p9 .nav2 {
+                right:-11px;
+                top:-1px;
+            }
+            .p2 .nav2 {
+                right:-11px;
+                top:-15px;
+            }
+
+            .p2 .pico, .p4 .pico {
+                float: left;
+                margin-left: 15%;
+                background-image: url('#{$base-url}/img/tutorial/pico.png');
+                background-repeat: no-repeat;
+            }
+            .p3 .pico {
+                float: left;
+                margin-left: 10%;
+                background-image: url('#{$base-url}/img/tutorial/pico2.png');
+                background-repeat: no-repeat;
+            }
+            .p5 .pico, .p7 .pico {
+                float: left;
+                margin-left: 43%;
+                background-image: url('#{$base-url}/img/tutorial/pico.png');
+                background-repeat: no-repeat;
+            }
+            .p6 .pico {
+                float: left;
+                margin-left: 45%;
+                background-image: url('#{$base-url}/img/tutorial/pico2.png');
+                background-repeat: no-repeat;
+
+            }
+            .p8 .pico {
+                float: right;
+                margin-right: 10%;
+                background-image: url('#{$base-url}/img/tutorial/pico2.png');
+                background-repeat: no-repeat;
+            }
+            .p9 .pico {
+                float: right;
+                margin-right: 5%;
+                background-image: url('#{$base-url}/img/tutorial/pico.png');
+                background-repeat: no-repeat;
+            }
+
+            .p2 .section {
+                margin-left: 0;
+            }
+            .p3 .section {
+                  margin-left: 12.5%; 
+            }
+            .p4 .section {
+                margin-left: 25%;
+            }
+            .p5 .section {
+                  margin-left: 37.5%; 
+            }
+            .p6 .section {
+                margin-left: 50%; 
+            }
+            .p7 .section {
+                margin-left: 62.5%; 
+            }
+            .p8 .section {
+                 margin-left: 75%; 
+            }
+            .p9 .section {
+                 margin-left: 87.5%; 
+            }
+
+            .content_box .box {
+                position: relative;
+                float: left;
+                display: inline-block;
+                width: 100%;
+                height: auto;
+                padding-top: 26px;
+                padding-bottom: 28px;
+                margin: 0px;
+                background-color: #fff;
+            }
+            .content_box .box .content {
+                position: relative;
+                display: block;
+                float: none;
+                margin: 0 auto;
+                width:86%;
+                height: auto;
+                font-family: 'Myriad Pro', Arial, helvetica, sans-serif;
+
+            }
+            .content_box .box .content .title {
+                position: relative;
+                font-size: 105px;
+                line-height: 105px;
+                text-align: center;
+                margin-top: 15px;
+            }
+            .content_box .box .content .title2 {
+                position: relative;
+                font-size: 42px;
+                line-height: 47px;
+                text-align: left;
+            }
+            .content_box .box .content .title3 {
+                position: relative;
+                font-size: 23px;
+                line-height: 39px;
+                text-align: left;
+                margin-top: -13px;
+            }
+            .content_box .box .content .text {
+                position: relative;
+                font-size: 21px;
+                line-height: 30px;
+                text-align: center;
+            }
+            .content_box .box .content .text2 {
+                position: relative;
+                font-size: 18px;
+                line-height: 27px;
+                text-align: left;
+                display: block;
+                float: left;
+                width: 100%;
+                height: auto;
+            }
+            .content_box .box .content .text3 {
+                position: relative;
+                font-size: 15px;
+                line-height: 24px;
+                text-align: left;
+                display: block;
+                float: left;
+                width: 100%;
+                height: auto;
+            }
+            .italic {
+                font-style: italic;
+            }
+            .content_box .box .content .line {
+                position: relative;
+                float: left;
+                width: 100%;
+                height: 4px;
+                background-color: #ccc;
+                display: block;
+                margin-top: 5px;
+                margin-bottom: 10px;
+            }
+            .content_box .box .content .line .section {
+                background-color:#F8D432;
+                width: 12.5%;
+                height: 100%;
+                float: left;
+            }
+
+            .blue1 {
+                color: #719FFC
+            }
+            .blue2 {
+                color: #3476FB
+            }
+            .black {
+                color: #333;
+            } 
+            .content_box .pico {
+                position: relative;
+                display: inline-block;
+                margin-bottom: 0px;
+                width: 40px;
+                height: 13px;
+            }
+
+            .content_box .right {
+                float: right;
+                margin-right: 15%;
+            }
+            .content_box .center {
+                float: none;
+                margin-left: auto;
+                margin-right: auto;
+            }
+             .header {
+                position: absolute;
+                float: none;
+                display: block;
+                top: 0px;
+                width: 100%;
+                height: 84px;
+            }
+             .header .logo1 {
+                position: relative;
+                display: inline-block;
+                float: left;
+                width: 30%;
+                height: 100%;
+                background-image: url('../#{$base-url}/img/tutorial/btn/brand3.png');
+                background-repeat: no-repeat;
+            }
+             .header .bar {
+                position: relative;
+                display: inline-block;
+                float: left;
+                width: 70%;
+                height: 100%;
+                background-image: url('../#{$base-url}/img/tutorial/btn/bar.png');
+                background-repeat:repeat;
+            }
+             .header .bar .settings {
+                position: relative;
+                display: inline-block;
+                float: right;
+                width: 80px;
+                height: 100%;
+            }
+             .footer {
+                position: absolute;
+                float: none;
+                display: block;
+                bottom: 0px;
+                width: 100%;
+                height: 46px;
+                background-color: #0579f8;
+            }
+             .footer .btn {
+                position: relative;
+                width: 33.33%;
+                float: left;
+                height: 100%;
+                display: inline-block;
+            }
+             .footer .a1 {
+                background-image: url('#{$base-url}/img/tutorial/btn/radar1.png');
+                background-repeat: no-repeat;
+                background-size-height: 100%;
+                background-position: center;
+            }
+             .footer .a2 {
+                background-image: url('#{$base-url}/img/tutorial/btn/radar2.png');
+                background-repeat: no-repeat;
+                background-size-height: 100%;
+                background-position: center;
+            }
+             .footer .a3 {
+                background-image: url('#{$base-url}/img/tutorial/btn/radar3.png');
+                background-repeat: no-repeat;
+                background-size-height: 100%;
+                background-position: center;
+            }
+             .footer .a4 {
+                background-image: url('#{$base-url}/img/tutorial/btn/radar4.png');
+                background-repeat: no-repeat;
+                background-size-height: 100%;
+                background-position: center;
+            }
+             .footer .a5 {
+                background-image: url('#{$base-url}/img/tutorial/btn/radar5.png');
+                background-repeat: no-repeat;
+                background-size-height: 100%;
+                background-position: center;
+            }
+             .footer .b1 {
+                background-image: url('#{$base-url}/img/tutorial/btn/wavers1.png');
+                background-repeat: no-repeat;
+                background-size-height: 100%;
+                background-position: center;
+            }
+             .footer .b2 {
+                background-image: url('#{$base-url}/img/tutorial/btn/wavers2.png');
+                background-repeat: no-repeat;
+                background-size-height: 100%;
+                background-position: center;
+            }
+             .footer .b3 {
+                background-image: url('#{$base-url}/img/tutorial/btn/wavers3.png');
+                background-repeat: no-repeat;
+                background-size-height: 100%;
+                background-position: center;
+            }
+             .footer .b5 {
+                background-image: url('#{$base-url}/img/tutorial/btn/wavers5.png');
+                background-repeat: no-repeat;
+                background-size-height: 100%;
+                background-position: center;
+            }
+             .footer .c1 {
+                background-image: url('#{$base-url}/img/tutorial/btn/profile1.png');
+                background-repeat: no-repeat;
+                background-size-height: 100%;
+                background-position: center;
+            }
+             .footer .c2 {
+                background-image: url('#{$base-url}/img/tutorial/btn/profile2.png');
+                background-repeat: no-repeat;
+                background-size-height: 100%;
+                background-position: center;
+            }
+             .footer .c3 {
+                background-image: url('#{$base-url}/img/tutorial/btn/profile3.png');
+                background-repeat: no-repeat;
+                background-size-height: 100%;
+                background-position: center;
+            }
+             .footer .c5 {
+                background-image: url('#{$base-url}/img/tutorial/btn/profile5.png');
+                background-repeat: no-repeat;
+                background-size-height: 100%;
+                background-position: center;
+            }
+
+
+            .nav1 {
+                position: relative;
+                display: inline-block;
+                float: none;
+                width: 85%;
+                height: auto;
+                margin: 25px auto 0px;
+            }
+
+            .nav1 .next, .nav1 .exit  {
+                display:inline-block;
+                position: relative;
+                float: left;
+                width: 44%;
+                margin-left: 3%;
+                margin-right: 3%;
+                font-size: 14px;
+                line-height: 31px;
+                text-align: center;
+                font-weight: lighter;
+            }
+            .nav1 .exit {
+                border:#3476FB solid thin;
+                color:#3476FB;
+            }
+            .nav1 .next {
+                background-color: #3476FB;
+                color: #fff;
+            }
+            .nav2 {
+                position: absolute;
+                display: block;
+                width: 32px;
+                height: 32px;
+                z-index: 10;
+            }
+            .nav2 .next {
+                position: relative;
+                display: block;
+                width: 100%;
+                height: 100%;
+                background-image: url('#{$base-url}/img/tutorial/next.png');
+                background-repeat: no-repeat;
+                background-size: 100%;
+            }
+
+            .screen {
+                display: inline-block;
+            /*    max-height:100%;
+                max-width:100%;*/
+                width: 100%;
+                height: auto;
+                overflow: hidden;
+                margin: auto;
+            }
+
+            .navbar-wrp {
+                position: absolute;
+                z-index: 10;
+                bottom: 10px;
+                right: 0;
+                left: 0;
+                text-align: center;
+            }
+            .navbar-wrp #nav { margin: auto; }
+        }
+    }
+
+}

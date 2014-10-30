@@ -1,0 +1,89 @@
+<!--ion-view title="{{ '%config.conf.title' | translate }}"-->
+<ion-modal-view>
+
+    <ion-header-bar class="bar-positive">
+        <h1 class="title" translate>%config.title</h1>
+        <div class="button button-clear" ng-click="modal.hide()">
+            <span class="icon ion-close"></span>
+        </div>
+    </ion-header-bar>
+
+    <ion-content id="settings">
+        <ul class="list">
+
+            <div class="item item-divider" translate>
+                %config.conf.title
+            </div>
+
+            <li class="item item-toggle">
+                <span translate>%config.conf.notifications</span>
+
+                <label class="toggle toggle-calm">
+                    <input type="checkbox">
+                    <div class="track"><div class="handle"></div></div>
+                </label>
+            </li>
+
+            <li class="item item-toggle">
+                <span translate>%config.conf.detector</span>
+
+                <label class="toggle toggle-calm">
+                    <input type="checkbox">
+                    <div class="track"><div class="handle"></div></div>
+                </label>
+            </li>
+
+            <li class="item item-toggle">
+                <span translate>%config.conf.debug_position</span>
+
+                <label class="toggle toggle-calm">
+                    <input type="checkbox">
+                    <div class="track"><div class="handle"></div></div>
+                </label>
+            </li>
+
+
+            <div class="item item-divider" translate>
+                %config.priv.title
+            </div>
+
+            <li class="item item-input item-select" ng-repeat="rule in priv_rules">
+                <span class="input-label" translate>
+                    %config.priv.see_{{rule}}
+                </span>
+
+                <!-- TODO: Make this a modal with descriptions -->
+                <select>
+                    <option value="E" translate>
+                        %privacy_select.E
+                    </option>
+                    <option value="L" translate>
+                        %privacy_select.L
+                    </option>
+                    <option value="N" translate>
+                        %privacy_select.N
+                    </option>
+                </select>
+            </li>
+
+
+            <div class="item item-divider" translate>
+                %config.others.title
+            </div>
+
+            <a class="item item-icon-right" href="https://docs.google.com/forms/d/1AQ73lAHoL0b0ZFxbMe3LDJA6exPxEbfAdmPql8GMEbY/viewform">
+                <span translate> %config.others.give_feedback </span>
+                <i class="icon ion-ios7-arrow-right"></i>
+            </a>
+
+            <a class="item item-icon-right" ng-click="goTutorial()">
+                <span translate> %config.others.view_tutorial </span>
+                <i class="icon ion-ios7-arrow-right"></i>
+            </a>
+        </ul>
+    </ion-content>
+
+</ion-modal-view>
+<!--/ion-view-->
+
+

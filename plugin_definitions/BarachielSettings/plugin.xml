@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
+        id="com.yougrups.barachiel.plugins.BarachielSettings" version="0.2">
+
+    <name>Barachiel Settings Plugin</name>
+    <description>Plugin for Barachiel's native settings</description>
+    <license>Apache 2.0</license>
+    <js-module src="www/BarachielSettings.js" name="BarachielSettings">
+        <clobbers target="BarachielSettings" />
+    </js-module>
+    <platform name="android">
+        <source-file src="src/android/BarachielSettings.java"
+                target-dir="src/com/yougrups/barachiel/plugins/" />
+        <config-file target="config.xml" parent="/*">
+            <feature name="BarachielSettings">
+                <param name="android-package" value="BarachielSettings"/>
+            </feature>
+        </config-file>
+    </platform>
+</plugin>

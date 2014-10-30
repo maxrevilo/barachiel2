@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<testsuites>
+  <testsuite name="PhantomJS 1.9.7 (Mac OS X)" package="unit" timestamp="2014-09-26T20:17:24" id="0" hostname="Olivers-MacBook-Air.local">
+    <properties>
+      <property name="browser.fullName" value="Mozilla/5.0 (Macintosh; Intel Mac OS X) AppleWebKit/534.34 (KHTML, like Gecko) PhantomJS/1.9.7 Safari/534.34"/>
+    </properties>
+  </testsuite>
+  <testsuite name="PhantomJS 1.9.7 (Mac OS X)" package="unit" timestamp="2014-09-26T20:17:24" id="0" hostname="Olivers-MacBook-Air.local" tests="2" errors="0" failures="0" time="0.004">
+    <properties>
+      <property name="browser.fullName" value="Mozilla/5.0 (Macintosh; Intel Mac OS X) AppleWebKit/534.34 (KHTML, like Gecko) PhantomJS/1.9.7 Safari/534.34"/>
+    </properties>
+    <testcase name="pass" time="0.004" classname="unit PhantomJS 1.9.7 (Mac OS X).Always pass"/>
+    <testcase name="should pass" time="0" classname="unit PhantomJS 1.9.7 (Mac OS X).Unit Testing Examples"/>
+    <system-out><![CDATA[
+]]></system-out>
+    <system-err/>
+  </testsuite>
+</testsuites>

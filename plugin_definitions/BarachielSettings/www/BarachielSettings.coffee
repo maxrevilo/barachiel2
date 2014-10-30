@@ -1,0 +1,2 @@
+WavingSettings = () ->
+module.exports = WavingSettings

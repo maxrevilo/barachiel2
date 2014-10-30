@@ -1,0 +1,101 @@
+<ion-view title="{{ '%profile.title' | translate }}">
+
+    <ion-content id="profile-view" class="has-header">
+        <div class="picture">
+            <img src="http://placehold.it/300" />
+        </div>
+
+        <a class="button button-large button-block button-clear button-calm" ui-sref="tab.profile" translate>
+            %profile.change_picture
+        </a>
+        
+        <div class="list">
+            <div class="item item-input ">
+                <input class="name" type="text" placeholder="{{'%profile.form.name' | translate}}"
+                    value="{{profile.name}}"></input>
+            </div>
+
+            <label class="item item-input ">
+                <span class="input-label" translate>
+                    %profile.form.phone
+                </span>
+                <input type="text" placeholder="{{'%profile.form.phone' | translate}}" value="{{profile.phone}}"></input>
+            </label>
+            
+            <label class="item item-input ">
+                <span class="input-label" translate>
+                    %profile.form.email
+                </span>
+                <input type="text" placeholder="{{'%profile.form.email' | translate}}" value="{{profile.email}}"></input>
+            </label>
+
+            <label class="item item-input item-select">
+                <span class="input-label" translate>
+                    %profile.form.sex
+                </span>
+
+                <select>
+                    <option>Urevealed</option>
+                    <option>Male</option>
+                    <option>Female</option>
+                </select>
+            </label>
+
+            <label class="item item-input ">
+                <span class="input-label" translate>
+                    %profile.form.age
+                </span>
+                <input type="text" placeholder="{{'%profile.form.age' | translate}}" value="{{profile.age}}"></input>
+            </label>
+
+            <label class="item item-input item-select">
+                <span class="input-label" translate>
+                    %profile.form.interested
+                </span>
+
+                <select>
+                    <option>Urevealed</option>
+                    <option>Males</option>
+                    <option>Females</option>
+                    <option>Friends</option>
+                </select>
+            </label>
+            
+            <label class="item item-input item-select">
+                <span class="input-label" translate>
+                    %profile.form.sentimental_status
+                </span>
+
+                <select>
+                    <option>Urevealed</option>
+                    <option>Single</option>
+                    <option>Married</option>
+                </select>
+            </label>
+
+            <label class="item item-input ">
+                <span class="input-label" translate>
+                    %profile.form.bio
+                </span>
+                <input type="text" placeholder="{{'%profile.form.bio' | translate}}" value="{{profile.bio}}"></input>
+            </label>
+
+            <!-- Actions -->
+            
+            <a href="#" class="item item-icon-right">
+                <span translate> %profile.form.password </span>
+                <i class="icon ion-ios7-arrow-right"></i>
+            </a>
+
+            <a id="logout_btn" class="item item-icon-right" ng-click="">
+                <span translate>%profile.form.actions.logout</span>
+                <i class="icon ion-log-out"></i>
+            </a>
+
+        </div><!-- class=list -->
+
+        
+
+    </ion-content>
+
+</ion-view>

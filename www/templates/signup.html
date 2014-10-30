@@ -1,0 +1,74 @@
+<ion-view title="{{ '%signup.title' | translate }}">
+    <ion-content>
+
+        <form id="signupForm"  name="forms.signupForm">
+
+            <div class="list">
+                <label class="item item-input item-floating-label">
+                    <span class="input-label" translate>%signup.name</span>
+                    <input type="text"
+                        placeholder="{{ '%signup.name' | translate}}"
+                        ng-model="user.name"
+                        name="uName"
+                        ng-minlength="4"
+                        required>
+
+                    <error class="text-center"
+                            ng-show="showErrors && forms.signupForm.uName.$invalid"
+                            translate>
+                        %global.error.name_too_short
+                    </error>
+                </label>
+                <label class="item item-input item-floating-label">
+                    <span class="input-label" translate>%global.email</span>
+                    <input type="email"
+                        placeholder="{{ '%global.email' | translate }}"
+                        ng-model="user.email"
+                        name="uEmail"
+                        required>
+
+                    <error class="text-center"
+                            ng-show="showErrors && forms.signupForm.uEmail.$invalid"
+                            translate>
+                        %global.error.invalid_email
+                    </error>
+                </label>
+                <label class="item item-input item-floating-label">
+                    <span class="input-label" translate>%global.passwd</span>
+                    <input type="password"
+                        placeholder="{{ '%global.passwd' | translate }}"
+                        ng-model="user.password"
+                        name="uPassword"
+                        ng-minlength="4"
+                        required>
+
+                    <error class="text-center"
+                            ng-show="showErrors && forms.signupForm.uPassword.$invalid"
+                            translate>
+                        %global.error.passwd_too_short
+                    </error>
+                </label>
+            </div>
+
+            <div class="padding">
+
+                <a id="signup" class="button button-block button-large button-clear button-calm"
+                    ng-click="signup(user)"
+                    translate>
+                    %global.enter
+                </a>
+
+                <p class="text-center">
+                    <span translate>%signup.have_acc</span>
+                    <a class="button button-block button-clear button-calm" ui-sref="login" translate>
+                        %signup.login
+                    </a>
+                </p>
+
+                
+            </div>
+
+        </form>
+
+    </ion-content>
+</ion-view>

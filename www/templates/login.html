@@ -1,0 +1,62 @@
+<ion-view title="{{ '%login.title' | translate }}">
+    <ion-content>
+
+        <form id="loginForm" name="forms.loginForm">
+
+            <div class="list">
+                <label class="item item-input item-floating-label">
+                    <span class="input-label" translate>%global.email</span>
+                    <input type="email"
+                        placeholder="{{ '%global.email' | translate }}"
+                        ng-model="user.email"
+                        name="uEmail"
+                        required>
+
+                    <error class="text-center"
+                            ng-show="showErrors && forms.loginForm.uEmail.$invalid"
+                            translate>
+                        %global.error.invalid_email
+                    </error>
+                </label>
+                <label class="item item-input item-floating-label">
+                    <span class="input-label" translate>%global.passwd</span>
+                    <input type="password"
+                        placeholder="{{ '%global.passwd' | translate }}"
+                        ng-model="user.password"
+                        name="uPassword"
+                        ng-minlength="4"
+                        required>
+
+                    <error class="text-center"
+                            ng-show="showErrors && forms.loginForm.uPassword.$invalid"
+                            translate>
+                        %global.error.passwd_too_short
+                    </error>
+                </label>
+            </div>
+
+            <div class="padding">
+
+                <a id="login" class="button button-large button-block button-clear button-calm"
+                        ng-click="login(user)"
+                        translate>
+                    %global.enter
+                </a>
+
+                <p class="text-center">
+                    <a ui-sref="forgot_password" translate>%login.forgot_pw</a>
+                </p>
+
+                <p class="text-center">
+                    <span translate>%login.dont_have_acc</span>
+                    <a class="button button-block button-clear button-calm" ui-sref="signup" translate>
+                        %login.register
+                    </a>
+                </p>
+                
+            </div>
+
+        </form>
+
+    </ion-content>
+</ion-view>
