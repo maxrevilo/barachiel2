@@ -1,5 +1,6 @@
 angular.module("barachiel", [
         "barachiel.config"
+        "ngCordova"
         "ionic"
         "underscore"
         "pascalprecht.translate"

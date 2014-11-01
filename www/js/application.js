@@ -1,4 +1,4 @@
-angular.module("barachiel", ["barachiel.config", "ionic", "underscore", "pascalprecht.translate", "barachiel.util.services", "barachiel.device.services", "barachiel.auth.services", "barachiel.auth.controllers", "barachiel.directives", "barachiel.controllers", "barachiel.services"]).run(function($ionicPlatform, $rootScope, $state, AuthService) {
+angular.module("barachiel", ["barachiel.config", "ngCordova", "ionic", "underscore", "pascalprecht.translate", "barachiel.util.services", "barachiel.device.services", "barachiel.auth.services", "barachiel.auth.controllers", "barachiel.directives", "barachiel.controllers", "barachiel.services"]).run(function($ionicPlatform, $rootScope, $state, AuthService) {
   return $ionicPlatform.ready(function() {
     console.log("Barachiel running on " + window.platform_service_definition.name);
     if (window.cordova && window.cordova.plugins.Keyboard) {
@@ -108,7 +108,7 @@ var config, config_module;
 
 config = {
   APP_NAME: 'Waving',
-  BASE_URL: 'http://barachiel.yougrups.webfactional.com'
+  BASE_URL: 'https://barachiel.herokuapp.com'
 };
 
 config_module = angular.module("barachiel.config", []);
@@ -149,10 +149,10 @@ angular.module("barachiel.controllers", []).controller("TabCtrl", function($scop
   return $scope.exit = function() {
     return $state.go("tab.radar");
   };
-}).controller("RadarCtrl", function($scope, Users, $http, BASE_URL) {
+}).controller("RadarCtrl", function($scope, $ionicPlatform, Users, $http, BASE_URL, $window) {
   $scope.users = Users.all();
   return $scope.doRefresh = function() {
-    $http.get(BASE_URL + '/users/me');
+    $http.get(BASE_URL + '/users/me/');
     return setTimeout((function() {
       $scope.users.unshift({
         name: "Other User"
@@ -166,8 +166,8 @@ angular.module("barachiel.controllers", []).controller("TabCtrl", function($scop
 }).controller("WaverDetailCtrl", function(_, $scope, $stateParams, Wavers) {
   $scope.waver = Wavers.get($stateParams.waverId);
   return $scope.waver.__safe__name = _.escape($scope.waver.name);
-}).controller("ProfileCtrl", function($scope, $stateParams) {
-  return $scope.profile = {
+}).controller("ProfileCtrl", function($scope, $stateParams, $ionicActionSheet, l, User, MediaManipulation) {
+  $scope.profile = {
     'name': 'Oliver Alejandro Perez Camargo',
     'password': 'Password',
     'wave_count': 12,
@@ -178,6 +178,28 @@ angular.module("barachiel.controllers", []).controller("TabCtrl", function($scop
     'interested': 'Interested',
     'sentimental_status': 'Single',
     'bio': null
+  };
+  return $scope.takePicture = function() {
+    return $ionicActionSheet.show({
+      buttons: [
+        {
+          text: l("Photoalbun")
+        }, {
+          text: l("Camera")
+        }
+      ],
+      titleText: l("How to get the image"),
+      cancelText: l("Cancel"),
+      cancel: function() {
+        return true;
+      },
+      buttonClicked: function(index) {
+        MediaManipulation.get_pitcute(index === 1).then((function(imageURI) {
+          return User.change_image(imageURI).then((function(result) {}), (function(err) {}), (function(progress) {}));
+        }), (function(err) {}));
+        return true;
+      }
+    });
   };
 }).controller("UserDetailCtrl", function($scope, $stateParams, Users) {
   var user;
@@ -263,12 +285,21 @@ angular.module("barachiel.services", []).factory("Wavers", function() {
       return users[userId];
     }
   };
+}).factory("User", function(BASE_URL, MediaManipulation) {
+  return {
+    change_image: function(image_uri) {
+      return MediaManipulation.upload_file(BASE_URL + '/multimedia/user/', image_uri).then((function(result) {}), (function(err) {}));
+    }
+  };
 });
 
-angular.module("barachiel.util.services", []).factory("Messenger", function($window) {
+angular.module("barachiel.util.services", []).factory("Messenger", function($window, $ionicPopup, l) {
   return {
     say: function(message) {
-      return $window.alert(message);
+      return $ionicPopup.alert({
+        title: l("alert"),
+        template: message
+      });
     }
   };
 }).factory("Loader", function($ionicLoading) {
@@ -306,6 +337,37 @@ angular.module("barachiel.util.services", []).factory("Messenger", function($win
       return (_(errors).reduce((function(arr, error) {
         return arr.concat(error[0]);
       }), [])).join(', ');
+    }
+  };
+}).factory("l", function(_) {
+  return function(text, args) {
+    return text;
+  };
+}).factory("MediaManipulation", function(_, $window, $cordovaCamera, $cordovaFile) {
+  var Camera;
+  Camera = $window.Camera;
+  return {
+    get_pitcute: function(user_camera) {
+      var options, sourceType;
+      sourceType = user_camera ? Camera.PictureSourceType.CAMERA : Camera.PictureSourceType.PHOTOLIBRARY;
+      options = {
+        'quality': 75,
+        'destinationType': Camera.DestinationType.FILE_URI,
+        'sourceType': sourceType,
+        'allowEdit': true,
+        'encodingType': Camera.EncodingType.JPEG,
+        'targetWidth': 800,
+        'targetHeight': 800,
+        'saveToPhotoAlbum': false
+      };
+      return $cordovaCamera.getPicture(options);
+    },
+    upload_file: function(url, file_uri) {
+      var options;
+      options = {
+        'chunkedMode': true
+      };
+      return $cordovaFile.uploadFile(window.encodeURI(url), file_uri, options);
     }
   };
 });

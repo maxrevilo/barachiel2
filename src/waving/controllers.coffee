@@ -6,8 +6,6 @@ angular.module("barachiel.controllers", [])
         $scope.modal.show() if $scope.modal
         false
 
-
-
     modal_scope = $scope.$new()
     modal_scope.priv_rules = ["name", "picture", "age", "ss", "tel", "email", "bio"]
     modal_scope.goTutorial = ->
@@ -32,11 +30,11 @@ angular.module("barachiel.controllers", [])
     $scope.exit = -> $state.go "tab.radar"
 )
 
-.controller("RadarCtrl", ($scope, Users, $http, BASE_URL) ->
+.controller("RadarCtrl", ($scope, $ionicPlatform, Users, $http, BASE_URL, $window) ->
     $scope.users = Users.all()
 
     $scope.doRefresh = ->
-        $http.get BASE_URL + '/users/me'
+        $http.get BASE_URL + '/users/me/'
         setTimeout (->
             $scope.users.unshift name: "Other User"
             $scope.$broadcast "scroll.refreshComplete"
@@ -54,7 +52,7 @@ angular.module("barachiel.controllers", [])
     # "imgs/avatars/u_anonym.png"
 )
 
-.controller("ProfileCtrl", ($scope, $stateParams) ->
+.controller("ProfileCtrl", ($scope, $stateParams, $ionicActionSheet, l, User, MediaManipulation) ->
     $scope.profile =
         'name': 'Oliver Alejandro Perez Camargo'
         'password': 'Password'
@@ -66,6 +64,29 @@ angular.module("barachiel.controllers", [])
         'interested': 'Interested'
         'sentimental_status': 'Single'
         'bio': null
+
+    $scope.takePicture = ()->
+        $ionicActionSheet.show
+            buttons: [
+                {text: l("Photoalbun")}
+                {text: l("Camera")}
+            ]
+            titleText: l("How to get the image")
+            cancelText: l("Cancel")
+            cancel: -> true
+            buttonClicked: (index) ->
+                MediaManipulation.get_pitcute(index==1)
+                    .then ((imageURI) ->
+                        User.change_image imageURI
+                            .then ((result) ->
+                            ) , ((err) ->
+                            ) , ((progress) ->
+                            )
+                    ), ((err) ->
+                        return
+                    )
+                true
+
 )
 
 .controller("UserDetailCtrl", ($scope, $stateParams, Users) ->

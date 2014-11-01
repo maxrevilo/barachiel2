@@ -6,6 +6,8 @@
   },
   "dependencies": {
     "angular-mocks": "~1.2.25",
-    "angular-http-auth": "~1.2.1"
+    "angular-http-auth": "~1.2.1",
+    "ngCordova": "~0.1.6-alpha",
+    "pace": "~1.0.1"
   }
 }

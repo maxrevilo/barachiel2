@@ -21,12 +21,24 @@ factory "Wavers", ->
     all: -> users
     get: (userId) -> users[userId]
 
+.factory "User", (BASE_URL, MediaManipulation) ->
+    change_image: (image_uri) ->
+        MediaManipulation.upload_file BASE_URL + '/multimedia/user/', image_uri
+            .then ((result) ->
+              # TODO: Set the user image
+            ) , ((err) ->
+              # TODO: Reset the user image
+            )
+
 
 angular.module("barachiel.util.services", [])
 
-.factory "Messenger", ($window) ->
+.factory "Messenger", ($window, $ionicPopup, l) ->
     say: (message) ->
-        $window.alert message
+        $ionicPopup.alert(
+            title: l("alert")
+            template: message
+        )
 
 .factory "Loader", ($ionicLoading) ->
     show: (context) ->
@@ -45,3 +57,30 @@ angular.module("barachiel.util.services", [])
             ), {}
     translateAndSay: (tkey, args) -> $translate(tkey, args).then (msg)-> Messenger.say msg
     parseFormErrors: (errors) -> (_(errors).reduce ((arr, error) -> arr.concat error[0]), []).join(', ')
+
+.factory "l", (_) -> (text, args) -> text
+
+.factory "MediaManipulation", (_, $window, $cordovaCamera, $cordovaFile) ->
+    Camera = $window.Camera
+    get_pitcute: (user_camera)->
+        sourceType =
+            if user_camera
+            then Camera.PictureSourceType.CAMERA
+            else Camera.PictureSourceType.PHOTOLIBRARY
+
+        options =
+            'quality': 75
+            'destinationType': Camera.DestinationType.FILE_URI
+            'sourceType': sourceType
+            'allowEdit': true
+            'encodingType': Camera.EncodingType.JPEG
+            'targetWidth': 800
+            'targetHeight': 800
+            'saveToPhotoAlbum': false
+
+        $cordovaCamera.getPicture(options)
+
+    upload_file: (url, file_uri) ->
+        options =
+            'chunkedMode': true
+        $cordovaFile.uploadFile window.encodeURI(url), file_uri, options

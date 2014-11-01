@@ -5,16 +5,33 @@
     <name>Barachiel Settings Plugin</name>
     <description>Plugin for Barachiel's native settings</description>
     <license>Apache 2.0</license>
+
     <js-module src="www/BarachielSettings.js" name="BarachielSettings">
         <clobbers target="BarachielSettings" />
     </js-module>
+
+    <!-- android -->
     <platform name="android">
-        <source-file src="src/android/BarachielSettings.java"
-                target-dir="src/com/yougrups/barachiel/plugins/" />
-        <config-file target="config.xml" parent="/*">
+        <config-file target="res/xml/config.xml" parent="/*">
             <feature name="BarachielSettings">
-                <param name="android-package" value="BarachielSettings"/>
+                <param name="android-package" value="com.yougrups.barachiel.plugins.BarachielSettings"/>
             </feature>
         </config-file>
+
+        <source-file src="src/android/BarachielSettings.java"
+                target-dir="src/com/yougrups/barachiel/plugins/" />
     </platform>
+
+    <!-- browser -->
+    <!--platform name="browser">
+        <config-file target="config.xml" parent="/*">
+            <feature name="BarachielSettings">
+                <param name="browser-package" value="BarachielSettings" />
+            </feature>
+        </config-file>
+
+        <js-module src="src/browser/BarachielSettingsProxy.js" name="BarachielSettingsProxy">
+            <runs />
+        </js-module>
+    </platform-->
 </plugin>
