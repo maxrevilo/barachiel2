@@ -1,4 +1,4 @@
-angular.module("barachiel", ["barachiel.config", "ngCordova", "ionic", "underscore", "pascalprecht.translate", "barachiel.util.services", "barachiel.device.services", "barachiel.auth.services", "barachiel.auth.controllers", "barachiel.directives", "barachiel.controllers", "barachiel.services"]).run(function($ionicPlatform, $rootScope, $state, AuthService) {
+angular.module("barachiel", ["barachiel.config", "ngCordova", "ngAnimate", "ionic", "underscore", "angular-progress-arc", "pascalprecht.translate", "barachiel.util.services", "barachiel.device.services", "barachiel.auth.services", "barachiel.auth.controllers", "barachiel.directives", "barachiel.controllers", "barachiel.services"]).run(function($ionicPlatform, $rootScope, $state, AuthService) {
   return $ionicPlatform.ready(function() {
     console.log("Barachiel running on " + window.platform_service_definition.name);
     if (window.cordova && window.cordova.plugins.Keyboard) {
@@ -166,7 +166,7 @@ angular.module("barachiel.controllers", []).controller("TabCtrl", function($scop
 }).controller("WaverDetailCtrl", function(_, $scope, $stateParams, Wavers) {
   $scope.waver = Wavers.get($stateParams.waverId);
   return $scope.waver.__safe__name = _.escape($scope.waver.name);
-}).controller("ProfileCtrl", function($scope, $stateParams, $ionicActionSheet, l, User, MediaManipulation) {
+}).controller("ProfileCtrl", function($scope, $stateParams, $ionicActionSheet, l, User, MediaManipulation, $timeout) {
   $scope.profile = {
     'name': 'Oliver Alejandro Perez Camargo',
     'password': 'Password',
@@ -178,6 +178,20 @@ angular.module("barachiel.controllers", []).controller("TabCtrl", function($scop
     'interested': 'Interested',
     'sentimental_status': 'Single',
     'bio': null
+  };
+  $scope.uploadingPicture = {
+    'on': false,
+    'progress': 0,
+    'start': function() {
+      this.on = true;
+      return this.progress = 0;
+    },
+    'stop': function() {
+      return this.on = false;
+    },
+    'set': function(progress) {
+      return this.progress = progress;
+    }
   };
   return $scope.takePicture = function() {
     return $ionicActionSheet.show({
@@ -194,9 +208,26 @@ angular.module("barachiel.controllers", []).controller("TabCtrl", function($scop
         return true;
       },
       buttonClicked: function(index) {
-        MediaManipulation.get_pitcute(index === 1).then((function(imageURI) {
-          return User.change_image(imageURI).then((function(result) {}), (function(err) {}), (function(progress) {}));
-        }), (function(err) {}));
+        MediaManipulation.get_pitcute(index === 1).then(function(imageURI) {
+          $scope.uploadingPicture.start();
+          return User.change_image(imageURI);
+        }).then((function(result) {
+          $scope.uploadingPicture.stop();
+          return console.log("Change Image Success");
+        }), null, (function(progressEvent) {
+          var progress;
+          if (progressEvent.lengthComputable) {
+            progress = progressEvent.loaded / progressEvent.total;
+            console.log("Uploading Progress: " + progress);
+            return $scope.uploadingPicture.progress = progress;
+          } else {
+            console.log("Uploading Progress: Non computable advance.");
+            return $scope.uploadingPicture.progress += 0.05;
+          }
+        }))["catch"]((function(err) {
+          $scope.uploadingPicture.stop();
+          throw new Error("Error changing image " + err);
+        }));
         return true;
       }
     });
@@ -285,10 +316,10 @@ angular.module("barachiel.services", []).factory("Wavers", function() {
       return users[userId];
     }
   };
-}).factory("User", function(BASE_URL, MediaManipulation) {
+}).factory("User", function(BASE_URL, $q, MediaManipulation, $window) {
   return {
     change_image: function(image_uri) {
-      return MediaManipulation.upload_file(BASE_URL + '/multimedia/user/', image_uri).then((function(result) {}), (function(err) {}));
+      return MediaManipulation.upload_file(BASE_URL + '/multimedia/user/', image_uri);
     }
   };
 });
@@ -343,9 +374,11 @@ angular.module("barachiel.util.services", []).factory("Messenger", function($win
   return function(text, args) {
     return text;
   };
-}).factory("MediaManipulation", function(_, $window, $cordovaCamera, $cordovaFile) {
-  var Camera;
+}).factory("MediaManipulation", function(_, $q, $window, $ionicPlatform, $cordovaCamera, $cordovaFile) {
+  var Camera, ImageResizer, imageResizer;
   Camera = $window.Camera;
+  imageResizer = $window.imageResizer;
+  ImageResizer = $window.ImageResizer;
   return {
     get_pitcute: function(user_camera) {
       var options, sourceType;
@@ -367,7 +400,35 @@ angular.module("barachiel.util.services", []).factory("Messenger", function($win
       options = {
         'chunkedMode': true
       };
-      return $cordovaFile.uploadFile(window.encodeURI(url), file_uri, options);
+      return $cordovaFile.uploadFile(url, file_uri, options);
+    },
+    resize_image: function(image_uri, width, height) {
+      var deferred;
+      deferred = $q.defer();
+      $ionicPlatform.ready(function() {
+        return imageResizer.getImageSize((function(size) {
+          console.log("Original image size: " + size.width + "x" + size.height);
+          if (size.width > width || size.height > height) {
+            return imageResizer.resizeImage((function(result) {
+              return deferred.resolve(result.imageData);
+            }), (function(error) {
+              return deferred.reject("Not able to resize image: " + error);
+            }), image_uri, 800, 800, {
+              'imageDataType': ImageResizer.IMAGE_DATA_TYPE_URL,
+              'resizeType': ImageResizer.RESIZE_TYPE_MAX_PIXEL,
+              'format': ImageResizer.FORMAT_JPG,
+              'quality': 100,
+              'pixelDensity': false,
+              'storeImage': false
+            });
+          } else {
+            return deferred.resolve(image_uri);
+          }
+        }), (function(error) {
+          return deferred.reject("Not able to get the image size: " + error);
+        }), image_uri);
+      });
+      return deferred.promise;
     }
   };
 });

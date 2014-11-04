@@ -19,6 +19,7 @@ $dark:        #444 !default;
 */
 
 @import "www/lib/ionic/scss/ionic";
+@import "utils/style";
 @import "auth/style";
 @import "tutorial/tutorial";
 
@@ -119,6 +120,7 @@ yg-user-item, [yg-user-item], .yg-user-item {
 
 #profile-view, #user-detail {
     .picture {
+        position: relative;
         margin-top: 10px;
         text-align: center;
         height: 300px;
@@ -129,6 +131,34 @@ yg-user-item, [yg-user-item], .yg-user-item {
             width: auto;
             font-size: 18px;
             border-radius: 5px;
+        }
+
+        progress-arc {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            margin-top: -100px;
+            margin-left: -100px;
+
+            circle {
+                stroke-linecap: round;
+                @include transition(stroke-dashoffset, 0.2s, ease-out);
+                stroke: $positive;
+            }
+
+            &.ng-enter, &.ng-leave {
+                @include transition(opacity, ease, 0.6s);
+            }
+
+            &.ng-enter,
+            &.ng-leave.ng-leave-active {
+              opacity:0;
+            }
+
+            &.ng-leave,
+            &.ng-enter.ng-enter-active {
+              opacity:1;
+            }
         }
     }
 

@@ -1,8 +1,10 @@
 angular.module("barachiel", [
         "barachiel.config"
         "ngCordova"
+        "ngAnimate"
         "ionic"
         "underscore"
+        "angular-progress-arc"
         "pascalprecht.translate"
         "barachiel.util.services"
         "barachiel.device.services"

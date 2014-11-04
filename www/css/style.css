@@ -8314,6 +8314,7 @@ yg-user-item, [yg-user-item], .yg-user-item {
       color: #f0b840; }
 
 #profile-view .picture, #user-detail .picture {
+  position: relative;
   margin-top: 10px;
   text-align: center;
   height: 300px;
@@ -8323,6 +8324,30 @@ yg-user-item, [yg-user-item], .yg-user-item {
     width: auto;
     font-size: 18px;
     border-radius: 5px; }
+  #profile-view .picture progress-arc, #user-detail .picture progress-arc {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin-top: -100px;
+    margin-left: -100px; }
+    #profile-view .picture progress-arc circle, #user-detail .picture progress-arc circle {
+      stroke-linecap: round;
+      -webkit-transition: stroke-dashoffset 0.2s ease-out;
+      -moz-transition: stroke-dashoffset 0.2s ease-out;
+      -ms-transition: stroke-dashoffset 0.2s ease-out;
+      -o-transition: stroke-dashoffset 0.2s ease-out;
+      transition: stroke-dashoffset 0.2s ease-out;
+      stroke: #0579f8; }
+    #profile-view .picture progress-arc.ng-enter, #profile-view .picture progress-arc.ng-leave, #user-detail .picture progress-arc.ng-enter, #user-detail .picture progress-arc.ng-leave {
+      -webkit-transition: opacity ease 0.6s;
+      -moz-transition: opacity ease 0.6s;
+      -ms-transition: opacity ease 0.6s;
+      -o-transition: opacity ease 0.6s;
+      transition: opacity ease 0.6s; }
+    #profile-view .picture progress-arc.ng-enter, #profile-view .picture progress-arc.ng-leave.ng-leave-active, #user-detail .picture progress-arc.ng-enter, #user-detail .picture progress-arc.ng-leave.ng-leave-active {
+      opacity: 0; }
+    #profile-view .picture progress-arc.ng-leave, #profile-view .picture progress-arc.ng-enter.ng-enter-active, #user-detail .picture progress-arc.ng-leave, #user-detail .picture progress-arc.ng-enter.ng-enter-active {
+      opacity: 1; }
 #profile-view #send_wave_btn, #user-detail #send_wave_btn {
   font-weight: bold; }
 #profile-view .list .item, #user-detail .list .item {

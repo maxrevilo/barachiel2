@@ -3,7 +3,12 @@
     <ion-content id="profile-view" class="has-header">
         <div class="picture">
             <img src="http://placehold.it/300" />
+            <progress-arc
+                ng-if="uploadingPicture.on"
+                complete="uploadingPicture.progress">
+            </progress-arc>
         </div>
+
 
         <a  class="button button-large button-block button-clear button-calm"
             ui-sref="tab.profile"

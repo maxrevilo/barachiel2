@@ -21,14 +21,9 @@ factory "Wavers", ->
     all: -> users
     get: (userId) -> users[userId]
 
-.factory "User", (BASE_URL, MediaManipulation) ->
+.factory "User", (BASE_URL, $q, MediaManipulation, $window) ->
     change_image: (image_uri) ->
         MediaManipulation.upload_file BASE_URL + '/multimedia/user/', image_uri
-            .then ((result) ->
-              # TODO: Set the user image
-            ) , ((err) ->
-              # TODO: Reset the user image
-            )
 
 
 angular.module("barachiel.util.services", [])
@@ -60,8 +55,11 @@ angular.module("barachiel.util.services", [])
 
 .factory "l", (_) -> (text, args) -> text
 
-.factory "MediaManipulation", (_, $window, $cordovaCamera, $cordovaFile) ->
+.factory "MediaManipulation", (_, $q, $window, $ionicPlatform, $cordovaCamera, $cordovaFile) ->
     Camera = $window.Camera
+    imageResizer = $window.imageResizer
+    ImageResizer = $window.ImageResizer
+
     get_pitcute: (user_camera)->
         sourceType =
             if user_camera
@@ -83,4 +81,34 @@ angular.module("barachiel.util.services", [])
     upload_file: (url, file_uri) ->
         options =
             'chunkedMode': true
-        $cordovaFile.uploadFile window.encodeURI(url), file_uri, options
+        $cordovaFile.uploadFile url, file_uri, options
+
+    # Warn: imageResizer crashes in android when getting images from PHOTOLIBRARY.
+    # TODO: Crop functionality is needed
+    resize_image: (image_uri, width, height) ->
+        deferred = $q.defer()
+        $ionicPlatform.ready ->
+            imageResizer.getImageSize ((size)->
+                console.log("Original image size: " + size.width + "x" + size.height)
+
+                if size.width > width || size.height > height
+                    imageResizer.resizeImage (
+                        (result) -> deferred.resolve result.imageData
+                    ), ((error) -> deferred.reject "Not able to resize image: " + error
+                    ), image_uri, 800, 800,
+                        'imageDataType': ImageResizer.IMAGE_DATA_TYPE_URL
+                        'resizeType': ImageResizer.RESIZE_TYPE_MAX_PIXEL
+                        'format': ImageResizer.FORMAT_JPG
+                        'quality': 100
+                        'pixelDensity': false
+                        'storeImage': false
+
+                else
+                    deferred.resolve image_uri
+
+            ), ((error)->
+                deferred.reject "Not able to get the image size: " + error
+            ),
+                image_uri,
+
+        deferred.promise

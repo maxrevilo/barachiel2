@@ -1,0 +1,41 @@
+{
+  "name": "angular-progress-arc",
+  "version": "0.5.0",
+  "authors": [
+    "Mathew Byrne <mathewbyrne@gmail.com>"
+  ],
+  "description": "AngularJS directive for displaying a circular progress meter.",
+  "main": "angular-progress-arc.js",
+  "keywords": [
+    "angularjs",
+    "directive",
+    "progress",
+    "svg"
+  ],
+  "license": "MIT",
+  "homepage": "http://mathewbyrne.github.io/angular-progress-arc/",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests",
+    "example",
+    "bower.json",
+    "package.json",
+    "Gruntfile.js"
+  ],
+  "dependencies": {
+    "angular": ">=1.2.19"
+  },
+  "_release": "0.5.0",
+  "_resolution": {
+    "type": "version",
+    "tag": "0.5.0",
+    "commit": "68e5327f2edc659c872812ca1b6904ed1955ea1c"
+  },
+  "_source": "git://github.com/mathewbyrne/angular-progress-arc.git",
+  "_target": "~0.5.0",
+  "_originalSource": "angular-progress-arc",
+  "_direct": true
+}

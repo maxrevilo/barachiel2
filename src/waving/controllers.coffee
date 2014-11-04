@@ -52,7 +52,7 @@ angular.module("barachiel.controllers", [])
     # "imgs/avatars/u_anonym.png"
 )
 
-.controller("ProfileCtrl", ($scope, $stateParams, $ionicActionSheet, l, User, MediaManipulation) ->
+.controller("ProfileCtrl", ($scope, $stateParams, $ionicActionSheet, l, User, MediaManipulation, $timeout) ->
     $scope.profile =
         'name': 'Oliver Alejandro Perez Camargo'
         'password': 'Password'
@@ -65,6 +65,20 @@ angular.module("barachiel.controllers", [])
         'sentimental_status': 'Single'
         'bio': null
 
+    $scope.uploadingPicture =
+        'on': false, 'progress': 0
+        'start': ->
+            this.on = true
+            this.progress = 0
+        'stop': -> this.on = false
+        'set': (progress)-> this.progress = progress
+        'increment': (inc)-> this.progress += inc || 0.05
+        'finish': ->
+            self = this
+            this.progress = 1
+            $timeout (-> self.stop()), 500
+        'fail': -> this.stop()
+
     $scope.takePicture = ()->
         $ionicActionSheet.show
             buttons: [
@@ -76,14 +90,26 @@ angular.module("barachiel.controllers", [])
             cancel: -> true
             buttonClicked: (index) ->
                 MediaManipulation.get_pitcute(index==1)
-                    .then ((imageURI) ->
+                    .then (imageURI) ->
+                        $scope.uploadingPicture.start()
                         User.change_image imageURI
-                            .then ((result) ->
-                            ) , ((err) ->
-                            ) , ((progress) ->
-                            )
-                    ), ((err) ->
-                        return
+                    .then(
+                        ((result) ->
+                            $scope.uploadingPicture.finish()
+                            console.log "Change Image Success"
+                        ), null
+                        , ((progressEvent) ->
+                            if progressEvent.lengthComputable
+                                progress = progressEvent.loaded / progressEvent.total
+                                console.log "Uploading Progress: " + progress
+                                $scope.uploadingPicture.set progress
+                            else
+                                console.log "Uploading Progress: Non computable advance."
+                                $scope.uploadingPicture.increment()
+                        )
+                    ).catch ((err) ->
+                        $scope.uploadingPicture.fail()
+                        throw new Error "Error changing image " + err
                     )
                 true
 
