@@ -1,8 +1,9 @@
 angular.module("barachiel", [
         "barachiel.config"
         "ngCordova"
-        "ngAnimate"
+        "restangular"
         "ionic"
+        "ngAnimate"
         "underscore"
         "angular-progress-arc"
         "pascalprecht.translate"
@@ -35,7 +36,7 @@ angular.module("barachiel", [
                     event.preventDefault()
                 return
     )
-    .config(($stateProvider, $urlRouterProvider, $translateProvider, $httpProvider) ->
+    .config(($stateProvider, $urlRouterProvider, $translateProvider, $httpProvider, RestangularProvider, BASE_URL) ->
 
         ####### Interceptors ########
         $httpProvider.interceptors.push('authHttpResponseInterceptor');
@@ -119,6 +120,10 @@ angular.module("barachiel", [
 
         # if none of the above states are matched, use this as the fallback
         $urlRouterProvider.otherwise "/tab/radar"
+
+        # RESTANGULAR
+        RestangularProvider.setBaseUrl(BASE_URL);
+        RestangularProvider.setRequestSuffix('/')
 
         ####### Internationalization ########
         $translateProvider

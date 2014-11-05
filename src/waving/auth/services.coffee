@@ -1,10 +1,25 @@
 angular.module("barachiel.auth.services", [])
-.factory "AuthService", ($http, _, utils, $log, StorageService, BASE_URL) ->
-    _is_auth = Boolean StorageService.get 'user'
-    #_is_auth = true
+.factory "AuthService", ($rootScope, $http, $log, _, utils, StorageService, BASE_URL) ->
+    _is_auth = ->
+        if $rootScope.user?
+            yes
+        else
+            raw_ls_user = StorageService.get 'user'
+            if raw_ls_user?
+                $rootScope.user = JSON.parse raw_ls_user
+                yes
+            else
+                no
 
-    set_user = (user) -> StorageService.set 'user', JSON.stringify user
+    _set_user = (user) ->
+        StorageService.set 'user', JSON.stringify user
+        return $rootScope.user = user
 
+    _unset_user = ->
+        $rootScope.user = null
+        StorageService.delete 'user'
+
+    #Service
     Authenticate: (credentials) ->
         $http(
             method: 'POST'
@@ -12,17 +27,12 @@ angular.module("barachiel.auth.services", [])
             data: utils.to_form_params credentials
             headers: 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
         )
-            .success (user, status, headers, config) ->
-                set_user(user)
-                _is_auth = true
-                return user
+            .success (user, status, headers, config) -> _set_user user
             .error (data) -> $log.error "Couldn't Authenticate: " + data
 
-    Logout: () ->
-        StorageService.delete_all()
+    Logout: ->
         $http.get BASE_URL + '/auth/logout/', {}
-            .success () ->
-                _is_auth = false
+            .success -> _unset_user()
             .error (data) -> $log.error "Couldn't Logout: " + data
 
     Signup: (credentials) ->
@@ -32,17 +42,16 @@ angular.module("barachiel.auth.services", [])
             data: utils.to_form_params credentials
             headers: 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
         )
-            .success (user, status, headers, config) ->
-                set_user(user)
-                _is_auth = true
-                return user
+            .success (user, status, headers, config) -> _set_user user
             .error (data) -> $log.error "Couldn't Signup: " + data
 
+    GetUser: -> $rootScope.user
+
     isAuthenticated: (http_check=false) ->
-        if _is_auth and http_check
-            $http.get BASE_URL + '/users/me'
-                .success (user) -> set_user(user)
-        _is_auth
+        if _is_auth() and http_check
+            $http.get BASE_URL + '/users/me/'
+                .success (user) -> _set_user user
+        _is_auth()
 
     state_requires_auth: ($state) -> not angular.isDefined($state.authenticate) or $state.authenticate
 

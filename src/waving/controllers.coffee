@@ -47,36 +47,38 @@ angular.module("barachiel.controllers", [])
 )
 
 .controller("WaverDetailCtrl", (_, $scope, $stateParams, Wavers) ->
-    $scope.waver = Wavers.get($stateParams.waverId)
+    $scope.waver = Wavers.one $stateParams.waverId
     $scope.waver.__safe__name = _.escape $scope.waver.name
     # "imgs/avatars/u_anonym.png"
 )
 
-.controller("ProfileCtrl", ($scope, $stateParams, $ionicActionSheet, l, User, MediaManipulation, $timeout) ->
-    $scope.profile =
-        'name': 'Oliver Alejandro Perez Camargo'
-        'password': 'Password'
-        'wave_count': 12
-        'phone': '+57(301) 477-79-12'
-        'email': 'oliver.a.perez.c@gmail.com'
-        'sex': 'Hombre'
-        'age': 32
-        'interested': 'Interested'
-        'sentimental_status': 'Single'
-        'bio': null
+.controller("ProfileCtrl", ($scope, $stateParams, $ionicActionSheet, l, Users, MediaManipulation, $timeout) ->
+    userPromise = Users.me true
+    $scope.profile = userPromise.$object
+
+    # $scope.profile =
+    #     'name': 'Oliver Alejandro Perez Camargo'
+    #     'password': 'Password'
+    #     'wave_count': 12
+    #     'phone': '+57(301) 477-79-12'
+    #     'email': 'oliver.a.perez.c@gmail.com'
+    #     'sex': 'Hombre'
+    #     'age': 32
+    #     'interested': 'Interested'
+    #     'sentimental_status': 'Single'
+    #     'bio': null
 
     $scope.uploadingPicture =
         'on': false, 'progress': 0
         'start': ->
-            this.on = true
-            this.progress = 0
-        'stop': -> this.on = false
-        'set': (progress)-> this.progress = progress
-        'increment': (inc)-> this.progress += inc || 0.05
+            @on = true
+            @progress = 0
+        'stop': -> @on = false
+        'set': (progress)-> @progress = progress
+        'increment': (inc)-> @progress += inc || 0.05
         'finish': ->
-            self = this
-            this.progress = 1
-            $timeout (-> self.stop()), 500
+            @progress = 1
+            $timeout (=> @stop()), 500
         'fail': -> this.stop()
 
     $scope.takePicture = ()->
@@ -92,7 +94,7 @@ angular.module("barachiel.controllers", [])
                 MediaManipulation.get_pitcute(index==1)
                     .then (imageURI) ->
                         $scope.uploadingPicture.start()
-                        User.change_image imageURI
+                        userPromise.then (user) -> user.change_image imageURI
                     .then(
                         ((result) ->
                             $scope.uploadingPicture.finish()
@@ -116,16 +118,16 @@ angular.module("barachiel.controllers", [])
 )
 
 .controller("UserDetailCtrl", ($scope, $stateParams, Users) ->
-    user = Users.get($stateParams.userId)
-    $scope.user =
-        'name': user.name
-        'password': 'Password'
-        'wave_count': 12
-        'phone': '+57(301) 477-79-12'
-        'email': 'oliver.a.perez.c@gmail.com'
-        'sex_str': 'Hombre'
-        'age': 32
-        'interested_str': 'Interested'
-        'sentimental_status_str': 'Single'
-        'bio': null
+    userPromise = Users.get $stateParams.userId
+    $scope.user = userPromise.$object
+        # 'name': user.name
+        # 'password': 'Password'
+        # 'wave_count': 12
+        # 'phone': '+57(301) 477-79-12'
+        # 'email': 'oliver.a.perez.c@gmail.com'
+        # 'sex_str': 'Hombre'
+        # 'age': 32
+        # 'interested_str': 'Interested'
+        # 'sentimental_status_str': 'Single'
+        # 'bio': null
 )

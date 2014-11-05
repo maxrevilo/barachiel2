@@ -1,4 +1,4 @@
-angular.module("barachiel", ["barachiel.config", "ngCordova", "ngAnimate", "ionic", "underscore", "angular-progress-arc", "pascalprecht.translate", "barachiel.util.services", "barachiel.device.services", "barachiel.auth.services", "barachiel.auth.controllers", "barachiel.directives", "barachiel.controllers", "barachiel.services"]).run(function($ionicPlatform, $rootScope, $state, AuthService) {
+angular.module("barachiel", ["barachiel.config", "ngCordova", "restangular", "ionic", "ngAnimate", "underscore", "angular-progress-arc", "pascalprecht.translate", "barachiel.util.services", "barachiel.device.services", "barachiel.auth.services", "barachiel.auth.controllers", "barachiel.directives", "barachiel.controllers", "barachiel.services"]).run(function($ionicPlatform, $rootScope, $state, AuthService) {
   return $ionicPlatform.ready(function() {
     console.log("Barachiel running on " + window.platform_service_definition.name);
     if (window.cordova && window.cordova.plugins.Keyboard) {
@@ -17,7 +17,7 @@ angular.module("barachiel", ["barachiel.config", "ngCordova", "ngAnimate", "ioni
       }
     });
   });
-}).config(function($stateProvider, $urlRouterProvider, $translateProvider, $httpProvider) {
+}).config(function($stateProvider, $urlRouterProvider, $translateProvider, $httpProvider, RestangularProvider, BASE_URL) {
   $httpProvider.interceptors.push('authHttpResponseInterceptor');
   $stateProvider.state("login", {
     url: "/login",
@@ -94,6 +94,8 @@ angular.module("barachiel", ["barachiel.config", "ngCordova", "ngAnimate", "ioni
     }
   });
   $urlRouterProvider.otherwise("/tab/radar");
+  RestangularProvider.setBaseUrl(BASE_URL);
+  RestangularProvider.setRequestSuffix('/');
   return $translateProvider.useStaticFilesLoader({
     prefix: '/localizations/',
     suffix: '.json'
@@ -164,21 +166,12 @@ angular.module("barachiel.controllers", []).controller("TabCtrl", function($scop
 }).controller("WaversCtrl", function($scope, Wavers) {
   return $scope.wavers = Wavers.all();
 }).controller("WaverDetailCtrl", function(_, $scope, $stateParams, Wavers) {
-  $scope.waver = Wavers.get($stateParams.waverId);
+  $scope.waver = Wavers.one($stateParams.waverId);
   return $scope.waver.__safe__name = _.escape($scope.waver.name);
-}).controller("ProfileCtrl", function($scope, $stateParams, $ionicActionSheet, l, User, MediaManipulation, $timeout) {
-  $scope.profile = {
-    'name': 'Oliver Alejandro Perez Camargo',
-    'password': 'Password',
-    'wave_count': 12,
-    'phone': '+57(301) 477-79-12',
-    'email': 'oliver.a.perez.c@gmail.com',
-    'sex': 'Hombre',
-    'age': 32,
-    'interested': 'Interested',
-    'sentimental_status': 'Single',
-    'bio': null
-  };
+}).controller("ProfileCtrl", function($scope, $stateParams, $ionicActionSheet, l, Users, MediaManipulation, $timeout) {
+  var userPromise;
+  userPromise = Users.me(true);
+  $scope.profile = userPromise.$object;
   $scope.uploadingPicture = {
     'on': false,
     'progress': 0,
@@ -191,6 +184,20 @@ angular.module("barachiel.controllers", []).controller("TabCtrl", function($scop
     },
     'set': function(progress) {
       return this.progress = progress;
+    },
+    'increment': function(inc) {
+      return this.progress += inc || 0.05;
+    },
+    'finish': function() {
+      this.progress = 1;
+      return $timeout(((function(_this) {
+        return function() {
+          return _this.stop();
+        };
+      })(this)), 500);
+    },
+    'fail': function() {
+      return this.stop();
     }
   };
   return $scope.takePicture = function() {
@@ -210,22 +217,24 @@ angular.module("barachiel.controllers", []).controller("TabCtrl", function($scop
       buttonClicked: function(index) {
         MediaManipulation.get_pitcute(index === 1).then(function(imageURI) {
           $scope.uploadingPicture.start();
-          return User.change_image(imageURI);
+          return userPromise.then(function(user) {
+            return user.change_image(imageURI);
+          });
         }).then((function(result) {
-          $scope.uploadingPicture.stop();
+          $scope.uploadingPicture.finish();
           return console.log("Change Image Success");
         }), null, (function(progressEvent) {
           var progress;
           if (progressEvent.lengthComputable) {
             progress = progressEvent.loaded / progressEvent.total;
             console.log("Uploading Progress: " + progress);
-            return $scope.uploadingPicture.progress = progress;
+            return $scope.uploadingPicture.set(progress);
           } else {
             console.log("Uploading Progress: Non computable advance.");
-            return $scope.uploadingPicture.progress += 0.05;
+            return $scope.uploadingPicture.increment();
           }
         }))["catch"]((function(err) {
-          $scope.uploadingPicture.stop();
+          $scope.uploadingPicture.fail();
           throw new Error("Error changing image " + err);
         }));
         return true;
@@ -233,20 +242,9 @@ angular.module("barachiel.controllers", []).controller("TabCtrl", function($scop
     });
   };
 }).controller("UserDetailCtrl", function($scope, $stateParams, Users) {
-  var user;
-  user = Users.get($stateParams.userId);
-  return $scope.user = {
-    'name': user.name,
-    'password': 'Password',
-    'wave_count': 12,
-    'phone': '+57(301) 477-79-12',
-    'email': 'oliver.a.perez.c@gmail.com',
-    'sex_str': 'Hombre',
-    'age': 32,
-    'interested_str': 'Interested',
-    'sentimental_status_str': 'Single',
-    'bio': null
-  };
+  var userPromise;
+  userPromise = Users.get($stateParams.userId);
+  return $scope.user = userPromise.$object;
 });
 
 angular.module("barachiel.directives", []).directive('ygUserItem', function() {
@@ -291,37 +289,57 @@ angular.module("barachiel.services", []).factory("Wavers", function() {
       return wavers[waverId];
     }
   };
-}).factory("Users", function() {
-  var users;
-  users = [
-    {
-      id: 0,
-      name: 'Scruff McGruff'
-    }, {
-      id: 1,
-      name: 'G.I. Joe'
-    }, {
-      id: 2,
-      name: 'Miss Frizzle'
-    }, {
-      id: 3,
-      name: 'Ash Ketchum'
-    }
-  ];
-  return {
-    all: function() {
-      return users;
-    },
-    get: function(userId) {
-      return users[userId];
-    }
+}).factory("Users", function(BASE_URL, _, $q, Restangular, AuthService, MediaManipulation) {
+  var Users;
+  Users = Restangular.service('users');
+  Users.all = function() {
+    return this.getList();
   };
-}).factory("User", function(BASE_URL, $q, MediaManipulation, $window) {
-  return {
-    change_image: function(image_uri) {
+  Users.get = function(id) {
+    return this.one(id).get();
+  };
+  Users.me = function(force_request) {
+    var $object, forced_promise, promise, userData;
+    promise = null;
+    $object = {};
+    if (this._me != null) {
+      promise = $q.when(this._me);
+    } else {
+      userData = AuthService.GetUser();
+      if (userData != null) {
+        promise = $q.when(this.set_me(userData));
+      } else {
+        force_request = true;
+      }
+    }
+    if (force_request) {
+      forced_promise = this.get('me');
+      forced_promise.then((function(_this) {
+        return function(user) {
+          return _this.set_me(user);
+        };
+      })(this));
+      $object = forced_promise.$object;
+      if (promise == null) {
+        promise = forced_promise;
+      }
+    }
+    if (this._me != null) {
+      _($object).defaults(this._me);
+    }
+    promise.$object = $object;
+    return promise;
+  };
+  Users.set_me = function(rawUserJSON) {
+    return this._me = Restangular.restangularizeElement('', rawUserJSON, 'users/me/', {});
+  };
+  Restangular.extendModel("users", function(user) {
+    user.change_image = function(image_uri) {
       return MediaManipulation.upload_file(BASE_URL + '/multimedia/user/', image_uri);
-    }
-  };
+    };
+    return user;
+  });
+  return Users;
 });
 
 angular.module("barachiel.util.services", []).factory("Messenger", function($window, $ionicPopup, l) {
@@ -375,25 +393,33 @@ angular.module("barachiel.util.services", []).factory("Messenger", function($win
     return text;
   };
 }).factory("MediaManipulation", function(_, $q, $window, $ionicPlatform, $cordovaCamera, $cordovaFile) {
-  var Camera, ImageResizer, imageResizer;
-  Camera = $window.Camera;
-  imageResizer = $window.imageResizer;
-  ImageResizer = $window.ImageResizer;
   return {
     get_pitcute: function(user_camera) {
-      var options, sourceType;
-      sourceType = user_camera ? Camera.PictureSourceType.CAMERA : Camera.PictureSourceType.PHOTOLIBRARY;
-      options = {
-        'quality': 75,
-        'destinationType': Camera.DestinationType.FILE_URI,
-        'sourceType': sourceType,
-        'allowEdit': true,
-        'encodingType': Camera.EncodingType.JPEG,
-        'targetWidth': 800,
-        'targetHeight': 800,
-        'saveToPhotoAlbum': false
-      };
-      return $cordovaCamera.getPicture(options);
+      var deferred;
+      deferred = $q.defer();
+      $ionicPlatform.ready(function() {
+        var Camera, options, sourceType;
+        Camera = $window.Camera;
+        sourceType = user_camera ? Camera.PictureSourceType.CAMERA : Camera.PictureSourceType.PHOTOLIBRARY;
+        options = {
+          'quality': 75,
+          'destinationType': Camera.DestinationType.FILE_URI,
+          'sourceType': sourceType,
+          'allowEdit': true,
+          'encodingType': Camera.EncodingType.JPEG,
+          'targetWidth': 800,
+          'targetHeight': 800,
+          'saveToPhotoAlbum': false
+        };
+        return $cordovaCamera.getPicture(options).then((function(arg) {
+          return deferred.resolve(arg);
+        }), (function(arg) {
+          return deferred.reject(arg);
+        }), (function(arg) {
+          return deferred.notify(arg);
+        }));
+      });
+      return deferred.promise;
     },
     upload_file: function(url, file_uri) {
       var options;
@@ -406,6 +432,9 @@ angular.module("barachiel.util.services", []).factory("Messenger", function($win
       var deferred;
       deferred = $q.defer();
       $ionicPlatform.ready(function() {
+        var ImageResizer, imageResizer;
+        imageResizer = $window.imageResizer;
+        ImageResizer = $window.ImageResizer;
         return imageResizer.getImageSize((function(size) {
           console.log("Original image size: " + size.width + "x" + size.height);
           if (size.width > width || size.height > height) {
@@ -498,11 +527,29 @@ angular.module("barachiel.auth.controllers", []).controller("SignupCtrl", functi
   };
 });
 
-angular.module("barachiel.auth.services", []).factory("AuthService", function($http, _, utils, $log, StorageService, BASE_URL) {
-  var set_user, _is_auth;
-  _is_auth = Boolean(StorageService.get('user'));
-  set_user = function(user) {
-    return StorageService.set('user', JSON.stringify(user));
+angular.module("barachiel.auth.services", []).factory("AuthService", function($rootScope, $http, $log, _, utils, StorageService, BASE_URL) {
+  var _is_auth, _set_user, _unset_user;
+  _is_auth = function() {
+    var raw_ls_user;
+    if ($rootScope.user != null) {
+      return true;
+    } else {
+      raw_ls_user = StorageService.get('user');
+      if (raw_ls_user != null) {
+        $rootScope.user = JSON.parse(raw_ls_user);
+        return true;
+      } else {
+        return false;
+      }
+    }
+  };
+  _set_user = function(user) {
+    StorageService.set('user', JSON.stringify(user));
+    return $rootScope.user = user;
+  };
+  _unset_user = function() {
+    $rootScope.user = null;
+    return StorageService["delete"]('user');
   };
   return {
     Authenticate: function(credentials) {
@@ -514,17 +561,14 @@ angular.module("barachiel.auth.services", []).factory("AuthService", function($h
           'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
         }
       }).success(function(user, status, headers, config) {
-        set_user(user);
-        _is_auth = true;
-        return user;
+        return _set_user(user);
       }).error(function(data) {
         return $log.error("Couldn't Authenticate: " + data);
       });
     },
     Logout: function() {
-      StorageService.delete_all();
       return $http.get(BASE_URL + '/auth/logout/', {}).success(function() {
-        return _is_auth = false;
+        return _unset_user();
       }).error(function(data) {
         return $log.error("Couldn't Logout: " + data);
       });
@@ -538,23 +582,24 @@ angular.module("barachiel.auth.services", []).factory("AuthService", function($h
           'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
         }
       }).success(function(user, status, headers, config) {
-        set_user(user);
-        _is_auth = true;
-        return user;
+        return _set_user(user);
       }).error(function(data) {
         return $log.error("Couldn't Signup: " + data);
       });
+    },
+    GetUser: function() {
+      return $rootScope.user;
     },
     isAuthenticated: function(http_check) {
       if (http_check == null) {
         http_check = false;
       }
-      if (_is_auth && http_check) {
-        $http.get(BASE_URL + '/users/me').success(function(user) {
-          return set_user(user);
+      if (_is_auth() && http_check) {
+        $http.get(BASE_URL + '/users/me/').success(function(user) {
+          return _set_user(user);
         });
       }
-      return _is_auth;
+      return _is_auth();
     },
     state_requires_auth: function($state) {
       return !angular.isDefined($state.authenticate) || $state.authenticate;

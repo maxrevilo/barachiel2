@@ -10,20 +10,50 @@ factory "Wavers", ->
     all: -> wavers
     get: (waverId) -> wavers[waverId]
 
-.factory "Users", ->
-    users = [
-        { id: 0, name: 'Scruff McGruff' },
-        { id: 1, name: 'G.I. Joe' },
-        { id: 2, name: 'Miss Frizzle' },
-        { id: 3, name: 'Ash Ketchum' }
-    ]
+.factory "Users", (BASE_URL, _, $q, Restangular, AuthService, MediaManipulation) ->
+    #Le Service
+    Users = Restangular.service 'users'
 
-    all: -> users
-    get: (userId) -> users[userId]
+    # Model Manager Methods
+    Users.all = -> @getList()
+    Users.get = (id)-> @one(id).get()
+    Users.me = (force_request)->
+        promise = null
+        $object = {}
+        if @_me?
+            promise = $q.when @_me
+        else
+            userData = AuthService.GetUser()
+            if userData?
+                promise = $q.when @set_me(userData)
+            else
+                # If the user is not stored locally then we have to force the request
+                # to the server, we call this method again with force_request true
+                force_request = true
 
-.factory "User", (BASE_URL, $q, MediaManipulation, $window) ->
-    change_image: (image_uri) ->
-        MediaManipulation.upload_file BASE_URL + '/multimedia/user/', image_uri
+        if force_request
+            # Forcing a request to the server
+            forced_promise = @get 'me'
+            # When successful set the local _me property for future calls
+            forced_promise.then (user) => @set_me(user)
+            # Return the original promise (it's enhanced by Restangular)
+            $object = forced_promise.$object
+            promise = forced_promise if not promise?
+
+        if @_me?
+            _($object).defaults @_me
+        promise.$object = $object
+        promise
+
+    Users.set_me = (rawUserJSON) -> @_me = Restangular.restangularizeElement '', rawUserJSON, 'users/me/', {}
+    
+    # Model Methods
+    Restangular.extendModel "users", (user) ->
+        user.change_image = (image_uri) ->
+            MediaManipulation.upload_file BASE_URL + '/multimedia/user/', image_uri
+        user
+
+    Users
 
 
 angular.module("barachiel.util.services", [])
@@ -56,27 +86,32 @@ angular.module("barachiel.util.services", [])
 .factory "l", (_) -> (text, args) -> text
 
 .factory "MediaManipulation", (_, $q, $window, $ionicPlatform, $cordovaCamera, $cordovaFile) ->
-    Camera = $window.Camera
-    imageResizer = $window.imageResizer
-    ImageResizer = $window.ImageResizer
-
     get_pitcute: (user_camera)->
-        sourceType =
-            if user_camera
-            then Camera.PictureSourceType.CAMERA
-            else Camera.PictureSourceType.PHOTOLIBRARY
+        deferred = $q.defer()
+        $ionicPlatform.ready ->
+            Camera = $window.Camera
+            sourceType =
+                if user_camera
+                then Camera.PictureSourceType.CAMERA
+                else Camera.PictureSourceType.PHOTOLIBRARY
 
-        options =
-            'quality': 75
-            'destinationType': Camera.DestinationType.FILE_URI
-            'sourceType': sourceType
-            'allowEdit': true
-            'encodingType': Camera.EncodingType.JPEG
-            'targetWidth': 800
-            'targetHeight': 800
-            'saveToPhotoAlbum': false
+            options =
+                'quality': 75
+                'destinationType': Camera.DestinationType.FILE_URI
+                'sourceType': sourceType
+                'allowEdit': true
+                'encodingType': Camera.EncodingType.JPEG
+                'targetWidth': 800
+                'targetHeight': 800
+                'saveToPhotoAlbum': false
 
-        $cordovaCamera.getPicture(options)
+            $cordovaCamera.getPicture(options).then(
+                ((arg)-> deferred.resolve arg),
+                ((arg)-> deferred.reject arg),
+                ((arg)-> deferred.notify arg),
+            )
+
+        deferred.promise
 
     upload_file: (url, file_uri) ->
         options =
@@ -88,6 +123,9 @@ angular.module("barachiel.util.services", [])
     resize_image: (image_uri, width, height) ->
         deferred = $q.defer()
         $ionicPlatform.ready ->
+            imageResizer = $window.imageResizer
+            ImageResizer = $window.ImageResizer
+
             imageResizer.getImageSize ((size)->
                 console.log("Original image size: " + size.width + "x" + size.height)
 
