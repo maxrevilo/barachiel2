@@ -8220,6 +8220,9 @@ body, input {
   font-family: main_font;
   font-size: 16px; }
 
+img {
+  background-color: #f8f8f8; }
+
 h1, h2, h3, h4, h5, h6 {
   font-family: main_font; }
 
@@ -8321,9 +8324,12 @@ yg-user-item, [yg-user-item], .yg-user-item {
   overflow: hidden; }
   #profile-view .picture img, #user-detail .picture img {
     height: 100%;
-    width: auto;
+    width: 100%;
+    max-width: 300px;
     font-size: 18px;
     border-radius: 5px; }
+    #profile-view .picture img.loading, #user-detail .picture img.loading {
+      opacity: 0.6; }
   #profile-view .picture progress-arc, #user-detail .picture progress-arc {
     position: absolute;
     top: 50%;

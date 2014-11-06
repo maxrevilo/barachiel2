@@ -52,34 +52,30 @@ angular.module("barachiel.controllers", [])
     # "imgs/avatars/u_anonym.png"
 )
 
-.controller("ProfileCtrl", ($scope, $stateParams, $ionicActionSheet, l, Users, MediaManipulation, $timeout) ->
-    userPromise = Users.me true
-    $scope.profile = userPromise.$object
+.controller("ProfileCtrl", ($rootScope, $scope, $stateParams,
+        $ionicActionSheet, l, Users,MediaManipulation, $timeout) ->
 
-    # $scope.profile =
-    #     'name': 'Oliver Alejandro Perez Camargo'
-    #     'password': 'Password'
-    #     'wave_count': 12
-    #     'phone': '+57(301) 477-79-12'
-    #     'email': 'oliver.a.perez.c@gmail.com'
-    #     'sex': 'Hombre'
-    #     'age': 32
-    #     'interested': 'Interested'
-    #     'sentimental_status': 'Single'
-    #     'bio': null
+    user = Users.me true
+    $scope.profile = user
 
-    $scope.uploadingPicture =
-        'on': false, 'progress': 0
-        'start': ->
-            @on = true
-            @progress = 0
-        'stop': -> @on = false
-        'set': (progress)-> @progress = progress
-        'increment': (inc)-> @progress += inc || 0.05
-        'finish': ->
-            @progress = 1
-            $timeout (=> @stop()), 500
-        'fail': -> this.stop()
+    if not $rootScope.uploadingPicture?
+        $rootScope.uploadingPicture =
+            'on': false, 'progress': 0, 'image': null,
+            'start': (image)->
+                @image = image
+                @on = true
+                @progress = 0
+            'stop': ->
+                @image = null
+                @on = false
+            'set': (progress)-> @progress = progress
+            'increment': (inc)-> @progress += inc || 0.05
+            'finish': ->
+                @progress = 1
+                $timeout (=> @stop()), 500
+            'fail': -> this.stop()
+
+    $scope.uploadingPicture = $rootScope.uploadingPicture
 
     $scope.takePicture = ()->
         $ionicActionSheet.show
@@ -93,8 +89,8 @@ angular.module("barachiel.controllers", [])
             buttonClicked: (index) ->
                 MediaManipulation.get_pitcute(index==1)
                     .then (imageURI) ->
-                        $scope.uploadingPicture.start()
-                        userPromise.then (user) -> user.change_image imageURI
+                        $scope.uploadingPicture.start imageURI
+                        user.change_image imageURI
                     .then(
                         ((result) ->
                             $scope.uploadingPicture.finish()
@@ -114,20 +110,9 @@ angular.module("barachiel.controllers", [])
                         throw new Error "Error changing image " + err
                     )
                 true
-
 )
 
 .controller("UserDetailCtrl", ($scope, $stateParams, Users) ->
     userPromise = Users.get $stateParams.userId
     $scope.user = userPromise.$object
-        # 'name': user.name
-        # 'password': 'Password'
-        # 'wave_count': 12
-        # 'phone': '+57(301) 477-79-12'
-        # 'email': 'oliver.a.perez.c@gmail.com'
-        # 'sex_str': 'Hombre'
-        # 'age': 32
-        # 'interested_str': 'Interested'
-        # 'sentimental_status_str': 'Single'
-        # 'bio': null
 )

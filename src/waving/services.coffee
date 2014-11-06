@@ -10,7 +10,7 @@ factory "Wavers", ->
     all: -> wavers
     get: (waverId) -> wavers[waverId]
 
-.factory "Users", (BASE_URL, _, $q, Restangular, AuthService, MediaManipulation) ->
+.factory "Users", (BASE_URL, _, $q, l, Restangular, AuthService, MediaManipulation, $timeout) ->
     #Le Service
     Users = Restangular.service 'users'
 
@@ -19,38 +19,30 @@ factory "Wavers", ->
     Users.get = (id)-> @one(id).get()
     Users.me = (force_request)->
         promise = null
-        $object = {}
-        if @_me?
-            promise = $q.when @_me
-        else
+        if not @_me?
             userData = AuthService.GetUser()
             if userData?
-                promise = $q.when @set_me(userData)
+                @set_me(userData)
             else
-                # If the user is not stored locally then we have to force the request
-                # to the server, we call this method again with force_request true
-                force_request = true
-
+                throw new Error("Local user not found")
         if force_request
             # Forcing a request to the server
-            forced_promise = @get 'me'
-            # When successful set the local _me property for future calls
-            forced_promise.then (user) => @set_me(user)
-            # Return the original promise (it's enhanced by Restangular)
-            $object = forced_promise.$object
-            promise = forced_promise if not promise?
+            @_me.get()
+        return @_me
 
-        if @_me?
-            _($object).defaults @_me
-        promise.$object = $object
-        promise
-
-    Users.set_me = (rawUserJSON) -> @_me = Restangular.restangularizeElement '', rawUserJSON, 'users/me/', {}
+    Users.set_me = (rawUserJSON) -> @_me = Restangular.restangularizeElement '', rawUserJSON, 'users', {}
     
     # Model Methods
     Restangular.extendModel "users", (user) ->
         user.change_image = (image_uri) ->
             MediaManipulation.upload_file BASE_URL + '/multimedia/user/', image_uri
+            .then(
+                ((result)=>
+                    @picture = JSON.parse result.response
+                ),
+                ((error)=> error),
+            )
+
         user
 
     Users

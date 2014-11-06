@@ -33,6 +33,10 @@ body, input {
     font-size: 16px;
 }
 
+img {
+    background-color: $stable;
+}
+
 h1, h2, h3, h4, h5, h6 { font-family: main_font; }
 
 @mixin tab-icon($icon_name) {
@@ -128,9 +132,12 @@ yg-user-item, [yg-user-item], .yg-user-item {
 
         img {
             height: 100%;
-            width: auto;
+            width: 100%;
+            max-width: 300px;
             font-size: 18px;
             border-radius: 5px;
+
+            &.loading { opacity: 0.6; }
         }
 
         progress-arc {

@@ -2,7 +2,10 @@
 
     <ion-content id="profile-view" class="has-header">
         <div class="picture">
-            <img src="http://placehold.it/300" />
+            <img
+                ng-class="{loading: uploadingPicture.on}"
+                ng-src="{{ uploadingPicture.image || profile.picture.xBig }}"
+                />
             <progress-arc
                 ng-if="uploadingPicture.on"
                 complete="uploadingPicture.progress">

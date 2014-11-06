@@ -168,38 +168,44 @@ angular.module("barachiel.controllers", []).controller("TabCtrl", function($scop
 }).controller("WaverDetailCtrl", function(_, $scope, $stateParams, Wavers) {
   $scope.waver = Wavers.one($stateParams.waverId);
   return $scope.waver.__safe__name = _.escape($scope.waver.name);
-}).controller("ProfileCtrl", function($scope, $stateParams, $ionicActionSheet, l, Users, MediaManipulation, $timeout) {
-  var userPromise;
-  userPromise = Users.me(true);
-  $scope.profile = userPromise.$object;
-  $scope.uploadingPicture = {
-    'on': false,
-    'progress': 0,
-    'start': function() {
-      this.on = true;
-      return this.progress = 0;
-    },
-    'stop': function() {
-      return this.on = false;
-    },
-    'set': function(progress) {
-      return this.progress = progress;
-    },
-    'increment': function(inc) {
-      return this.progress += inc || 0.05;
-    },
-    'finish': function() {
-      this.progress = 1;
-      return $timeout(((function(_this) {
-        return function() {
-          return _this.stop();
-        };
-      })(this)), 500);
-    },
-    'fail': function() {
-      return this.stop();
-    }
-  };
+}).controller("ProfileCtrl", function($rootScope, $scope, $stateParams, $ionicActionSheet, l, Users, MediaManipulation, $timeout) {
+  var user;
+  user = Users.me(true);
+  $scope.profile = user;
+  if ($rootScope.uploadingPicture == null) {
+    $rootScope.uploadingPicture = {
+      'on': false,
+      'progress': 0,
+      'image': null,
+      'start': function(image) {
+        this.image = image;
+        this.on = true;
+        return this.progress = 0;
+      },
+      'stop': function() {
+        this.image = null;
+        return this.on = false;
+      },
+      'set': function(progress) {
+        return this.progress = progress;
+      },
+      'increment': function(inc) {
+        return this.progress += inc || 0.05;
+      },
+      'finish': function() {
+        this.progress = 1;
+        return $timeout(((function(_this) {
+          return function() {
+            return _this.stop();
+          };
+        })(this)), 500);
+      },
+      'fail': function() {
+        return this.stop();
+      }
+    };
+  }
+  $scope.uploadingPicture = $rootScope.uploadingPicture;
   return $scope.takePicture = function() {
     return $ionicActionSheet.show({
       buttons: [
@@ -216,10 +222,8 @@ angular.module("barachiel.controllers", []).controller("TabCtrl", function($scop
       },
       buttonClicked: function(index) {
         MediaManipulation.get_pitcute(index === 1).then(function(imageURI) {
-          $scope.uploadingPicture.start();
-          return userPromise.then(function(user) {
-            return user.change_image(imageURI);
-          });
+          $scope.uploadingPicture.start(imageURI);
+          return user.change_image(imageURI);
         }).then((function(result) {
           $scope.uploadingPicture.finish();
           return console.log("Change Image Success");
@@ -289,7 +293,7 @@ angular.module("barachiel.services", []).factory("Wavers", function() {
       return wavers[waverId];
     }
   };
-}).factory("Users", function(BASE_URL, _, $q, Restangular, AuthService, MediaManipulation) {
+}).factory("Users", function(BASE_URL, _, $q, l, Restangular, AuthService, MediaManipulation, $timeout) {
   var Users;
   Users = Restangular.service('users');
   Users.all = function() {
@@ -299,43 +303,35 @@ angular.module("barachiel.services", []).factory("Wavers", function() {
     return this.one(id).get();
   };
   Users.me = function(force_request) {
-    var $object, forced_promise, promise, userData;
+    var promise, userData;
     promise = null;
-    $object = {};
-    if (this._me != null) {
-      promise = $q.when(this._me);
-    } else {
+    if (this._me == null) {
       userData = AuthService.GetUser();
       if (userData != null) {
-        promise = $q.when(this.set_me(userData));
+        this.set_me(userData);
       } else {
-        force_request = true;
+        throw new Error("Local user not found");
       }
     }
     if (force_request) {
-      forced_promise = this.get('me');
-      forced_promise.then((function(_this) {
-        return function(user) {
-          return _this.set_me(user);
-        };
-      })(this));
-      $object = forced_promise.$object;
-      if (promise == null) {
-        promise = forced_promise;
-      }
+      this._me.get();
     }
-    if (this._me != null) {
-      _($object).defaults(this._me);
-    }
-    promise.$object = $object;
-    return promise;
+    return this._me;
   };
   Users.set_me = function(rawUserJSON) {
-    return this._me = Restangular.restangularizeElement('', rawUserJSON, 'users/me/', {});
+    return this._me = Restangular.restangularizeElement('', rawUserJSON, 'users', {});
   };
   Restangular.extendModel("users", function(user) {
     user.change_image = function(image_uri) {
-      return MediaManipulation.upload_file(BASE_URL + '/multimedia/user/', image_uri);
+      return MediaManipulation.upload_file(BASE_URL + '/multimedia/user/', image_uri).then(((function(_this) {
+        return function(result) {
+          return _this.picture = JSON.parse(result.response);
+        };
+      })(this)), ((function(_this) {
+        return function(error) {
+          return error;
+        };
+      })(this)));
     };
     return user;
   });
