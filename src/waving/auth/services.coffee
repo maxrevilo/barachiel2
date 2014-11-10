@@ -53,6 +53,14 @@ angular.module("barachiel.auth.services", [])
                 .success (user) -> _set_user user
         _is_auth()
 
+    resetPasswordOf: (user_email) ->
+        $http(
+            method: 'POST'
+            url: BASE_URL + '/auth/reset_password/'
+            data: utils.to_form_params {"email": user_email}
+            headers: 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+        )
+
     state_requires_auth: ($state) -> not angular.isDefined($state.authenticate) or $state.authenticate
 
 .factory "authHttpResponseInterceptor", ($q, $injector) ->

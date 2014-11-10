@@ -46,6 +46,17 @@ angular.module("barachiel.auth.controllers", [])
             )
 )
 
-.controller("ForgotPasswordCtrl", ($scope, $state, Messenger) ->
-    $scope.reset_password = (email) -> setTimeout (-> Messenger.say "New password sent to #{email}"), 100
+.controller("ForgotPasswordCtrl", ($scope, $state, AuthService, Loader, utils) ->
+    $scope.reset_password = (email) ->
+        Loader.show $scope
+        AuthService.resetPasswordOf(email).then(
+            ->  #Success
+                Loader.hide $scope
+                utils.translateAndSay "%pw_reset.success"
+            (jqXHR) -> #Error
+                Loader.hide $scope
+                switch jqXHR.status
+                    when 0 then utils.translateAndSay("%global.error.server_not_found")
+                    else utils.translateAndSay("%global.error.std_{{val}}", 'val': utils.parseFormErrors jqXHR.data)
+        )
 )
