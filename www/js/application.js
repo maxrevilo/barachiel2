@@ -3,7 +3,7 @@ angular.module("barachiel", ["barachiel.config", "ngCordova", "restangular", "io
   return $ionicPlatform.ready(function() {
     console.log("Barachiel running on " + window.platform_service_definition.name);
     if (window.cordova && window.cordova.plugins.Keyboard) {
-      cordova.plugins.Keyboard.hideKeyboardAccessoryBar(true);
+      cordova.plugins.Keyboard.hideKeyboardAccessoryBar(false);
     }
     if (window.StatusBar) {
       StatusBar.styleDefault();
@@ -441,8 +441,8 @@ angular.module("barachiel.auth.controllers", []).controller("SignupCtrl", functi
       });
     }
   };
-}).controller("ForgotPasswordCtrl", function($scope, $state, $window, AuthService, Loader, utils) {
-  $scope.reset_password = function(email) {
+}).controller("ForgotPasswordCtrl", function($scope, $state, AuthService, Loader, utils) {
+  return $scope.reset_password = function(email) {
     Loader.show($scope);
     return AuthService.resetPasswordOf(email).then(function() {
       Loader.hide($scope);
@@ -458,9 +458,6 @@ angular.module("barachiel.auth.controllers", []).controller("SignupCtrl", functi
           });
       }
     });
-  };
-  return $scope.back = function() {
-    return $window;
   };
 });
 
