@@ -4,7 +4,7 @@
         <div class="picture">
             <img
                 ng-class="{loading: uploadingPicture.on}"
-                ng-src="{{ uploadingPicture.image || profile.picture.xBig }}"
+                ng-src="{{ uploadingPicture.image || profile.s_picture.xBig }}"
                 />
             <progress-arc
                 ng-if="uploadingPicture.on"
@@ -98,7 +98,7 @@
                 <i class="icon ion-ios7-arrow-right"></i>
             </a>
 
-            <a id="logout_btn" class="item item-icon-right" ng-click="">
+            <a id="logout_btn" class="item item-icon-right" ng-click="logout()">
                 <span translate>%profile.form.actions.logout</span>
                 <i class="icon ion-log-out"></i>
             </a>

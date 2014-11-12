@@ -74,6 +74,24 @@ ion-nav-bar .button { color: $calm !important; }
 
 
 #tab-radar {
+    h3 {
+        padding-top: 50px;
+        margin: 0px 20px;
+        text-align: center;
+        span { display: block; }
+        i {
+            margin-top: 20px;
+            font-size: 40px;
+        }
+        .message { font-size: 16px; }
+        .pull {
+            margin-top: 20px;
+            color: $positive;
+            font-size: 20px;
+            font-weight: bold;
+        }
+    }
+
     .list {
         .item-divider {
             background-color: initial;

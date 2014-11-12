@@ -1,31 +1,53 @@
 <ion-view title="{{ '%radar.title' | translate }}">
     <ion-content id="tab-radar" class="has-header">
 
-        <ion-refresher pulling-text="{{ '%radar.refresh' | translate}}" on-refresh="doRefresh()"></ion-refresher>
+        <ion-refresher
+            pulling-text="{{ '%radar.refresh' | translate}}"
+            on-refresh="doRefresh()"
+            refreshing-icon="ion-loading-c">
+        </ion-refresher>
 
-        <ion-list>
-            <div class="item item-divider" translate>
-                %radar.<100
-            </div>
+        <h3 ng-show="state == 'loading'">
+            <span translate>%radar.loading_txt</span>
+            <i class="icon ion-loading-c"></i>
+        </h3>
 
-            <yg-user-item ion-item 
-                ng-repeat="user in users"
-                user="user"
-                class="item item-avatar"
-                href="#/tab/radar/user/{{user.id}}">
-            </yg-user-item>
+        <h3 ng-show="state == 'error'">
+            <span translate>%radar.error.screen</span>
+            <span class="message" translate>{{error.message}}</span>
+            <span class="pull" translate>%radar.try_again</span>
+        </h3>
 
-            <div class="item item-divider" translate>
-                %radar.>100
-            </div>
-            
-            <a yg-user-item ion-item 
-                ng-repeat="user in users"
-                user="user"
-                class="item item-avatar"
-                href="#/tab/radar/user/{{user.id}}">
-            </a>
-        </ion-list>
+        <div ng-show="state == 'ready'">
+            <h3 ng-hide="users.length > 0" translate>
+                %radar.empty
+            </h3>
+
+            <ion-list ng-show="users.length > 0">
+
+                <div ng-show="usersNear.length > 0" class="item item-divider" translate>
+                    %radar.<100
+                </div>
+
+                <yg-user-item ion-item 
+                    ng-repeat="user in usersNear = (users | byDistance:0:100)"
+                    user="user"
+                    class="item item-avatar"
+                    href="#/tab/radar/user/{{user.id}}">
+                </yg-user-item>
+
+                <div ng-show="usersFar.length > 0" class="item item-divider" translate>
+                    %radar.>100
+                </div>
+                
+                <a yg-user-item ion-item 
+                    ng-repeat="user in usersFar = (users | byDistance:100:999999)"
+                    user="user"
+                    class="item item-avatar"
+                    href="#/tab/radar/user/{{user.id}}">
+                </a>
+            </ion-list>
+        </div>
 
     </ion-content>
 </ion-view>

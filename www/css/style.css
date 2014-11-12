@@ -8280,6 +8280,22 @@ ion-nav-back-button {
 ion-nav-bar .button {
   color: #4dccff !important; }
 
+#tab-radar h3 {
+  padding-top: 50px;
+  margin: 0px 20px;
+  text-align: center; }
+  #tab-radar h3 span {
+    display: block; }
+  #tab-radar h3 i {
+    margin-top: 20px;
+    font-size: 40px; }
+  #tab-radar h3 .message {
+    font-size: 16px; }
+  #tab-radar h3 .pull {
+    margin-top: 20px;
+    color: #0579f8;
+    font-size: 20px;
+    font-weight: bold; }
 #tab-radar .list .item-divider {
   background-color: initial;
   color: #0579f8;

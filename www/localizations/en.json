@@ -127,7 +127,7 @@
     "%radar.error.screen": "Sorry we can't show near users.",
     "%radar.error.screen.GPS_OFF": "Because the GPS is off, please turn it on.",
     "%radar.error.ghost": "Even though your GPS is on, it hasn't sent your position data for more than 20 minutes. Wait until it find satellites or move to a more open place.",
-    "%radar.try_again": "Try Again",
+    "%radar.try_again": "Pull downward to try again.",
 
     "__PROFILE__" : "",
     "%profile.title" : "Profile",

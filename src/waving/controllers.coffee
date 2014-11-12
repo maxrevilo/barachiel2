@@ -30,16 +30,36 @@ angular.module("barachiel.controllers", [])
     $scope.exit = -> $state.go "tab.radar"
 )
 
-.controller("RadarCtrl", ($scope, $ionicPlatform, Users, $http, BASE_URL, $window) ->
-    $scope.users = Users.all()
+.controller("RadarCtrl", ($scope, l, Users) ->
+    $scope.state = 'loading'
+    $scope.error = {}
+
+    $scope.refreshUsers = ->
+        promise = null
+        if $scope.users? and $scope.users.length > 0
+            promise = $scope.users.getList()
+        else
+            promise = Users.all()
+            $scope.users = promise.$object
+        return promise.then(
+            -> $scope.state = 'ready'
+            (jqXHR)->
+                $scope.state = 'error'
+                $scope.error.message = switch jqXHR.status
+                    when 0 then l("%global.error.server_not_found")
+                    else jqXHR.statusText
+        )
 
     $scope.doRefresh = ->
-        $http.get BASE_URL + '/users/me/'
-        setTimeout (->
-            $scope.users.unshift name: "Other User"
+        $scope.refreshUsers().finally ->
             $scope.$broadcast "scroll.refreshComplete"
-            $scope.$apply()
-        ), 1000
+
+    # Call window.$rootScope.$broadcast("REFRESH_RADAR") to trigger.
+    $scope.$on "REFRESH_RADAR", (ev, data)->
+        $scope.refreshUsers()
+
+    # Loading users
+    $scope.refreshUsers()
 )
 
 .controller("WaversCtrl", ($scope, Wavers) ->
@@ -52,8 +72,8 @@ angular.module("barachiel.controllers", [])
     # "imgs/avatars/u_anonym.png"
 )
 
-.controller("ProfileCtrl", ($rootScope, $scope, $stateParams,
-        $ionicActionSheet, l, Users,MediaManipulation, $timeout) ->
+.controller("ProfileCtrl", ($rootScope, $scope, $stateParams, $state,
+        $ionicActionSheet, l, AuthService, Users, MediaManipulation, $timeout) ->
 
     user = Users.me true
     $scope.profile = user
@@ -77,6 +97,9 @@ angular.module("barachiel.controllers", [])
 
     $scope.uploadingPicture = $rootScope.uploadingPicture
 
+    $scope.logout = ->
+        AuthService.Logout().then -> $state.go "signup"
+
     $scope.takePicture = ()->
         $ionicActionSheet.show
             buttons: [
@@ -98,11 +121,8 @@ angular.module("barachiel.controllers", [])
                         ), null
                         , ((progressEvent) ->
                             if progressEvent.lengthComputable
-                                progress = progressEvent.loaded / progressEvent.total
-                                console.log "Uploading Progress: " + progress
-                                $scope.uploadingPicture.set progress
+                                $scope.uploadingPicture.set progressEvent.loaded / progressEvent.total
                             else
-                                console.log "Uploading Progress: Non computable advance."
                                 $scope.uploadingPicture.increment()
                         )
                     ).catch ((err) ->

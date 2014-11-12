@@ -127,7 +127,7 @@
     "%radar.error.screen": "Disculpe no podemos mostrar usuarios cercanos.",
     "%radar.error.screen.GPS_OFF": "Porque el GPS está desactivado, porfavor activelo.",
     "%radar.error.ghost": "Tu GPS está prendido, pero no hemos recibido información de el esde hace más de 20 minutos. Espera a que encuentre los satelites o ve a un lugar más abierto.",
-    "%radar.try_again": "Reintentar",
+    "%radar.try_again": "Jala hacia abajo para reintentar.",
 
     "__PROFILE__" : "",
     "%profile.title" : "Perfil",

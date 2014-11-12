@@ -1,4 +1,5 @@
-angular.module("barachiel", ["barachiel.config", "ngCordova", "restangular", "ionic", "ngAnimate", "underscore", "angular-progress-arc", "pascalprecht.translate", "barachiel.util.services", "barachiel.device.services", "barachiel.auth.services", "barachiel.auth.controllers", "barachiel.directives", "barachiel.controllers", "barachiel.services"]).run(function($ionicPlatform, $rootScope, $state, AuthService) {
+angular.module("barachiel", ["barachiel.config", "ngCordova", "restangular", "ionic", "ngAnimate", "underscore", "angular-progress-arc", "pascalprecht.translate", "barachiel.utils.services", "barachiel.device.services", "barachiel.auth.services", "barachiel.auth.controllers", "barachiel.directives", "barachiel.filters", "barachiel.controllers", "barachiel.services"]).run(function($ionicPlatform, $rootScope, $state, $window, AuthService) {
+  $window['$rootScope'] = $rootScope;
   return $ionicPlatform.ready(function() {
     console.log("Barachiel running on " + window.platform_service_definition.name);
     if (window.cordova && window.cordova.plugins.Keyboard) {
@@ -151,24 +152,47 @@ angular.module("barachiel.controllers", []).controller("TabCtrl", function($scop
   return $scope.exit = function() {
     return $state.go("tab.radar");
   };
-}).controller("RadarCtrl", function($scope, $ionicPlatform, Users, $http, BASE_URL, $window) {
-  $scope.users = Users.all();
-  return $scope.doRefresh = function() {
-    $http.get(BASE_URL + '/users/me/');
-    return setTimeout((function() {
-      $scope.users.unshift({
-        name: "Other User"
-      });
-      $scope.$broadcast("scroll.refreshComplete");
-      return $scope.$apply();
-    }), 1000);
+}).controller("RadarCtrl", function($scope, l, Users) {
+  $scope.state = 'loading';
+  $scope.error = {};
+  $scope.refreshUsers = function() {
+    var promise;
+    promise = null;
+    if (($scope.users != null) && $scope.users.length > 0) {
+      promise = $scope.users.getList();
+    } else {
+      promise = Users.all();
+      $scope.users = promise.$object;
+    }
+    return promise.then(function() {
+      return $scope.state = 'ready';
+    }, function(jqXHR) {
+      $scope.state = 'error';
+      return $scope.error.message = (function() {
+        switch (jqXHR.status) {
+          case 0:
+            return l("%global.error.server_not_found");
+          default:
+            return jqXHR.statusText;
+        }
+      })();
+    });
   };
+  $scope.doRefresh = function() {
+    return $scope.refreshUsers()["finally"](function() {
+      return $scope.$broadcast("scroll.refreshComplete");
+    });
+  };
+  $scope.$on("REFRESH_RADAR", function(ev, data) {
+    return $scope.refreshUsers();
+  });
+  return $scope.refreshUsers();
 }).controller("WaversCtrl", function($scope, Wavers) {
   return $scope.wavers = Wavers.all();
 }).controller("WaverDetailCtrl", function(_, $scope, $stateParams, Wavers) {
   $scope.waver = Wavers.one($stateParams.waverId);
   return $scope.waver.__safe__name = _.escape($scope.waver.name);
-}).controller("ProfileCtrl", function($rootScope, $scope, $stateParams, $ionicActionSheet, l, Users, MediaManipulation, $timeout) {
+}).controller("ProfileCtrl", function($rootScope, $scope, $stateParams, $state, $ionicActionSheet, l, AuthService, Users, MediaManipulation, $timeout) {
   var user;
   user = Users.me(true);
   $scope.profile = user;
@@ -206,6 +230,11 @@ angular.module("barachiel.controllers", []).controller("TabCtrl", function($scop
     };
   }
   $scope.uploadingPicture = $rootScope.uploadingPicture;
+  $scope.logout = function() {
+    return AuthService.Logout().then(function() {
+      return $state.go("signup");
+    });
+  };
   return $scope.takePicture = function() {
     return $ionicActionSheet.show({
       buttons: [
@@ -228,13 +257,9 @@ angular.module("barachiel.controllers", []).controller("TabCtrl", function($scop
           $scope.uploadingPicture.finish();
           return console.log("Change Image Success");
         }), null, (function(progressEvent) {
-          var progress;
           if (progressEvent.lengthComputable) {
-            progress = progressEvent.loaded / progressEvent.total;
-            console.log("Uploading Progress: " + progress);
-            return $scope.uploadingPicture.set(progress);
+            return $scope.uploadingPicture.set(progressEvent.loaded / progressEvent.total);
           } else {
-            console.log("Uploading Progress: Non computable advance.");
             return $scope.uploadingPicture.increment();
           }
         }))["catch"]((function(err) {
@@ -266,6 +291,14 @@ angular.module("barachiel.directives", []).directive('ygUserItem', function() {
     templateUrl: 'templates/user-item.html'
   };
   return UserItem;
+});
+
+angular.module("barachiel.filters", []).filter("byDistance", function(_) {
+  return function(users, min, max) {
+    return _(users).filter(function(user) {
+      return (user.d || 0) >= min && (user.d || 0) < max;
+    });
+  };
 });
 
 angular.module("barachiel.services", []).factory("Wavers", function() {
@@ -322,6 +355,7 @@ angular.module("barachiel.services", []).factory("Wavers", function() {
     return this._me = Restangular.restangularizeElement('', rawUserJSON, 'users', {});
   };
   Restangular.extendModel("users", function(user) {
+    var default_img;
     user.change_image = function(image_uri) {
       return MediaManipulation.upload_file(BASE_URL + '/multimedia/user/', image_uri).then(((function(_this) {
         return function(result) {
@@ -333,12 +367,228 @@ angular.module("barachiel.services", []).factory("Wavers", function() {
         };
       })(this)));
     };
+    if (user.picture != null) {
+      user.s_picture = user.picture;
+    } else {
+      default_img = 'imgs/avatars/' + (user.sex || 'u').toLowerCase() + '_anonym.png';
+      user.s_picture = {
+        'id': -1,
+        'type': "I",
+        'uploader_id': -1,
+        'xBig': default_img,
+        'xFull': default_img,
+        'xLit': default_img
+      };
+    }
     return user;
   });
   return Users;
 });
 
-angular.module("barachiel.util.services", []).factory("Messenger", function($window, $ionicPopup, l) {
+angular.module("barachiel.auth.controllers", []).controller("SignupCtrl", function(_, $scope, $state, AuthService, Loader, utils) {
+  $scope.forms = {};
+  return $scope.signup = function(user) {
+    if ($scope.forms.signupForm.$invalid) {
+      return $scope.showErrors = true;
+    } else {
+      Loader.show($scope);
+      return AuthService.Signup(user).then(function() {
+        Loader.hide($scope);
+        return $state.go("tutorial");
+      }, function(jqXHR) {
+        Loader.hide($scope);
+        switch (jqXHR.status) {
+          case 0:
+            return utils.translateAndSay("%global.error.server_not_found");
+          case 403:
+            return utils.translateAndSay("%global.error.invalid_register_form_{{val}}", {
+              'val': jqXHR.responseText
+            });
+          default:
+            return utils.translateAndSay("%global.error.std_{{val}}", {
+              'val': utils.parseFormErrors(jqXHR.data)
+            });
+        }
+      });
+    }
+  };
+}).controller("LoginCtrl", function(_, $scope, $state, AuthService, Loader, utils) {
+  $scope.forms = {};
+  return $scope.login = function(user) {
+    var creds;
+    if ($scope.forms.loginForm.$invalid) {
+      return $scope.showErrors = true;
+    } else {
+      Loader.show($scope);
+      creds = {
+        'username': user.email,
+        'password': user.password
+      };
+      return AuthService.Authenticate(creds).then(function() {
+        Loader.hide($scope);
+        return $state.go("tab.radar");
+      }, function(jqXHR) {
+        Loader.hide($scope);
+        switch (jqXHR.status) {
+          case 0:
+            return utils.translateAndSay("%global.error.server_not_found");
+          case 403:
+            return utils.translateAndSay("%global.error.invalid_email_or_passwd");
+          default:
+            return utils.translateAndSay("%global.error.std_{{val}}", {
+              'val': utils.parseFormErrors(jqXHR.data)
+            });
+        }
+      });
+    }
+  };
+}).controller("ForgotPasswordCtrl", function($scope, $state, AuthService, Loader, utils) {
+  return $scope.reset_password = function(email) {
+    Loader.show($scope);
+    return AuthService.resetPasswordOf(email).then(function() {
+      Loader.hide($scope);
+      return utils.translateAndSay("%pw_reset.success");
+    }, function(jqXHR) {
+      Loader.hide($scope);
+      switch (jqXHR.status) {
+        case 0:
+          return utils.translateAndSay("%global.error.server_not_found");
+        default:
+          return utils.translateAndSay("%global.error.std_{{val}}", {
+            'val': utils.parseFormErrors(jqXHR.data)
+          });
+      }
+    });
+  };
+});
+
+angular.module("barachiel.auth.services", []).factory("AuthService", function($rootScope, $http, $log, _, utils, StorageService, BASE_URL) {
+  var _is_auth, _set_user, _unset_user;
+  _is_auth = function() {
+    var raw_ls_user;
+    if ($rootScope.user != null) {
+      return true;
+    } else {
+      raw_ls_user = StorageService.get('user');
+      if (raw_ls_user != null) {
+        $rootScope.user = JSON.parse(raw_ls_user);
+        return true;
+      } else {
+        return false;
+      }
+    }
+  };
+  _set_user = function(user) {
+    StorageService.set('user', JSON.stringify(user));
+    return $rootScope.user = user;
+  };
+  _unset_user = function() {
+    $rootScope.user = null;
+    return StorageService["delete"]('user');
+  };
+  return {
+    Authenticate: function(credentials) {
+      return $http({
+        method: 'POST',
+        url: BASE_URL + '/auth/login/',
+        data: utils.to_form_params(credentials),
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+        }
+      }).success(function(user, status, headers, config) {
+        return _set_user(user);
+      }).error(function(data) {
+        return $log.error("Couldn't Authenticate: " + data);
+      });
+    },
+    Logout: function() {
+      return $http.get(BASE_URL + '/auth/logout/', {}).success(function() {
+        return _unset_user();
+      }).error(function(data) {
+        return $log.error("Couldn't Logout: " + data);
+      });
+    },
+    Signup: function(credentials) {
+      return $http({
+        method: 'POST',
+        url: BASE_URL + '/auth/signup/',
+        data: utils.to_form_params(credentials),
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+        }
+      }).success(function(user, status, headers, config) {
+        return _set_user(user);
+      }).error(function(data) {
+        return $log.error("Couldn't Signup: " + data);
+      });
+    },
+    GetUser: function() {
+      return $rootScope.user;
+    },
+    isAuthenticated: function(http_check) {
+      if (http_check == null) {
+        http_check = false;
+      }
+      if (_is_auth() && http_check) {
+        $http.get(BASE_URL + '/users/me/').success(function(user) {
+          return _set_user(user);
+        });
+      }
+      return _is_auth();
+    },
+    resetPasswordOf: function(user_email) {
+      return $http({
+        method: 'POST',
+        url: BASE_URL + '/auth/reset_password/',
+        data: utils.to_form_params({
+          "email": user_email
+        }),
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+        }
+      });
+    },
+    state_requires_auth: function($state) {
+      return !angular.isDefined($state.authenticate) || $state.authenticate;
+    }
+  };
+}).factory("authHttpResponseInterceptor", function($q, $injector) {
+  return {
+    response: function(response) {
+      return response || $q.when(response);
+    },
+    responseError: function(rejection) {
+      if (rejection.status === 401) {
+        console.warn("Response Error 401", rejection);
+        $injector.get('AuthService').Logout();
+        $injector.get('$state').transitionTo("signup");
+      }
+      return $q.reject(rejection);
+    }
+  };
+});
+
+angular.module("barachiel.device.services", []).factory("StorageService", function($window) {
+  return {
+    all: function() {
+      return $window.localStorage;
+    },
+    get: function(key) {
+      return $window.localStorage[key];
+    },
+    set: function(key, value) {
+      return $window.localStorage[key] = value;
+    },
+    "delete": function(key) {
+      return delete $window.localStorage[key];
+    },
+    delete_all: function() {
+      return delete $window.localStorage.clear();
+    }
+  };
+});
+
+angular.module("barachiel.utils.services", []).factory("Messenger", function($window, $ionicPopup, l) {
   return {
     say: function(message) {
       return $ionicPopup.alert({
@@ -454,185 +704,6 @@ angular.module("barachiel.util.services", []).factory("Messenger", function($win
         }), image_uri);
       });
       return deferred.promise;
-    }
-  };
-});
-
-angular.module("barachiel.auth.controllers", []).controller("SignupCtrl", function(_, $scope, $state, AuthService, Loader, utils) {
-  $scope.forms = {};
-  return $scope.signup = function(user) {
-    if ($scope.forms.signupForm.$invalid) {
-      return $scope.showErrors = true;
-    } else {
-      Loader.show($scope);
-      return AuthService.Signup(user).then(function() {
-        Loader.hide($scope);
-        return $state.go("tutorial");
-      }, function(jqXHR) {
-        Loader.hide($scope);
-        switch (jqXHR.status) {
-          case 0:
-            return utils.translateAndSay("%global.error.server_not_found");
-          case 403:
-            return utils.translateAndSay("%global.error.invalid_register_form_{{val}}", {
-              'val': jqXHR.responseText
-            });
-          default:
-            return utils.translateAndSay("%global.error.std_{{val}}", {
-              'val': utils.parseFormErrors(jqXHR.data)
-            });
-        }
-      });
-    }
-  };
-}).controller("LoginCtrl", function(_, $scope, $state, AuthService, Loader, utils) {
-  $scope.forms = {};
-  return $scope.login = function(user) {
-    var creds;
-    if ($scope.forms.loginForm.$invalid) {
-      return $scope.showErrors = true;
-    } else {
-      Loader.show($scope);
-      creds = {
-        'username': user.email,
-        'password': user.password
-      };
-      return AuthService.Authenticate(creds).then(function() {
-        Loader.hide($scope);
-        return $state.go("tab.radar");
-      }, function(jqXHR) {
-        Loader.hide($scope);
-        switch (jqXHR.status) {
-          case 0:
-            return utils.translateAndSay("%global.error.server_not_found");
-          case 403:
-            return utils.translateAndSay("%global.error.invalid_email_or_passwd");
-          default:
-            return utils.translateAndSay("%global.error.std_{{val}}", {
-              'val': utils.parseFormErrors(jqXHR.data)
-            });
-        }
-      });
-    }
-  };
-}).controller("ForgotPasswordCtrl", function($scope, $state, Messenger) {
-  return $scope.reset_password = function(email) {
-    return setTimeout((function() {
-      return Messenger.say("New password sent to " + email);
-    }), 100);
-  };
-});
-
-angular.module("barachiel.auth.services", []).factory("AuthService", function($rootScope, $http, $log, _, utils, StorageService, BASE_URL) {
-  var _is_auth, _set_user, _unset_user;
-  _is_auth = function() {
-    var raw_ls_user;
-    if ($rootScope.user != null) {
-      return true;
-    } else {
-      raw_ls_user = StorageService.get('user');
-      if (raw_ls_user != null) {
-        $rootScope.user = JSON.parse(raw_ls_user);
-        return true;
-      } else {
-        return false;
-      }
-    }
-  };
-  _set_user = function(user) {
-    StorageService.set('user', JSON.stringify(user));
-    return $rootScope.user = user;
-  };
-  _unset_user = function() {
-    $rootScope.user = null;
-    return StorageService["delete"]('user');
-  };
-  return {
-    Authenticate: function(credentials) {
-      return $http({
-        method: 'POST',
-        url: BASE_URL + '/auth/login/',
-        data: utils.to_form_params(credentials),
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
-        }
-      }).success(function(user, status, headers, config) {
-        return _set_user(user);
-      }).error(function(data) {
-        return $log.error("Couldn't Authenticate: " + data);
-      });
-    },
-    Logout: function() {
-      return $http.get(BASE_URL + '/auth/logout/', {}).success(function() {
-        return _unset_user();
-      }).error(function(data) {
-        return $log.error("Couldn't Logout: " + data);
-      });
-    },
-    Signup: function(credentials) {
-      return $http({
-        method: 'POST',
-        url: BASE_URL + '/auth/signup/',
-        data: utils.to_form_params(credentials),
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
-        }
-      }).success(function(user, status, headers, config) {
-        return _set_user(user);
-      }).error(function(data) {
-        return $log.error("Couldn't Signup: " + data);
-      });
-    },
-    GetUser: function() {
-      return $rootScope.user;
-    },
-    isAuthenticated: function(http_check) {
-      if (http_check == null) {
-        http_check = false;
-      }
-      if (_is_auth() && http_check) {
-        $http.get(BASE_URL + '/users/me/').success(function(user) {
-          return _set_user(user);
-        });
-      }
-      return _is_auth();
-    },
-    state_requires_auth: function($state) {
-      return !angular.isDefined($state.authenticate) || $state.authenticate;
-    }
-  };
-}).factory("authHttpResponseInterceptor", function($q, $injector) {
-  return {
-    response: function(response) {
-      return response || $q.when(response);
-    },
-    responseError: function(rejection) {
-      if (rejection.status === 401) {
-        console.warn("Response Error 401", rejection);
-        $injector.get('AuthService').Logout();
-        $injector.get('$state').transitionTo("signup");
-      }
-      return $q.reject(rejection);
-    }
-  };
-});
-
-angular.module("barachiel.device.services", []).factory("StorageService", function($window) {
-  return {
-    all: function() {
-      return $window.localStorage;
-    },
-    get: function(key) {
-      return $window.localStorage[key];
-    },
-    set: function(key, value) {
-      return $window.localStorage[key] = value;
-    },
-    "delete": function(key) {
-      return delete $window.localStorage[key];
-    },
-    delete_all: function() {
-      return delete $window.localStorage.clear();
     }
   };
 });

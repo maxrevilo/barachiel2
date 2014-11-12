@@ -7,15 +7,18 @@ angular.module("barachiel", [
         "underscore"
         "angular-progress-arc"
         "pascalprecht.translate"
-        "barachiel.util.services"
+        "barachiel.utils.services"
         "barachiel.device.services"
         "barachiel.auth.services"
         "barachiel.auth.controllers"
         "barachiel.directives"
+        "barachiel.filters"
         "barachiel.controllers"
         "barachiel.services"
     ])
-    .run(($ionicPlatform, $rootScope, $state, AuthService) ->
+    .run(($ionicPlatform, $rootScope, $state, $window, AuthService) ->
+        $window['$rootScope'] = $rootScope
+
         $ionicPlatform.ready ->
             console.log "Barachiel running on #{window.platform_service_definition.name}"
 
@@ -122,7 +125,7 @@ angular.module("barachiel", [
         $urlRouterProvider.otherwise "/tab/radar"
 
         # RESTANGULAR
-        RestangularProvider.setBaseUrl(BASE_URL);
+        RestangularProvider.setBaseUrl(BASE_URL)
         RestangularProvider.setRequestSuffix('/')
 
         ####### Internationalization ########
