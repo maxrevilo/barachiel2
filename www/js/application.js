@@ -1,4 +1,4 @@
-angular.module("barachiel", ["barachiel.config", "ngCordova", "restangular", "ionic", "ngAnimate", "underscore", "angular-progress-arc", "pascalprecht.translate", "barachiel.utils.services", "barachiel.device.services", "barachiel.auth.services", "barachiel.auth.controllers", "barachiel.directives", "barachiel.filters", "barachiel.controllers", "barachiel.services"]).run(function($ionicPlatform, $rootScope, $state, $window, AuthService) {
+angular.module("barachiel", ["barachiel.config", "ngCordova", "restangular", "ionic", "ngAnimate", "underscore", "angular-progress-arc", "barachiel.i18n", "barachiel.utils.directives", "barachiel.utils.services", "barachiel.device.services", "barachiel.auth.services", "barachiel.auth.controllers", "barachiel.directives", "barachiel.filters", "barachiel.controllers", "barachiel.services"]).run(function($ionicPlatform, $rootScope, $state, $window, AuthService) {
   $window['$rootScope'] = $rootScope;
   return $ionicPlatform.ready(function() {
     console.log("Barachiel running on " + window.platform_service_definition.name);
@@ -9,43 +9,54 @@ angular.module("barachiel", ["barachiel.config", "ngCordova", "restangular", "io
       StatusBar.styleDefault();
     }
     if (AuthService.state_requires_auth($state.current) && !AuthService.isAuthenticated(true)) {
-      $state.transitionTo("signup");
+      $state.transitionTo("st.signup");
     }
     return $rootScope.$on("$stateChangeStart", function(event, toState, toParams, fromState, fromParams) {
       if (AuthService.state_requires_auth(toState) && !AuthService.isAuthenticated()) {
-        $state.transitionTo("signup");
+        $state.transitionTo("st.signup");
         event.preventDefault();
       }
     });
   });
-}).config(function($stateProvider, $urlRouterProvider, $translateProvider, $httpProvider, RestangularProvider, BASE_URL) {
+}).config(function($stateProvider, $urlRouterProvider, i18nProvider, $httpProvider, RestangularProvider, BASE_URL) {
   $httpProvider.interceptors.push('authHttpResponseInterceptor');
-  $stateProvider.state("login", {
+  RestangularProvider.setBaseUrl(BASE_URL);
+  RestangularProvider.setRequestSuffix('/');
+  i18nProvider.lang('en');
+  $stateProvider.state("st", {
+    abstract: true,
+    template: '<ui-view/>',
+    resolve: {
+      i18n: function(i18n) {
+        return i18n.loadTranslations("https://dl.dropboxusercontent.com/u/4461171/web/en.json");
+      }
+    }
+  }).state("st.login", {
     url: "/login",
     templateUrl: "templates/login.html",
     controller: "LoginCtrl",
     authenticate: false
-  }).state("signup", {
-    url: "/signup",
-    templateUrl: "templates/signup.html",
-    controller: "SignupCtrl",
-    authenticate: false
-  }).state("forgot_password", {
+  }).state("st.forgot_password", {
     url: "/forgot_password",
     templateUrl: "templates/forgot_password.html",
     controller: "ForgotPasswordCtrl",
     authenticate: false
-  }).state("tutorial", {
+  }).state("st.signup", {
+    url: "/signup",
+    templateUrl: "templates/signup.html",
+    controller: "SignupCtrl",
+    authenticate: false
+  }).state("st.tutorial", {
     url: "/tutorial",
     templateUrl: "templates/tutorial.html",
     controller: "TutorialCtrl",
     authenticate: false
-  }).state("tab", {
+  }).state("st.tab", {
     url: "/tab",
     abstract: true,
     templateUrl: "templates/tabs.html",
     controller: 'TabCtrl'
-  }).state("tab.radar", {
+  }).state("st.tab.radar", {
     url: "/radar",
     views: {
       "tab-radar": {
@@ -53,7 +64,7 @@ angular.module("barachiel", ["barachiel.config", "ngCordova", "restangular", "io
         controller: "RadarCtrl"
       }
     }
-  }).state("tab.radar-user-detail", {
+  }).state("st.tab.radar-user-detail", {
     url: "/radar/user/:userId",
     views: {
       "tab-radar": {
@@ -61,7 +72,7 @@ angular.module("barachiel", ["barachiel.config", "ngCordova", "restangular", "io
         controller: "UserDetailCtrl"
       }
     }
-  }).state("tab.wavers", {
+  }).state("st.tab.wavers", {
     url: "/wavers",
     views: {
       "tab-wavers": {
@@ -69,7 +80,7 @@ angular.module("barachiel", ["barachiel.config", "ngCordova", "restangular", "io
         controller: "WaversCtrl"
       }
     }
-  }).state("tab.waver-detail", {
+  }).state("st.tab.waver-detail", {
     url: "/waver/:waverId",
     views: {
       "tab-wavers": {
@@ -77,7 +88,7 @@ angular.module("barachiel", ["barachiel.config", "ngCordova", "restangular", "io
         controller: "WaverDetailCtrl"
       }
     }
-  }).state("tab.waver-user-detail", {
+  }).state("st.tab.waver-user-detail", {
     url: "/waver/user/:userId",
     views: {
       "tab-wavers": {
@@ -85,7 +96,7 @@ angular.module("barachiel", ["barachiel.config", "ngCordova", "restangular", "io
         controller: "UserDetailCtrl"
       }
     }
-  }).state("tab.profile", {
+  }).state("st.tab.profile", {
     url: "/profile",
     views: {
       "tab-profile": {
@@ -94,17 +105,7 @@ angular.module("barachiel", ["barachiel.config", "ngCordova", "restangular", "io
       }
     }
   });
-  $urlRouterProvider.otherwise("/tab/radar");
-  RestangularProvider.setBaseUrl(BASE_URL);
-  RestangularProvider.setRequestSuffix('/');
-  return $translateProvider.useStaticFilesLoader({
-    prefix: '/localizations/',
-    suffix: '.json'
-  }).registerAvailableLanguageKeys(['en', 'es'], {
-    'en_US': 'en',
-    'en_UK': 'en',
-    'es': 'es'
-  }).fallbackLanguage('en').determinePreferredLanguage();
+  return $urlRouterProvider.otherwise("/tab/radar");
 });
 
 var config, config_module;
@@ -133,7 +134,7 @@ angular.module("barachiel.controllers", []).controller("TabCtrl", function($scop
   modal_scope.priv_rules = ["name", "picture", "age", "ss", "tel", "email", "bio"];
   modal_scope.goTutorial = function() {
     modal_scope.modal.hide();
-    return $state.go("tutorial");
+    return $state.go("st.tutorial");
   };
   return $ionicModal.fromTemplateUrl('templates/settings.html', {
     scope: modal_scope,
@@ -150,7 +151,7 @@ angular.module("barachiel.controllers", []).controller("TabCtrl", function($scop
     return $ionicSlideBoxDelegate.next();
   };
   return $scope.exit = function() {
-    return $state.go("tab.radar");
+    return $state.go("st.tab.radar");
   };
 }).controller("RadarCtrl", function($scope, l, Users) {
   $scope.state = 'loading';
@@ -232,7 +233,7 @@ angular.module("barachiel.controllers", []).controller("TabCtrl", function($scop
   $scope.uploadingPicture = $rootScope.uploadingPicture;
   $scope.logout = function() {
     return AuthService.Logout().then(function() {
-      return $state.go("signup");
+      return $state.go("st.signup");
     });
   };
   return $scope.takePicture = function() {
@@ -277,8 +278,7 @@ angular.module("barachiel.controllers", []).controller("TabCtrl", function($scop
 });
 
 angular.module("barachiel.directives", []).directive('ygUserItem', function() {
-  var UserItem;
-  UserItem = {
+  return {
     scope: {
       user: '='
     },
@@ -290,7 +290,6 @@ angular.module("barachiel.directives", []).directive('ygUserItem', function() {
     restrict: 'AEC',
     templateUrl: 'templates/user-item.html'
   };
-  return UserItem;
 });
 
 angular.module("barachiel.filters", []).filter("byDistance", function(_) {
@@ -370,7 +369,7 @@ angular.module("barachiel.services", []).factory("Wavers", function() {
     if (user.picture != null) {
       user.s_picture = user.picture;
     } else {
-      default_img = 'imgs/avatars/' + (user.sex || 'u').toLowerCase() + '_anonym.png';
+      default_img = 'img/avatars/' + (user.sex || 'u').toLowerCase() + '_anonym.png';
       user.s_picture = {
         'id': -1,
         'type': "I",
@@ -394,18 +393,18 @@ angular.module("barachiel.auth.controllers", []).controller("SignupCtrl", functi
       Loader.show($scope);
       return AuthService.Signup(user).then(function() {
         Loader.hide($scope);
-        return $state.go("tutorial");
+        return $state.go("st.tutorial");
       }, function(jqXHR) {
         Loader.hide($scope);
         switch (jqXHR.status) {
           case 0:
             return utils.translateAndSay("%global.error.server_not_found");
           case 403:
-            return utils.translateAndSay("%global.error.invalid_register_form_{{val}}", {
+            return utils.translateAndSay("%global.error.invalid_register_form_{0}", {
               'val': jqXHR.responseText
             });
           default:
-            return utils.translateAndSay("%global.error.std_{{val}}", {
+            return utils.translateAndSay("%global.error.std_{0}", {
               'val': utils.parseFormErrors(jqXHR.data)
             });
         }
@@ -426,7 +425,7 @@ angular.module("barachiel.auth.controllers", []).controller("SignupCtrl", functi
       };
       return AuthService.Authenticate(creds).then(function() {
         Loader.hide($scope);
-        return $state.go("tab.radar");
+        return $state.go("st.tab.radar");
       }, function(jqXHR) {
         Loader.hide($scope);
         switch (jqXHR.status) {
@@ -435,15 +434,15 @@ angular.module("barachiel.auth.controllers", []).controller("SignupCtrl", functi
           case 403:
             return utils.translateAndSay("%global.error.invalid_email_or_passwd");
           default:
-            return utils.translateAndSay("%global.error.std_{{val}}", {
+            return utils.translateAndSay("%global.error.std_{0}", {
               'val': utils.parseFormErrors(jqXHR.data)
             });
         }
       });
     }
   };
-}).controller("ForgotPasswordCtrl", function($scope, $state, AuthService, Loader, utils) {
-  return $scope.reset_password = function(email) {
+}).controller("ForgotPasswordCtrl", function($scope, $state, $window, AuthService, Loader, utils) {
+  $scope.reset_password = function(email) {
     Loader.show($scope);
     return AuthService.resetPasswordOf(email).then(function() {
       Loader.hide($scope);
@@ -454,11 +453,14 @@ angular.module("barachiel.auth.controllers", []).controller("SignupCtrl", functi
         case 0:
           return utils.translateAndSay("%global.error.server_not_found");
         default:
-          return utils.translateAndSay("%global.error.std_{{val}}", {
+          return utils.translateAndSay("%global.error.std_{0}", {
             'val': utils.parseFormErrors(jqXHR.data)
           });
       }
     });
+  };
+  return $scope.back = function() {
+    return $window;
   };
 });
 
@@ -561,7 +563,7 @@ angular.module("barachiel.auth.services", []).factory("AuthService", function($r
       if (rejection.status === 401) {
         console.warn("Response Error 401", rejection);
         $injector.get('AuthService').Logout();
-        $injector.get('$state').transitionTo("signup");
+        $injector.get('$state').transitionTo("st.signup");
       }
       return $q.reject(rejection);
     }
@@ -588,6 +590,88 @@ angular.module("barachiel.device.services", []).factory("StorageService", functi
   };
 });
 
+angular.module("barachiel.i18n.directives", []).directive('translate', function(l) {
+  return {
+    scope: {
+      user: '='
+    },
+    restrict: 'A',
+    link: function(scope, iElement, iAttrs) {
+      return iElement.text(l(iElement.text().trim()));
+    }
+  };
+});
+
+angular.module("barachiel.i18n.filters", []).filter("translate", function(l) {
+  return function(text, args) {
+    return l(text, args);
+  };
+});
+
+angular.module("barachiel.i18n", ['barachiel.i18n.directives', 'barachiel.i18n.services', 'barachiel.i18n.filters']).provider("i18n", function() {
+  var lang, translations;
+  lang = 'en';
+  translations = {
+    'hola': 'hello'
+  };
+  this.lang = function(val) {
+    if (val != null) {
+      return lang = val;
+    }
+  };
+  this.translations = function(val) {
+    if (val != null) {
+      return lang = val;
+    }
+  };
+  this.$get = [
+    '$http', function($http) {
+      return {
+        lang: lang,
+        translations: translations,
+        loadTranslations: function(url) {
+          return $http.get(url).success((function(_this) {
+            return function(result) {
+              return _this.translations = JSON.parse(JSON.stringify(result));
+            };
+          })(this));
+        },
+        translate: function(key, args) {
+          var a, arg, value, _i, _len;
+          if (!(typeof args === "object" && args instanceof Array)) {
+            if (typeof args === "string") {
+              args = [args];
+            } else {
+              args = [];
+            }
+          }
+          value = this.translations[key];
+          if (value == null) {
+            value = key;
+          }
+          for (a = _i = 0, _len = args.length; _i < _len; a = ++_i) {
+            arg = args[a];
+            value = value.replace('{#{a}}', arg);
+          }
+          return value;
+        }
+      };
+    }
+  ];
+});
+
+angular.module("barachiel.i18n.services", []).factory("translate", function(i18n) {
+  return function(text, args) {
+    return i18n.translate(text, args);
+  };
+}).factory("l", function(translate) {
+  return function(text, args) {
+    return translate(text, args);
+  };
+});
+
+angular.module("barachiel.utils.directives", []);
+
 angular.module("barachiel.utils.services", []).factory("Messenger", function($window, $ionicPopup, l) {
   return {
     say: function(message) {
@@ -608,7 +692,7 @@ angular.module("barachiel.utils.services", []).factory("Messenger", function($wi
       return $ionicLoading.hide();
     }
   };
-}).factory("utils", function(_, $translate, Messenger) {
+}).factory("utils", function(_, l, Messenger) {
   return {
     to_form_params: function(obj) {
       return _(_(_(obj).pairs()).map(function(e) {
@@ -624,19 +708,13 @@ angular.module("barachiel.utils.services", []).factory("Messenger", function($wi
       }), {});
     },
     translateAndSay: function(tkey, args) {
-      return $translate(tkey, args).then(function(msg) {
-        return Messenger.say(msg);
-      });
+      return Messenger.say(l(tkey, args));
     },
     parseFormErrors: function(errors) {
       return (_(errors).reduce((function(arr, error) {
         return arr.concat(error[0]);
       }), [])).join(', ');
     }
-  };
-}).factory("l", function(_) {
-  return function(text, args) {
-    return text;
   };
 }).factory("MediaManipulation", function(_, $q, $window, $ionicPlatform, $cordovaCamera, $cordovaFile) {
   return {

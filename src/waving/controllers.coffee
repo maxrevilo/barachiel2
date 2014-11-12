@@ -10,7 +10,7 @@ angular.module("barachiel.controllers", [])
     modal_scope.priv_rules = ["name", "picture", "age", "ss", "tel", "email", "bio"]
     modal_scope.goTutorial = ->
         modal_scope.modal.hide()
-        $state.go "tutorial"
+        $state.go "st.tutorial"
 
     $ionicModal.fromTemplateUrl('templates/settings.html'
         scope: modal_scope,
@@ -27,7 +27,7 @@ angular.module("barachiel.controllers", [])
 .controller("TutorialCtrl", ($scope, $state, $ionicSlideBoxDelegate) ->
     $scope.first = -> $ionicSlideBoxDelegate.slide(0)
     $scope.next = -> $ionicSlideBoxDelegate.next()
-    $scope.exit = -> $state.go "tab.radar"
+    $scope.exit = -> $state.go "st.tab.radar"
 )
 
 .controller("RadarCtrl", ($scope, l, Users) ->
@@ -98,7 +98,7 @@ angular.module("barachiel.controllers", [])
     $scope.uploadingPicture = $rootScope.uploadingPicture
 
     $scope.logout = ->
-        AuthService.Logout().then -> $state.go "signup"
+        AuthService.Logout().then -> $state.go "st.signup"
 
     $scope.takePicture = ()->
         $ionicActionSheet.show

@@ -46,7 +46,7 @@ angular.module("barachiel.services", [])
         if user.picture?
             user.s_picture = user.picture
         else
-            default_img = 'imgs/avatars/' + (user.sex or 'u').toLowerCase() + '_anonym.png'
+            default_img = 'img/avatars/' + (user.sex or 'u').toLowerCase() + '_anonym.png'
             user.s_picture = 'id': -1, 'type': "I", 'uploader_id': -1
                 , 'xBig': default_img, 'xFull': default_img, 'xLit': default_img
 

@@ -13,7 +13,7 @@ angular.module("barachiel.utils.services", [])
     hide: (context) ->
         $ionicLoading.hide()
 
-.factory "utils", (_, $translate, Messenger) ->
+.factory "utils", (_, l, Messenger) ->
     to_form_params: (obj) -> _(_(_(obj).pairs()).map((e) -> _(e).join '=' )).join '&'
     from_form_params: (raw_data) ->
         _(raw_data.split('&'))
@@ -22,10 +22,10 @@ angular.module("barachiel.utils.services", [])
                 obj[sp[0]]=sp[1]
                 obj
             ), {}
-    translateAndSay: (tkey, args) -> $translate(tkey, args).then (msg)-> Messenger.say msg
+    translateAndSay: (tkey, args) -> Messenger.say l(tkey, args)
     parseFormErrors: (errors) -> (_(errors).reduce ((arr, error) -> arr.concat error[0]), []).join(', ')
 
-.factory "l", (_) -> (text, args) -> text
+# .factory "l", ($window) -> (text, args) -> $window.l text, args
 
 .factory "MediaManipulation", (_, $q, $window, $ionicPlatform, $cordovaCamera, $cordovaFile) ->
     get_pitcute: (user_camera)->

@@ -11,7 +11,7 @@ SignupForm = ->
 
     @signup = -> element(By.id("signup")).click()
 
-    @go_login = -> element(By.css('[ui-sref="login"]')).click()
+    @go_login = -> element(By.css('[ui-sref="st.login"]')).click()
 
     return
 

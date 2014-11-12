@@ -11,14 +11,14 @@ angular.module("barachiel.auth.controllers", [])
             AuthService.Signup(user).then(
                 -> #Success
                     Loader.hide $scope
-                    $state.go "tutorial"
+                    $state.go "st.tutorial"
                 (jqXHR) -> #Error
                     Loader.hide $scope
                     switch jqXHR.status
                         when 0 then utils.translateAndSay("%global.error.server_not_found")
-                        when 403 then utils.translateAndSay("%global.error.invalid_register_form_{{val}}",
+                        when 403 then utils.translateAndSay("%global.error.invalid_register_form_{0}",
                             'val': jqXHR.responseText)
-                        else utils.translateAndSay("%global.error.std_{{val}}", 'val': utils.parseFormErrors jqXHR.data)
+                        else utils.translateAndSay("%global.error.std_{0}", 'val': utils.parseFormErrors jqXHR.data)
             )
 )
 
@@ -36,13 +36,13 @@ angular.module("barachiel.auth.controllers", [])
             AuthService.Authenticate(creds).then(
                 -> #Success
                     Loader.hide $scope
-                    $state.go "tab.radar"
+                    $state.go "st.tab.radar"
                 (jqXHR) -> #Error
                     Loader.hide $scope
                     switch jqXHR.status
                         when 0 then utils.translateAndSay("%global.error.server_not_found")
                         when 403 then utils.translateAndSay("%global.error.invalid_email_or_passwd")
-                        else utils.translateAndSay("%global.error.std_{{val}}", 'val': utils.parseFormErrors jqXHR.data)
+                        else utils.translateAndSay("%global.error.std_{0}", 'val': utils.parseFormErrors jqXHR.data)
             )
 )
 
@@ -57,6 +57,6 @@ angular.module("barachiel.auth.controllers", [])
                 Loader.hide $scope
                 switch jqXHR.status
                     when 0 then utils.translateAndSay("%global.error.server_not_found")
-                    else utils.translateAndSay("%global.error.std_{{val}}", 'val': utils.parseFormErrors jqXHR.data)
+                    else utils.translateAndSay("%global.error.std_{0}", 'val': utils.parseFormErrors jqXHR.data)
         )
 )

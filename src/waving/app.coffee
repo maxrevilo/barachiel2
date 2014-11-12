@@ -6,7 +6,9 @@ angular.module("barachiel", [
         "ngAnimate"
         "underscore"
         "angular-progress-arc"
-        "pascalprecht.translate"
+        # "pascalprecht.translate"
+        "barachiel.i18n"
+        "barachiel.utils.directives"
         "barachiel.utils.services"
         "barachiel.device.services"
         "barachiel.auth.services"
@@ -30,54 +32,67 @@ angular.module("barachiel", [
             StatusBar.styleDefault() if window.StatusBar
 
             if AuthService.state_requires_auth($state.current) and not AuthService.isAuthenticated(true)
-                $state.transitionTo "signup"
+                $state.transitionTo "st.signup"
 
             $rootScope.$on "$stateChangeStart", (event, toState, toParams, fromState, fromParams) ->
                 if AuthService.state_requires_auth(toState) and not AuthService.isAuthenticated()
                     # User isn’t authenticated
-                    $state.transitionTo "signup"
+                    $state.transitionTo "st.signup"
                     event.preventDefault()
                 return
     )
-    .config(($stateProvider, $urlRouterProvider, $translateProvider, $httpProvider, RestangularProvider, BASE_URL) ->
+    .config(($stateProvider, $urlRouterProvider, i18nProvider, $httpProvider, RestangularProvider, BASE_URL) ->
 
         ####### Interceptors ########
         $httpProvider.interceptors.push('authHttpResponseInterceptor');
 
-        ####### Routing ########
+        # RESTANGULAR
+        RestangularProvider.setBaseUrl(BASE_URL)
+        RestangularProvider.setRequestSuffix('/')
 
+        ####### Internationalization ########
+        i18nProvider.lang('en')
+        # i18nProvider.translations('%radar.title': 'Radar')
+
+        ####### Routing ########
         $stateProvider
-            .state("login",
+            .state("st",
+                abstract: true
+                template: '<ui-view/>'
+                # resolve: i18n: (i18n) -> i18n.loadTranslations "/localizations/#{i18n.lang}.json"
+                resolve: i18n: (i18n) -> i18n.loadTranslations "https://dl.dropboxusercontent.com/u/4461171/web/en.json"
+            )
+            .state("st.login",
                 url: "/login"
                 templateUrl: "templates/login.html"
                 controller: "LoginCtrl"
                 authenticate: false
             )
-            .state("signup",
-                url: "/signup"
-                templateUrl: "templates/signup.html"
-                controller: "SignupCtrl"
-                authenticate: false
-            )
-            .state("forgot_password",
+            .state("st.forgot_password",
                 url: "/forgot_password"
                 templateUrl: "templates/forgot_password.html"
                 controller: "ForgotPasswordCtrl"
                 authenticate: false
             )
-            .state("tutorial",
+            .state("st.signup",
+                url: "/signup"
+                templateUrl: "templates/signup.html"
+                controller: "SignupCtrl"
+                authenticate: false
+            )
+            .state("st.tutorial",
                 url: "/tutorial"
                 templateUrl: "templates/tutorial.html"
                 controller: "TutorialCtrl"
                 authenticate: false
             )
-            .state("tab",
+            .state("st.tab",
                 url: "/tab"
                 abstract: true
                 templateUrl: "templates/tabs.html"
                 controller: 'TabCtrl'
             )
-            .state("tab.radar",
+            .state("st.tab.radar",
                 url: "/radar"
                 #authenticate undefined is equivalent to authenticate = true.
                 views:
@@ -85,35 +100,35 @@ angular.module("barachiel", [
                         templateUrl: "templates/tab-radar.html"
                         controller: "RadarCtrl"
             )
-            .state("tab.radar-user-detail",
+            .state("st.tab.radar-user-detail",
                 url: "/radar/user/:userId"
                 views:
                     "tab-radar":
                         templateUrl: "templates/user-detail.html"
                         controller: "UserDetailCtrl"
             )
-            .state("tab.wavers",
+            .state("st.tab.wavers",
                 url: "/wavers"
                 views:
                     "tab-wavers":
                         templateUrl: "templates/tab-wavers.html"
                         controller: "WaversCtrl"
             )
-            .state("tab.waver-detail",
+            .state("st.tab.waver-detail",
                 url: "/waver/:waverId"
                 views:
                     "tab-wavers":
                         templateUrl: "templates/waver-detail.html"
                         controller: "WaverDetailCtrl"
             )
-            .state("tab.waver-user-detail",
+            .state("st.tab.waver-user-detail",
                 url: "/waver/user/:userId"
                 views:
                     "tab-wavers":
                         templateUrl: "templates/user-detail.html"
                         controller: "UserDetailCtrl"
             )
-            .state("tab.profile",
+            .state("st.tab.profile",
                 url: "/profile"
                 views:
                     "tab-profile":
@@ -123,22 +138,4 @@ angular.module("barachiel", [
 
         # if none of the above states are matched, use this as the fallback
         $urlRouterProvider.otherwise "/tab/radar"
-
-        # RESTANGULAR
-        RestangularProvider.setBaseUrl(BASE_URL)
-        RestangularProvider.setRequestSuffix('/')
-
-        ####### Internationalization ########
-        $translateProvider
-            .useStaticFilesLoader(
-                prefix: '/localizations/'
-                suffix: '.json'
-            )
-            .registerAvailableLanguageKeys(['en', 'es'],
-                'en_US': 'en',
-                'en_UK': 'en',
-                'es': 'es',
-            )
-            .fallbackLanguage('en')
-            .determinePreferredLanguage()
     )

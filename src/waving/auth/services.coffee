@@ -70,5 +70,5 @@ angular.module("barachiel.auth.services", [])
         if rejection.status is 401
             console.warn "Response Error 401", rejection
             $injector.get('AuthService').Logout()
-            $injector.get('$state').transitionTo "signup"
+            $injector.get('$state').transitionTo "st.signup"
         $q.reject rejection

@@ -1,0 +1,1 @@
+angular.module("barachiel.utils.directives", [])
