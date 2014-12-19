@@ -4,13 +4,15 @@
 
 <h2 class="name">{{user.name}}</h2>
 <p class="status" >
-    <b>SS:</b> Unrevealed
+    <b>SS:</b>
+    <span translate>{{user.sentimentalStatusHR()}}</span>
 </p>
 
 <span class="sex">
-    <b>G:</b> Unrevealed
+    <b>G:</b>
+    <span translate>{{user.sexHR()}}</span>
 </span>
 <span class="wavers badge">
-    5
+    <span>{{user.liked_number}}<span>
     <b> Ws</b>
 </span>

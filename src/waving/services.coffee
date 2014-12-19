@@ -31,6 +31,34 @@ angular.module("barachiel.services", [])
         return @_me
 
     Users.set_me = (rawUserJSON) -> @_me = Restangular.restangularizeElement '', rawUserJSON, 'users', {}
+
+    #Enums
+    Users.SentimentalStatus = 
+        DontSay           : 'U', Single            : 'S',
+        Married           : 'M', InRelationShip    : 'R'
+
+    Users.Sex = DontSay : 'U', Male    : 'M', Female  : 'F'
+
+    Users.RelInterest =
+        DontSay      : 'U', Male    : 'M', Female  : 'F',
+        Both         : 'B', Firends : 'R'
+
+    Users.ToTextMappings = SentimentalStatus: {}, Sex: {}, RelInterest: {}
+
+    Users.ToTextMappings.SentimentalStatus[Users.SentimentalStatus.DontSay]        = l("%global.unrevealed")
+    Users.ToTextMappings.SentimentalStatus[Users.SentimentalStatus.Single]         = l("%global.sstatus.single")
+    Users.ToTextMappings.SentimentalStatus[Users.SentimentalStatus.Married]        = l("%global.sstatus.married")
+    Users.ToTextMappings.SentimentalStatus[Users.SentimentalStatus.InRelationShip] = l("%global.sstatus.in_a_relationship")
+
+    Users.ToTextMappings.Sex[Users.Sex.DontSay] = l("%global.unrevealed")
+    Users.ToTextMappings.Sex[Users.Sex.Male]    = l("%global.gender.M")
+    Users.ToTextMappings.Sex[Users.Sex.Female]  = l("%global.gender.F")
+
+    Users.ToTextMappings.RelInterest[Users.RelInterest.DontSay] = l("%global.unrevealed")
+    Users.ToTextMappings.RelInterest[Users.RelInterest.Male]    = l("%global.rel_interest.male")
+    Users.ToTextMappings.RelInterest[Users.RelInterest.Female]  = l("%global.rel_interest.female")
+    Users.ToTextMappings.RelInterest[Users.RelInterest.Both]    = l("%global.rel_interest.both")
+    Users.ToTextMappings.RelInterest[Users.RelInterest.Friends] = l("%global.rel_interest.friends")
     
     # Model Methods
     Restangular.extendModel "users", (user) ->
@@ -42,6 +70,10 @@ angular.module("barachiel.services", [])
                 ),
                 ((error)=> error),
             )
+
+        user.sentimentalStatusHR = () -> Users.ToTextMappings.SentimentalStatus[@sentimental_status]
+        user.sexHR = () -> Users.ToTextMappings.SentimentalStatus[@sex]
+        user.relInterestHR = () -> Users.ToTextMappings.SentimentalStatus[@r_interest]
 
         if user.picture?
             user.s_picture = user.picture

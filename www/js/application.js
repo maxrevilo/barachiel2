@@ -353,6 +353,41 @@ angular.module("barachiel.services", []).factory("Wavers", function() {
   Users.set_me = function(rawUserJSON) {
     return this._me = Restangular.restangularizeElement('', rawUserJSON, 'users', {});
   };
+  Users.SentimentalStatus = {
+    DontSay: 'U',
+    Single: 'S',
+    Married: 'M',
+    InRelationShip: 'R'
+  };
+  Users.Sex = {
+    DontSay: 'U',
+    Male: 'M',
+    Female: 'F'
+  };
+  Users.RelInterest = {
+    DontSay: 'U',
+    Male: 'M',
+    Female: 'F',
+    Both: 'B',
+    Firends: 'R'
+  };
+  Users.ToTextMappings = {
+    SentimentalStatus: {},
+    Sex: {},
+    RelInterest: {}
+  };
+  Users.ToTextMappings.SentimentalStatus[Users.SentimentalStatus.DontSay] = l("%global.unrevealed");
+  Users.ToTextMappings.SentimentalStatus[Users.SentimentalStatus.Single] = l("%global.sstatus.single");
+  Users.ToTextMappings.SentimentalStatus[Users.SentimentalStatus.Married] = l("%global.sstatus.married");
+  Users.ToTextMappings.SentimentalStatus[Users.SentimentalStatus.InRelationShip] = l("%global.sstatus.in_a_relationship");
+  Users.ToTextMappings.Sex[Users.Sex.DontSay] = l("%global.unrevealed");
+  Users.ToTextMappings.Sex[Users.Sex.Male] = l("%global.gender.M");
+  Users.ToTextMappings.Sex[Users.Sex.Female] = l("%global.gender.F");
+  Users.ToTextMappings.RelInterest[Users.RelInterest.DontSay] = l("%global.unrevealed");
+  Users.ToTextMappings.RelInterest[Users.RelInterest.Male] = l("%global.rel_interest.male");
+  Users.ToTextMappings.RelInterest[Users.RelInterest.Female] = l("%global.rel_interest.female");
+  Users.ToTextMappings.RelInterest[Users.RelInterest.Both] = l("%global.rel_interest.both");
+  Users.ToTextMappings.RelInterest[Users.RelInterest.Friends] = l("%global.rel_interest.friends");
   Restangular.extendModel("users", function(user) {
     var default_img;
     user.change_image = function(image_uri) {
@@ -365,6 +400,15 @@ angular.module("barachiel.services", []).factory("Wavers", function() {
           return error;
         };
       })(this)));
+    };
+    user.sentimentalStatusHR = function() {
+      return Users.ToTextMappings.SentimentalStatus[this.sentimental_status];
+    };
+    user.sexHR = function() {
+      return Users.ToTextMappings.SentimentalStatus[this.sex];
+    };
+    user.relInterestHR = function() {
+      return Users.ToTextMappings.SentimentalStatus[this.r_interest];
     };
     if (user.picture != null) {
       user.s_picture = user.picture;
