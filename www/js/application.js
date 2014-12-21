@@ -188,10 +188,17 @@ angular.module("barachiel.controllers", []).controller("TabCtrl", function($scop
     return $scope.refreshUsers();
   });
   return $scope.refreshUsers();
-}).controller("WaversCtrl", function($scope, Wavers) {
-  return $scope.wavers = Wavers.all();
-}).controller("WaverDetailCtrl", function(_, $scope, $stateParams, Wavers) {
-  $scope.waver = Wavers.one($stateParams.waverId);
+}).controller("WaversCtrl", function($scope, Users) {
+  var me;
+  me = Users.me();
+  $scope.wavers = me.likes_to;
+  return me.refreshLikesTo();
+}).controller("WaverDetailCtrl", function(_, $scope, $stateParams, Likes) {
+  $scope.waver = {
+    id: 0,
+    name: 'Scruff McGruff',
+    user_id: 0
+  };
   return $scope.waver.__safe__name = _.escape($scope.waver.name);
 }).controller("ProfileCtrl", function($rootScope, $scope, $stateParams, $state, $ionicActionSheet, l, AuthService, Users, MediaManipulation, $timeout) {
   var user;
@@ -290,6 +297,19 @@ angular.module("barachiel.directives", []).directive('ygUserItem', function() {
     restrict: 'AEC',
     templateUrl: 'templates/user-item.html'
   };
+}).directive('ygWaverItem', function() {
+  return {
+    scope: {
+      waver: '='
+    },
+    controller: function($scope, $element, $attrs, $transclude) {
+      return $element.on('click', function() {
+        return window.location.hash = $attrs.href;
+      });
+    },
+    restrict: 'AEC',
+    templateUrl: 'templates/waver-item.html'
+  };
 });
 
 angular.module("barachiel.filters", []).filter("byDistance", function(_) {
@@ -300,33 +320,24 @@ angular.module("barachiel.filters", []).filter("byDistance", function(_) {
   };
 });
 
-angular.module("barachiel.services", []).factory("Wavers", function() {
-  var wavers;
-  wavers = [
-    {
-      id: 0,
-      name: 'Scruff McGruff',
-      user_id: 0
-    }, {
-      id: 1,
-      name: 'G.I. Joe',
-      user_id: 1
-    }, {
-      id: 2,
-      name: 'Miss Frizzle',
-      user_id: 2
-    }
-  ];
-  return {
-    all: function() {
-      return wavers;
-    },
-    get: function(waverId) {
-      return wavers[waverId];
-    }
+angular.module("barachiel.services", []).factory("Likes", function(Restangular, Users) {
+  var Likes;
+  Likes = Restangular.service('likes');
+  Likes.toMe = function() {
+    return this.getList();
   };
-}).factory("Users", function(BASE_URL, _, $q, l, Restangular, AuthService, MediaManipulation, $timeout) {
-  var Users;
+  Likes.get = function(id) {
+    return this.one(id).get();
+  };
+  Restangular.extendModel("likes", function(waver) {
+    waver.s_picture = Users.getPicture(waver.user);
+    waver.user = Restangular.restangularizeElement('', waver.user, 'users', {});
+    return waver;
+  });
+  return Likes;
+}).factory("Users", function(BASE_URL, _, l, $injector, Restangular, AuthService, MediaManipulation) {
+  var Likes, Users;
+  Likes = null;
   Users = Restangular.service('users');
   Users.all = function() {
     return this.getList();
@@ -352,6 +363,23 @@ angular.module("barachiel.services", []).factory("Wavers", function() {
   };
   Users.set_me = function(rawUserJSON) {
     return this._me = Restangular.restangularizeElement('', rawUserJSON, 'users', {});
+  };
+  Users.getPicture = function(user) {
+    var default_img, sex;
+    if (user && (user.picture != null)) {
+      return user.picture;
+    } else {
+      sex = (user && user.sex ? user.sex : 'u').toLowerCase();
+      default_img = 'img/avatars/' + sex + '_anonym.png';
+      return {
+        'id': -1,
+        'type': "I",
+        'uploader_id': -1,
+        'xBig': default_img,
+        'xFull': default_img,
+        'xLit': default_img
+      };
+    }
   };
   Users.SentimentalStatus = {
     DontSay: 'U',
@@ -389,7 +417,7 @@ angular.module("barachiel.services", []).factory("Wavers", function() {
   Users.ToTextMappings.RelInterest[Users.RelInterest.Both] = l("%global.rel_interest.both");
   Users.ToTextMappings.RelInterest[Users.RelInterest.Friends] = l("%global.rel_interest.friends");
   Restangular.extendModel("users", function(user) {
-    var default_img;
+    Likes = $injector.get("Likes");
     user.change_image = function(image_uri) {
       return MediaManipulation.upload_file(BASE_URL + '/multimedia/user/', image_uri).then(((function(_this) {
         return function(result) {
@@ -410,19 +438,22 @@ angular.module("barachiel.services", []).factory("Wavers", function() {
     user.relInterestHR = function() {
       return Users.ToTextMappings.SentimentalStatus[this.r_interest];
     };
-    if (user.picture != null) {
-      user.s_picture = user.picture;
-    } else {
-      default_img = 'img/avatars/' + (user.sex || 'u').toLowerCase() + '_anonym.png';
-      user.s_picture = {
-        'id': -1,
-        'type': "I",
-        'uploader_id': -1,
-        'xBig': default_img,
-        'xFull': default_img,
-        'xLit': default_img
-      };
+    user.refreshLikesTo = function() {
+      var promise;
+      promise = Likes.toMe();
+      return promise.then(function(likes) {
+        user.likes_to.length = 0;
+        Array.prototype.push.apply(user.likes_to, likes);
+        return likes;
+      });
+    };
+    if (user.liked != null) {
+      user.likes_to = Restangular.restangularizeCollection('', user.liked, 'likes', {});
     }
+    if (user.likes != null) {
+      user.likes_from = Restangular.restangularizeCollection('', user.likes, 'likes', {});
+    }
+    user.s_picture = Users.getPicture(user);
     return user;
   });
   return Users;

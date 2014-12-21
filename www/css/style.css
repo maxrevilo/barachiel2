@@ -8301,10 +8301,10 @@ ion-nav-bar .button {
   color: #0579f8;
   padding-left: 20px; }
 
-yg-user-item, [yg-user-item], .yg-user-item {
+yg-user-item, [yg-user-item], .yg-user-item, yg-waver-item, [yg-waver-item], .yg-waver-item {
   padding-right: 16px !important;
   padding-left: 82px !important; }
-  yg-user-item .picture, [yg-user-item] .picture, .yg-user-item .picture {
+  yg-user-item .picture, [yg-user-item] .picture, .yg-user-item .picture, yg-waver-item .picture, [yg-waver-item] .picture, .yg-waver-item .picture {
     position: absolute;
     top: 10px;
     left: 16px;
@@ -8313,22 +8313,22 @@ yg-user-item, [yg-user-item], .yg-user-item {
     border-radius: 50%;
     border: 2px solid #0579f8;
     overflow: hidden; }
-    yg-user-item .picture img, [yg-user-item] .picture img, .yg-user-item .picture img {
+    yg-user-item .picture img, [yg-user-item] .picture img, .yg-user-item .picture img, yg-waver-item .picture img, [yg-waver-item] .picture img, .yg-waver-item .picture img {
       height: 100%;
       border-radius: 50%; }
-  yg-user-item .name, [yg-user-item] .name, .yg-user-item .name {
+  yg-user-item .name, [yg-user-item] .name, .yg-user-item .name, yg-waver-item .name, [yg-waver-item] .name, .yg-waver-item .name {
     font-family: main_font;
     font-size: 18px;
     color: black; }
-  yg-user-item .status, [yg-user-item] .status, .yg-user-item .status {
+  yg-user-item .status, [yg-user-item] .status, .yg-user-item .status, yg-waver-item .status, [yg-waver-item] .status, .yg-waver-item .status {
     display: inline; }
-  yg-user-item .sex, [yg-user-item] .sex, .yg-user-item .sex {
+  yg-user-item .sex, [yg-user-item] .sex, .yg-user-item .sex, yg-waver-item .sex, [yg-waver-item] .sex, .yg-waver-item .sex {
     float: right; }
-  yg-user-item .wavers, [yg-user-item] .wavers, .yg-user-item .wavers {
+  yg-user-item .wavers, [yg-user-item] .wavers, .yg-user-item .wavers, yg-waver-item .wavers, [yg-waver-item] .wavers, .yg-waver-item .wavers {
     padding-right: 0;
     right: 16px;
     color: black; }
-    yg-user-item .wavers b, [yg-user-item] .wavers b, .yg-user-item .wavers b {
+    yg-user-item .wavers b, [yg-user-item] .wavers b, .yg-user-item .wavers b, yg-waver-item .wavers b, [yg-waver-item] .wavers b, .yg-waver-item .wavers b {
       font-size: 18px;
       color: #f0b840; }
 

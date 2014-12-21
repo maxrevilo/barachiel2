@@ -24,3 +24,9 @@ angular.module("barachiel.directives", [])
     # link: (scope, iElement, iAttrs) ->
     #     #register DOM listeners or update DOM
     #     #
+.directive 'ygWaverItem', () ->
+    scope: waver:'='
+    controller: ($scope, $element, $attrs, $transclude) ->
+        $element.on 'click', -> window.location.hash = $attrs.href
+    restrict: 'AEC'
+    templateUrl: 'templates/waver-item.html'

@@ -62,12 +62,14 @@ angular.module("barachiel.controllers", [])
     $scope.refreshUsers()
 )
 
-.controller("WaversCtrl", ($scope, Wavers) ->
-    $scope.wavers = Wavers.all()
+.controller("WaversCtrl", ($scope, Users) ->
+    me = Users.me()
+    $scope.wavers = me.likes_to
+    me.refreshLikesTo()
 )
 
-.controller("WaverDetailCtrl", (_, $scope, $stateParams, Wavers) ->
-    $scope.waver = Wavers.one $stateParams.waverId
+.controller("WaverDetailCtrl", (_, $scope, $stateParams, Likes) ->
+    $scope.waver = { id: 0, name: 'Scruff McGruff', user_id: 0 }
     $scope.waver.__safe__name = _.escape $scope.waver.name
     # "imgs/avatars/u_anonym.png"
 )

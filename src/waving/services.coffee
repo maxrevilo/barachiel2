@@ -1,16 +1,21 @@
 angular.module("barachiel.services", [])
 
-.factory "Wavers", ->
-    wavers =  [
-        { id: 0, name: 'Scruff McGruff', user_id: 0 },
-        { id: 1, name: 'G.I. Joe', user_id: 1 },
-        { id: 2, name: 'Miss Frizzle', user_id: 2 },
-    ]
+.factory "Likes", (Restangular, Users)->
+    Likes = Restangular.service 'likes'
 
-    all: -> wavers
-    get: (waverId) -> wavers[waverId]
+    Likes.toMe = ()-> @getList()
+    Likes.get = (id)-> @one(id).get()
 
-.factory "Users", (BASE_URL, _, $q, l, Restangular, AuthService, MediaManipulation, $timeout) ->
+    Restangular.extendModel "likes", (waver) ->
+        waver.s_picture = Users.getPicture waver.user
+        waver.user = Restangular.restangularizeElement '', waver.user, 'users', {}
+        return waver
+
+    return Likes
+
+.factory "Users", (BASE_URL, _, l, $injector, Restangular, AuthService, MediaManipulation) ->
+    Likes = null #This will be the Likes restangular service.
+
     #Le Service
     Users = Restangular.service 'users'
 
@@ -32,8 +37,19 @@ angular.module("barachiel.services", [])
 
     Users.set_me = (rawUserJSON) -> @_me = Restangular.restangularizeElement '', rawUserJSON, 'users', {}
 
+    Users.getPicture = (user) ->
+        if user and user.picture?
+            return user.picture
+        else
+            sex = (if user and user.sex then user.sex else 'u').toLowerCase()
+            default_img = 'img/avatars/' + sex + '_anonym.png'
+            
+            return  'id': -1, 'type': "I", 'uploader_id': -1
+                    , 'xBig': default_img, 'xFull': default_img,
+                    'xLit': default_img
+
     #Enums
-    Users.SentimentalStatus = 
+    Users.SentimentalStatus =
         DontSay           : 'U', Single            : 'S',
         Married           : 'M', InRelationShip    : 'R'
 
@@ -62,26 +78,34 @@ angular.module("barachiel.services", [])
     
     # Model Methods
     Restangular.extendModel "users", (user) ->
+        Likes = $injector.get "Likes"
+
         user.change_image = (image_uri) ->
-            MediaManipulation.upload_file BASE_URL + '/multimedia/user/', image_uri
-            .then(
-                ((result)=>
-                    @picture = JSON.parse result.response
-                ),
-                ((error)=> error),
-            )
+            return MediaManipulation.upload_file BASE_URL + '/multimedia/user/', image_uri
+                .then(
+                    ((result)=>
+                        @picture = JSON.parse result.response
+                    ),
+                    ((error)=> error),
+                )
 
         user.sentimentalStatusHR = () -> Users.ToTextMappings.SentimentalStatus[@sentimental_status]
         user.sexHR = () -> Users.ToTextMappings.SentimentalStatus[@sex]
         user.relInterestHR = () -> Users.ToTextMappings.SentimentalStatus[@r_interest]
 
-        if user.picture?
-            user.s_picture = user.picture
-        else
-            default_img = 'img/avatars/' + (user.sex or 'u').toLowerCase() + '_anonym.png'
-            user.s_picture = 'id': -1, 'type': "I", 'uploader_id': -1
-                , 'xBig': default_img, 'xFull': default_img, 'xLit': default_img
+        # Hydratation:
+        user.refreshLikesTo = () ->
+            promise = Likes.toMe()
+            return promise.then (likes) ->
+                user.likes_to.length = 0 # Empty the array
+                Array.prototype.push.apply(user.likes_to, likes)
+                return likes
 
-        user
+        user.likes_to =  Restangular.restangularizeCollection '', user.liked, 'likes', {} if user.liked?
+        user.likes_from =  Restangular.restangularizeCollection '', user.likes, 'likes', {} if user.likes?
 
-    Users
+        user.s_picture = Users.getPicture user
+
+        return user
+
+    return Users

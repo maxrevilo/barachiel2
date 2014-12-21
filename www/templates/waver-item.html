@@ -1,0 +1,22 @@
+<div class="picture">
+    <img ng-src="{{ waver.s_picture.xLit }}">
+</div>
+
+<h2 class="name">
+    <span ng-if="waver.anonymous" translate>
+        %wave.anonymous
+    </span>
+    <span ng-if="!waver.anonymous">
+        {{waver.user.name}}
+    </span>
+</h2>
+
+<p class="status">
+    <b>SS:</b>
+    <span translate>{{waver.user.sentimentalStatusHR()}}</span>
+</p>
+
+<span class="sex">
+    <b>G:</b>
+    <span translate>{{waver.user.sexHR()}}</span>
+</span>
