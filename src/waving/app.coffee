@@ -6,7 +6,8 @@ angular.module("barachiel", [
         "ngAnimate"
         "underscore"
         "angular-progress-arc"
-        # "pascalprecht.translate"
+        'angulartics'
+        'angulartics.mixpanel'
         "barachiel.i18n"
         "barachiel.utils.directives"
         "barachiel.utils.services"

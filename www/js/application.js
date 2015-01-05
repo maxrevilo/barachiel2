@@ -1,4 +1,4 @@
-angular.module("barachiel", ["barachiel.config", "ngCordova", "restangular", "ionic", "ngAnimate", "underscore", "angular-progress-arc", "barachiel.i18n", "barachiel.utils.directives", "barachiel.utils.services", "barachiel.device.services", "barachiel.auth.services", "barachiel.auth.controllers", "barachiel.directives", "barachiel.filters", "barachiel.controllers", "barachiel.services"]).run(function($ionicPlatform, $rootScope, $state, $window, AuthService) {
+angular.module("barachiel", ["barachiel.config", "ngCordova", "restangular", "ionic", "ngAnimate", "underscore", "angular-progress-arc", 'angulartics', 'angulartics.mixpanel', "barachiel.i18n", "barachiel.utils.directives", "barachiel.utils.services", "barachiel.device.services", "barachiel.auth.services", "barachiel.auth.controllers", "barachiel.directives", "barachiel.filters", "barachiel.controllers", "barachiel.services"]).run(function($ionicPlatform, $rootScope, $state, $window, AuthService) {
   $window['$rootScope'] = $rootScope;
   return $ionicPlatform.ready(function() {
     console.log("Barachiel running on " + window.platform_service_definition.name);
@@ -786,6 +786,12 @@ angular.module("barachiel.utils.services", []).factory("Messenger", function($wi
       return (_(errors).reduce((function(arr, error) {
         return arr.concat(error[0]);
       }), [])).join(', ');
+    }
+  };
+}).factory("analytics", function($analytics) {
+  return {
+    track: function(name, data) {
+      return $analytics.eventTrack(name, data);
     }
   };
 }).factory("MediaManipulation", function(_, $q, $window, $ionicPlatform, $cordovaCamera, $cordovaFile) {
