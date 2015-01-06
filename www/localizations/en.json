@@ -99,7 +99,7 @@
     "__WAVERS__" : "",
     "%wavers.title" : "Wavers",
     "%wavers.loading" : "Loading users who have Waved at you...",
-    "%wavers.nothing_yet" : "No one has Waved at you yet.</br>Go out! Maybe someone get interested and Wave at you ;D.",
+    "%wavers.nothing_yet" : "No one has Waved at you yet. Go out! Maybe someone get interested and Wave at you ;D.",
 
     "__WAVE__" : "",
     "%wave.title": "Wave",

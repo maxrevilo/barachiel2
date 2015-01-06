@@ -99,7 +99,7 @@
     "__WAVERS__" : "",
     "%wavers.title" : "Usuarios que te han hecho Wave",
     "%wavers.loading" : "Cargando personas que te han hecho Wave...",
-    "%wavers.nothing_yet" : "Todavía nadie te ha enviado ningún Wave.</br>Sal por ahí y seguro alguien lo hace! ;D.",
+    "%wavers.nothing_yet" : "Todavía nadie te ha enviado ningún Wave. Sal por ahí y seguro alguien lo hace! ;D.",
 
     "__WAVE__" : "",
     "%wave.title": "Saludo",

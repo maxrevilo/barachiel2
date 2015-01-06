@@ -61,20 +61,20 @@ angular.module("barachiel.services", [])
 
     Users.ToTextMappings = SentimentalStatus: {}, Sex: {}, RelInterest: {}
 
-    Users.ToTextMappings.SentimentalStatus[Users.SentimentalStatus.DontSay]        = l("%global.unrevealed")
-    Users.ToTextMappings.SentimentalStatus[Users.SentimentalStatus.Single]         = l("%global.sstatus.single")
-    Users.ToTextMappings.SentimentalStatus[Users.SentimentalStatus.Married]        = l("%global.sstatus.married")
-    Users.ToTextMappings.SentimentalStatus[Users.SentimentalStatus.InRelationShip] = l("%global.sstatus.in_a_relationship")
+    Users.ToTextMappings.SentimentalStatus[Users.SentimentalStatus.DontSay]        = "%global.unrevealed"
+    Users.ToTextMappings.SentimentalStatus[Users.SentimentalStatus.Single]         = "%global.sstatus.single"
+    Users.ToTextMappings.SentimentalStatus[Users.SentimentalStatus.Married]        = "%global.sstatus.married"
+    Users.ToTextMappings.SentimentalStatus[Users.SentimentalStatus.InRelationShip] = "%global.sstatus.in_a_relationship"
 
-    Users.ToTextMappings.Sex[Users.Sex.DontSay] = l("%global.unrevealed")
-    Users.ToTextMappings.Sex[Users.Sex.Male]    = l("%global.gender.M")
-    Users.ToTextMappings.Sex[Users.Sex.Female]  = l("%global.gender.F")
+    Users.ToTextMappings.Sex[Users.Sex.DontSay] = "%global.unrevealed"
+    Users.ToTextMappings.Sex[Users.Sex.Male]    = "%global.gender.M"
+    Users.ToTextMappings.Sex[Users.Sex.Female]  = "%global.gender.F"
 
-    Users.ToTextMappings.RelInterest[Users.RelInterest.DontSay] = l("%global.unrevealed")
-    Users.ToTextMappings.RelInterest[Users.RelInterest.Male]    = l("%global.rel_interest.male")
-    Users.ToTextMappings.RelInterest[Users.RelInterest.Female]  = l("%global.rel_interest.female")
-    Users.ToTextMappings.RelInterest[Users.RelInterest.Both]    = l("%global.rel_interest.both")
-    Users.ToTextMappings.RelInterest[Users.RelInterest.Friends] = l("%global.rel_interest.friends")
+    Users.ToTextMappings.RelInterest[Users.RelInterest.DontSay] = "%global.unrevealed"
+    Users.ToTextMappings.RelInterest[Users.RelInterest.Male]    = "%global.rel_interest.male"
+    Users.ToTextMappings.RelInterest[Users.RelInterest.Female]  = "%global.rel_interest.female"
+    Users.ToTextMappings.RelInterest[Users.RelInterest.Both]    = "%global.rel_interest.both"
+    Users.ToTextMappings.RelInterest[Users.RelInterest.Friends] = "%global.rel_interest.friends"
     
     # Model Methods
     Restangular.extendModel "users", (user) ->

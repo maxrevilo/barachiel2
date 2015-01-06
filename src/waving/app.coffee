@@ -60,8 +60,7 @@ angular.module("barachiel", [
             .state("st",
                 abstract: true
                 template: '<ui-view/>'
-                # resolve: i18n: (i18n) -> i18n.loadTranslations "/localizations/#{i18n.lang}.json"
-                resolve: i18n: (i18n) -> i18n.loadTranslations "https://dl.dropboxusercontent.com/u/4461171/web/en.json"
+                resolve: i18n: (i18n) -> i18n.loadTranslations "/localizations/#{i18n.lang}.json"
             )
             .state("st.login",
                 url: "/login"
