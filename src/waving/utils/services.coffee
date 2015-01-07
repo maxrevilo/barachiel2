@@ -25,6 +25,16 @@ angular.module("barachiel.utils.services", [])
     translateAndSay: (tkey, args) -> Messenger.say l(tkey, args)
     parseFormErrors: (errors) -> (_(errors).reduce ((arr, error) -> arr.concat error[0]), []).join(', ')
 
+.factory "analytics", ($analytics) ->
+    track: (name, data) -> $analytics.eventTrack name, data
+    setUser: (user)->
+        $analytics.setUsername(user.id);
+        analytics_user = _.pick(user, ['picture','sex','liked_number','sentimental_status','tel','r_interest','birthday','age','bio','likes_number']);
+        analytics_user['$name'] = user.name;
+        analytics_user['$email'] = user.email;
+        analytics_user['picture'] = if analytics_user.picture then analytics_user.picture.xLit else '';
+        $analytics.setUserProperties(analytics_user);
+
 # .factory "l", ($window) -> (text, args) -> $window.l text, args
 
 .factory "MediaManipulation", (_, $q, $window, $ionicPlatform, $cordovaCamera, $cordovaFile) ->

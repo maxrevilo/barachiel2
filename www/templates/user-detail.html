@@ -7,9 +7,12 @@
 
         <a  id="send_wave_btn"
             class="button button-large button-block button-clear button-calm"
-            ng-click=""
-            translate>
-            %profile.send_wave
+            ng-click="sendLike()">
+            
+            <span translate>%profile.send_wave</span>
+
+            <i class="loading icon ion-loading-c" 
+                ng-class="{on: wave_loading}"></i>
         </a>
         
         <div class="list">

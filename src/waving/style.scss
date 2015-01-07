@@ -101,6 +101,14 @@ ion-nav-bar .button { color: $calm !important; }
     }
 }
 
+#tab-wavers {
+    h3 {
+        padding-top: 50px;
+        margin: 0px 20px;
+        text-align: center;
+    }
+}
+
 yg-user-item, [yg-user-item], .yg-user-item,
 yg-waver-item, [yg-waver-item], .yg-waver-item, {
     
@@ -190,6 +198,14 @@ yg-waver-item, [yg-waver-item], .yg-waver-item, {
 
     #send_wave_btn {
         font-weight: bold;
+        .loading {
+            font-size: 24px;
+            opacity: 0;
+            @include transition(opacity, ease, 0.6s);
+            &.on {
+                opacity: 1;
+            }
+        }
     }
 
     .list {

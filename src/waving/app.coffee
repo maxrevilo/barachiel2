@@ -19,7 +19,7 @@ angular.module("barachiel", [
         "barachiel.controllers"
         "barachiel.services"
     ])
-    .run(($ionicPlatform, $rootScope, $state, $window, AuthService) ->
+    .run(($ionicPlatform, $rootScope, $state, $window, AuthService, Users) ->
         $window['$rootScope'] = $rootScope
 
         $ionicPlatform.ready ->
@@ -31,6 +31,9 @@ angular.module("barachiel", [
                 cordova.plugins.Keyboard.hideKeyboardAccessoryBar false
             # org.apache.cordova.statusbar required
             StatusBar.styleDefault() if window.StatusBar
+
+            #Loading user:
+            Users.me()
 
             if AuthService.state_requires_auth($state.current) and not AuthService.isAuthenticated(true)
                 $state.transitionTo "st.signup"
@@ -91,6 +94,7 @@ angular.module("barachiel", [
                 abstract: true
                 templateUrl: "templates/tabs.html"
                 controller: 'TabCtrl'
+                resolve: Me: (Users) -> Users.me_promise()
             )
             .state("st.tab.radar",
                 url: "/radar"

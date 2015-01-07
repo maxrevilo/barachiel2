@@ -1,5 +1,5 @@
 angular.module("barachiel.auth.services", [])
-.factory "AuthService", ($rootScope, $http, $log, _, utils, StorageService, BASE_URL) ->
+.factory "AuthService", ($rootScope, $http, $log, _, utils, StorageService, analytics, BASE_URL) ->
     _is_auth = ->
         if $rootScope.user?
             yes
@@ -13,6 +13,7 @@ angular.module("barachiel.auth.services", [])
 
     _set_user = (user) ->
         StorageService.set 'user', JSON.stringify user
+        analytics.setUser user
         return $rootScope.user = user
 
     _unset_user = ->
@@ -45,7 +46,7 @@ angular.module("barachiel.auth.services", [])
             .success (user, status, headers, config) -> _set_user user
             .error (data) -> $log.error "Couldn't Signup: " + data
 
-    GetUser: -> $rootScope.user
+    GetUser: -> $rootScope.user if _is_auth()
 
     isAuthenticated: (http_check=false) ->
         if _is_auth() and http_check

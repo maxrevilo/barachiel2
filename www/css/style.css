@@ -8301,6 +8301,11 @@ ion-nav-bar .button {
   color: #0579f8;
   padding-left: 20px; }
 
+#tab-wavers h3 {
+  padding-top: 50px;
+  margin: 0px 20px;
+  text-align: center; }
+
 yg-user-item, [yg-user-item], .yg-user-item, yg-waver-item, [yg-waver-item], .yg-waver-item {
   padding-right: 16px !important;
   padding-left: 82px !important; }
@@ -8372,6 +8377,16 @@ yg-user-item, [yg-user-item], .yg-user-item, yg-waver-item, [yg-waver-item], .yg
       opacity: 1; }
 #profile-view #send_wave_btn, #user-detail #send_wave_btn {
   font-weight: bold; }
+  #profile-view #send_wave_btn .loading, #user-detail #send_wave_btn .loading {
+    font-size: 24px;
+    opacity: 0;
+    -webkit-transition: opacity ease 0.6s;
+    -moz-transition: opacity ease 0.6s;
+    -ms-transition: opacity ease 0.6s;
+    -o-transition: opacity ease 0.6s;
+    transition: opacity ease 0.6s; }
+    #profile-view #send_wave_btn .loading.on, #user-detail #send_wave_btn .loading.on {
+      opacity: 1; }
 #profile-view .list .item, #user-detail .list .item {
   color: black; }
   #profile-view .list .item input, #profile-view .list .item .content, #user-detail .list .item input, #user-detail .list .item .content {

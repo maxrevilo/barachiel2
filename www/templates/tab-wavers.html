@@ -1,6 +1,10 @@
 <ion-view title="{{ '%wavers.title' | translate }}">
-    <ion-content class="has-header">
-        <ion-list>
+    <ion-content id="tab-wavers" class="has-header">
+        <h3 ng-hide="wavers.length > 0" translate>
+            %wavers.nothing_yet
+        </h3>
+
+        <ion-list  ng-show="wavers.length > 0">
             <yg-waver-item ion-item 
                 ng-repeat="waver in wavers"
                 waver="waver"

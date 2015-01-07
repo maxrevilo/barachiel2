@@ -13,17 +13,18 @@ angular.module("barachiel.services", [])
 
     return Likes
 
-.factory "Users", (BASE_URL, _, l, $injector, Restangular, AuthService, MediaManipulation) ->
+.factory "Users", (BASE_URL, _, l, $injector, Restangular, AuthService, MediaManipulation, $q) ->
     Likes = null #This will be the Likes restangular service.
 
     #Le Service
     Users = Restangular.service 'users'
 
+    me_deferred = $q.defer();
+
     # Model Manager Methods
     Users.all = -> @getList()
     Users.get = (id)-> @one(id).get()
     Users.me = (force_request)->
-        promise = null
         if not @_me?
             userData = AuthService.GetUser()
             if userData?
@@ -35,7 +36,12 @@ angular.module("barachiel.services", [])
             @_me.get()
         return @_me
 
-    Users.set_me = (rawUserJSON) -> @_me = Restangular.restangularizeElement '', rawUserJSON, 'users', {}
+    Users.me_promise = () -> me_deferred.promise
+
+    Users.set_me = (rawUserJSON) ->
+        @_me = Restangular.restangularizeElement '', rawUserJSON, 'users', {}
+        me_deferred.resolve @_me
+        return @_me
 
     Users.getPicture = (user) ->
         if user and user.picture?

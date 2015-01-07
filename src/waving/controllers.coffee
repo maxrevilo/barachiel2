@@ -30,9 +30,10 @@ angular.module("barachiel.controllers", [])
     $scope.exit = -> $state.go "st.tab.radar"
 )
 
-.controller("RadarCtrl", ($scope, l, Users) ->
+.controller("RadarCtrl", ($scope, l, Users, analytics) ->
     $scope.state = 'loading'
     $scope.error = {}
+    last_mixpanel_detection = 0;
 
     $scope.refreshUsers = ->
         promise = null
@@ -41,8 +42,15 @@ angular.module("barachiel.controllers", [])
         else
             promise = Users.all()
             $scope.users = promise.$object
+
         return promise.then(
-            -> $scope.state = 'ready'
+            (users)->
+                detections = users.length;
+                if last_mixpanel_detection != detections
+                    last_mixpanel_detection = detections;
+                    analytics.track "radar.detections", "number": detections
+
+                $scope.state = 'ready'
             (jqXHR)->
                 $scope.state = 'error'
                 $scope.error.message = switch jqXHR.status
@@ -62,10 +70,9 @@ angular.module("barachiel.controllers", [])
     $scope.refreshUsers()
 )
 
-.controller("WaversCtrl", ($scope, Users) ->
-    me = Users.me()
-    $scope.wavers = me.likes_to
-    me.refreshLikesTo()
+.controller("WaversCtrl", ($scope, Users, Me) ->
+    $scope.wavers = Me.likes_to
+    Me.refreshLikesTo()
 )
 
 .controller("WaverDetailCtrl", (_, $scope, $stateParams, Likes) ->
@@ -134,7 +141,24 @@ angular.module("barachiel.controllers", [])
                 true
 )
 
-.controller("UserDetailCtrl", ($scope, $stateParams, Users) ->
+.controller("UserDetailCtrl", ($scope, $stateParams, Users, analytics) ->
     userPromise = Users.get $stateParams.userId
     $scope.user = userPromise.$object
+
+    $scope.sendLike = ->
+        anonymous = false
+        $scope.wave_loading = not $scope.wave_loading
+        analytics.track "action.likes.send", 'type': if anonymous then 'anonymous' else 'direct'
+
+        (jqXHR)->
+            error_message = switch jqXHR.status
+                when 0 then l("%global.error.server_not_found")
+                else "#{jqXHR.statusText} - #{jqXHR.responseText}"
+
+            analytics.track("action.likes.send.error",
+                "type": "Server Request",
+                "description": error_message,
+                "status": jqXHR.status
+            )
+
 )

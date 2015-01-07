@@ -1,4 +1,4 @@
-angular.module("barachiel", ["barachiel.config", "ngCordova", "restangular", "ionic", "ngAnimate", "underscore", "angular-progress-arc", 'angulartics', 'angulartics.mixpanel', "barachiel.i18n", "barachiel.utils.directives", "barachiel.utils.services", "barachiel.device.services", "barachiel.auth.services", "barachiel.auth.controllers", "barachiel.directives", "barachiel.filters", "barachiel.controllers", "barachiel.services"]).run(function($ionicPlatform, $rootScope, $state, $window, AuthService) {
+angular.module("barachiel", ["barachiel.config", "ngCordova", "restangular", "ionic", "ngAnimate", "underscore", "angular-progress-arc", 'angulartics', 'angulartics.mixpanel', "barachiel.i18n", "barachiel.utils.directives", "barachiel.utils.services", "barachiel.device.services", "barachiel.auth.services", "barachiel.auth.controllers", "barachiel.directives", "barachiel.filters", "barachiel.controllers", "barachiel.services"]).run(function($ionicPlatform, $rootScope, $state, $window, AuthService, Users) {
   $window['$rootScope'] = $rootScope;
   return $ionicPlatform.ready(function() {
     console.log("Barachiel running on " + window.platform_service_definition.name);
@@ -8,6 +8,7 @@ angular.module("barachiel", ["barachiel.config", "ngCordova", "restangular", "io
     if (window.StatusBar) {
       StatusBar.styleDefault();
     }
+    Users.me();
     if (AuthService.state_requires_auth($state.current) && !AuthService.isAuthenticated(true)) {
       $state.transitionTo("st.signup");
     }
@@ -28,7 +29,7 @@ angular.module("barachiel", ["barachiel.config", "ngCordova", "restangular", "io
     template: '<ui-view/>',
     resolve: {
       i18n: function(i18n) {
-        return i18n.loadTranslations("https://dl.dropboxusercontent.com/u/4461171/web/en.json");
+        return i18n.loadTranslations("/localizations/" + i18n.lang + ".json");
       }
     }
   }).state("st.login", {
@@ -55,7 +56,12 @@ angular.module("barachiel", ["barachiel.config", "ngCordova", "restangular", "io
     url: "/tab",
     abstract: true,
     templateUrl: "templates/tabs.html",
-    controller: 'TabCtrl'
+    controller: 'TabCtrl',
+    resolve: {
+      Me: function(Users) {
+        return Users.me_promise();
+      }
+    }
   }).state("st.tab.radar", {
     url: "/radar",
     views: {
@@ -153,9 +159,11 @@ angular.module("barachiel.controllers", []).controller("TabCtrl", function($scop
   return $scope.exit = function() {
     return $state.go("st.tab.radar");
   };
-}).controller("RadarCtrl", function($scope, l, Users) {
+}).controller("RadarCtrl", function($scope, l, Users, analytics) {
+  var last_mixpanel_detection;
   $scope.state = 'loading';
   $scope.error = {};
+  last_mixpanel_detection = 0;
   $scope.refreshUsers = function() {
     var promise;
     promise = null;
@@ -165,7 +173,15 @@ angular.module("barachiel.controllers", []).controller("TabCtrl", function($scop
       promise = Users.all();
       $scope.users = promise.$object;
     }
-    return promise.then(function() {
+    return promise.then(function(users) {
+      var detections;
+      detections = users.length;
+      if (last_mixpanel_detection !== detections) {
+        last_mixpanel_detection = detections;
+        analytics.track("radar.detections", {
+          "number": detections
+        });
+      }
       return $scope.state = 'ready';
     }, function(jqXHR) {
       $scope.state = 'error';
@@ -188,11 +204,9 @@ angular.module("barachiel.controllers", []).controller("TabCtrl", function($scop
     return $scope.refreshUsers();
   });
   return $scope.refreshUsers();
-}).controller("WaversCtrl", function($scope, Users) {
-  var me;
-  me = Users.me();
-  $scope.wavers = me.likes_to;
-  return me.refreshLikesTo();
+}).controller("WaversCtrl", function($scope, Users, Me) {
+  $scope.wavers = Me.likes_to;
+  return Me.refreshLikesTo();
 }).controller("WaverDetailCtrl", function(_, $scope, $stateParams, Likes) {
   $scope.waver = {
     id: 0,
@@ -278,10 +292,34 @@ angular.module("barachiel.controllers", []).controller("TabCtrl", function($scop
       }
     });
   };
-}).controller("UserDetailCtrl", function($scope, $stateParams, Users) {
+}).controller("UserDetailCtrl", function($scope, $stateParams, Users, analytics) {
   var userPromise;
   userPromise = Users.get($stateParams.userId);
-  return $scope.user = userPromise.$object;
+  $scope.user = userPromise.$object;
+  return $scope.sendLike = function() {
+    var anonymous;
+    anonymous = false;
+    $scope.wave_loading = !$scope.wave_loading;
+    analytics.track("action.likes.send", {
+      'type': anonymous ? 'anonymous' : 'direct'
+    });
+    return function(jqXHR) {
+      var error_message;
+      error_message = (function() {
+        switch (jqXHR.status) {
+          case 0:
+            return l("%global.error.server_not_found");
+          default:
+            return "" + jqXHR.statusText + " - " + jqXHR.responseText;
+        }
+      })();
+      return analytics.track("action.likes.send.error", {
+        "type": "Server Request",
+        "description": error_message,
+        "status": jqXHR.status
+      });
+    };
+  };
 });
 
 angular.module("barachiel.directives", []).directive('ygUserItem', function() {
@@ -335,10 +373,11 @@ angular.module("barachiel.services", []).factory("Likes", function(Restangular, 
     return waver;
   });
   return Likes;
-}).factory("Users", function(BASE_URL, _, l, $injector, Restangular, AuthService, MediaManipulation) {
-  var Likes, Users;
+}).factory("Users", function(BASE_URL, _, l, $injector, Restangular, AuthService, MediaManipulation, $q) {
+  var Likes, Users, me_deferred;
   Likes = null;
   Users = Restangular.service('users');
+  me_deferred = $q.defer();
   Users.all = function() {
     return this.getList();
   };
@@ -346,8 +385,7 @@ angular.module("barachiel.services", []).factory("Likes", function(Restangular, 
     return this.one(id).get();
   };
   Users.me = function(force_request) {
-    var promise, userData;
-    promise = null;
+    var userData;
     if (this._me == null) {
       userData = AuthService.GetUser();
       if (userData != null) {
@@ -361,8 +399,13 @@ angular.module("barachiel.services", []).factory("Likes", function(Restangular, 
     }
     return this._me;
   };
+  Users.me_promise = function() {
+    return me_deferred.promise;
+  };
   Users.set_me = function(rawUserJSON) {
-    return this._me = Restangular.restangularizeElement('', rawUserJSON, 'users', {});
+    this._me = Restangular.restangularizeElement('', rawUserJSON, 'users', {});
+    me_deferred.resolve(this._me);
+    return this._me;
   };
   Users.getPicture = function(user) {
     var default_img, sex;
@@ -404,18 +447,18 @@ angular.module("barachiel.services", []).factory("Likes", function(Restangular, 
     Sex: {},
     RelInterest: {}
   };
-  Users.ToTextMappings.SentimentalStatus[Users.SentimentalStatus.DontSay] = l("%global.unrevealed");
-  Users.ToTextMappings.SentimentalStatus[Users.SentimentalStatus.Single] = l("%global.sstatus.single");
-  Users.ToTextMappings.SentimentalStatus[Users.SentimentalStatus.Married] = l("%global.sstatus.married");
-  Users.ToTextMappings.SentimentalStatus[Users.SentimentalStatus.InRelationShip] = l("%global.sstatus.in_a_relationship");
-  Users.ToTextMappings.Sex[Users.Sex.DontSay] = l("%global.unrevealed");
-  Users.ToTextMappings.Sex[Users.Sex.Male] = l("%global.gender.M");
-  Users.ToTextMappings.Sex[Users.Sex.Female] = l("%global.gender.F");
-  Users.ToTextMappings.RelInterest[Users.RelInterest.DontSay] = l("%global.unrevealed");
-  Users.ToTextMappings.RelInterest[Users.RelInterest.Male] = l("%global.rel_interest.male");
-  Users.ToTextMappings.RelInterest[Users.RelInterest.Female] = l("%global.rel_interest.female");
-  Users.ToTextMappings.RelInterest[Users.RelInterest.Both] = l("%global.rel_interest.both");
-  Users.ToTextMappings.RelInterest[Users.RelInterest.Friends] = l("%global.rel_interest.friends");
+  Users.ToTextMappings.SentimentalStatus[Users.SentimentalStatus.DontSay] = "%global.unrevealed";
+  Users.ToTextMappings.SentimentalStatus[Users.SentimentalStatus.Single] = "%global.sstatus.single";
+  Users.ToTextMappings.SentimentalStatus[Users.SentimentalStatus.Married] = "%global.sstatus.married";
+  Users.ToTextMappings.SentimentalStatus[Users.SentimentalStatus.InRelationShip] = "%global.sstatus.in_a_relationship";
+  Users.ToTextMappings.Sex[Users.Sex.DontSay] = "%global.unrevealed";
+  Users.ToTextMappings.Sex[Users.Sex.Male] = "%global.gender.M";
+  Users.ToTextMappings.Sex[Users.Sex.Female] = "%global.gender.F";
+  Users.ToTextMappings.RelInterest[Users.RelInterest.DontSay] = "%global.unrevealed";
+  Users.ToTextMappings.RelInterest[Users.RelInterest.Male] = "%global.rel_interest.male";
+  Users.ToTextMappings.RelInterest[Users.RelInterest.Female] = "%global.rel_interest.female";
+  Users.ToTextMappings.RelInterest[Users.RelInterest.Both] = "%global.rel_interest.both";
+  Users.ToTextMappings.RelInterest[Users.RelInterest.Friends] = "%global.rel_interest.friends";
   Restangular.extendModel("users", function(user) {
     Likes = $injector.get("Likes");
     user.change_image = function(image_uri) {
@@ -536,7 +579,7 @@ angular.module("barachiel.auth.controllers", []).controller("SignupCtrl", functi
   };
 });
 
-angular.module("barachiel.auth.services", []).factory("AuthService", function($rootScope, $http, $log, _, utils, StorageService, BASE_URL) {
+angular.module("barachiel.auth.services", []).factory("AuthService", function($rootScope, $http, $log, _, utils, StorageService, analytics, BASE_URL) {
   var _is_auth, _set_user, _unset_user;
   _is_auth = function() {
     var raw_ls_user;
@@ -554,6 +597,7 @@ angular.module("barachiel.auth.services", []).factory("AuthService", function($r
   };
   _set_user = function(user) {
     StorageService.set('user', JSON.stringify(user));
+    analytics.setUser(user);
     return $rootScope.user = user;
   };
   _unset_user = function() {
@@ -597,7 +641,9 @@ angular.module("barachiel.auth.services", []).factory("AuthService", function($r
       });
     },
     GetUser: function() {
-      return $rootScope.user;
+      if (_is_auth()) {
+        return $rootScope.user;
+      }
     },
     isAuthenticated: function(http_check) {
       if (http_check == null) {
@@ -668,8 +714,11 @@ angular.module("barachiel.i18n.directives", []).directive('translate', function(
       user: '='
     },
     restrict: 'A',
+    priority: 1,
     link: function(scope, iElement, iAttrs) {
-      return iElement.text(l(iElement.text().trim()));
+      return scope.$watch(iAttrs.ngBind, function(new_binded_value) {
+        return iElement.text(l(iElement.text().trim()));
+      });
     }
   };
 });
@@ -792,6 +841,15 @@ angular.module("barachiel.utils.services", []).factory("Messenger", function($wi
   return {
     track: function(name, data) {
       return $analytics.eventTrack(name, data);
+    },
+    setUser: function(user) {
+      var analytics_user;
+      $analytics.setUsername(user.id);
+      analytics_user = _.pick(user, ['picture', 'sex', 'liked_number', 'sentimental_status', 'tel', 'r_interest', 'birthday', 'age', 'bio', 'likes_number']);
+      analytics_user['$name'] = user.name;
+      analytics_user['$email'] = user.email;
+      analytics_user['picture'] = analytics_user.picture ? analytics_user.picture.xLit : '';
+      return $analytics.setUserProperties(analytics_user);
     }
   };
 }).factory("MediaManipulation", function(_, $q, $window, $ionicPlatform, $cordovaCamera, $cordovaFile) {
