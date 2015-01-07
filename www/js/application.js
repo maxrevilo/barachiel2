@@ -292,33 +292,75 @@ angular.module("barachiel.controllers", []).controller("TabCtrl", function($scop
       }
     });
   };
-}).controller("UserDetailCtrl", function($scope, $stateParams, Users, analytics) {
+}).controller("UserDetailCtrl", function($scope, $stateParams, Users, Me, Likes, analytics) {
   var userPromise;
   userPromise = Users.get($stateParams.userId);
   $scope.user = userPromise.$object;
-  return $scope.sendLike = function() {
+  $scope.me = Me;
+  userPromise.then(function() {
+    return $scope.liked = $scope.user.isLikedByMe();
+  });
+  $scope.sendLike = function() {
     var anonymous;
     anonymous = false;
-    $scope.wave_loading = !$scope.wave_loading;
-    analytics.track("action.likes.send", {
-      'type': anonymous ? 'anonymous' : 'direct'
-    });
-    return function(jqXHR) {
+    $scope.wave_loading = true;
+    return Likes.send($scope.user.id, anonymous).then((function(like) {
+      $scope.wave_loading = false;
+      $scope.liked = true;
+      return analytics.track("action.likes.send", {
+        'type': anonymous ? 'anonymous' : 'direct'
+      });
+    }), (function(jqXHR) {
       var error_message;
+      $scope.wave_loading = false;
       error_message = (function() {
         switch (jqXHR.status) {
           case 0:
             return l("%global.error.server_not_found");
           default:
-            return "" + jqXHR.statusText + " - " + jqXHR.responseText;
+            return jqXHR.data || jqXHR.statusText;
         }
       })();
-      return analytics.track("action.likes.send.error", {
+      if (jqXHR.status === 400) {
+        $scope.liked = true;
+      }
+      analytics.track("action.likes.send.error", {
         "type": "Server Request",
         "description": error_message,
         "status": jqXHR.status
       });
-    };
+      return alert("Error: " + error_message);
+    }));
+  };
+  return $scope.unLike = function() {
+    if (confirm(l("%profile.unlike_confirm"))) {
+      $scope.wave_loading = true;
+      return Likes.unlike($scope.user.id).then((function() {
+        $scope.wave_loading = false;
+        $scope.liked = false;
+        return analytics.track("action.likes.unlike");
+      }), (function(jqXHR) {
+        var error_message;
+        $scope.wave_loading = false;
+        error_message = (function() {
+          switch (jqXHR.status) {
+            case 0:
+              return l("%global.error.server_not_found");
+            default:
+              return jqXHR.data || jqXHR.statusText;
+          }
+        })();
+        if (jqXHR.status === 404) {
+          $scope.liked = false;
+        }
+        analytics.track("action.likes.send.error", {
+          "type": "Server Request",
+          "description": error_message,
+          "status": jqXHR.status
+        });
+        return alert("Error: " + error_message);
+      }));
+    }
   };
 });
 
@@ -358,7 +400,7 @@ angular.module("barachiel.filters", []).filter("byDistance", function(_) {
   };
 });
 
-angular.module("barachiel.services", []).factory("Likes", function(Restangular, Users) {
+angular.module("barachiel.services", []).factory("Likes", function(Restangular, Users, utils) {
   var Likes;
   Likes = Restangular.service('likes');
   Likes.toMe = function() {
@@ -366,6 +408,34 @@ angular.module("barachiel.services", []).factory("Likes", function(Restangular, 
   };
   Likes.get = function(id) {
     return this.one(id).get();
+  };
+  Likes.send = function(user_id, is_anonymous) {
+    var postPromise;
+    postPromise = Restangular.all('likes/from').customPOST(utils.to_form_params({
+      'user_id': user_id,
+      'anonym': is_anonymous
+    }), '', {}, {
+      "Content-Type": 'application/x-www-form-urlencoded'
+    });
+    postPromise = postPromise.then(function(like) {
+      Users.me().likes.unshift(like);
+      return like;
+    });
+    return postPromise;
+  };
+  Likes.unlike = function(user_id) {
+    var like, me, removePromise;
+    me = Users.me();
+    like = me.getLikeByUserId(user_id);
+    removePromise = like.remove().then(function(deletedLike) {
+      var index;
+      index = me.likes_from.indexOf(like);
+      if (index !== -1) {
+        me.likes_from.splice(index, 1);
+      }
+      return deletedLike;
+    });
+    return removePromise;
   };
   Restangular.extendModel("likes", function(waver) {
     waver.s_picture = Users.getPicture(waver.user);
@@ -476,10 +546,10 @@ angular.module("barachiel.services", []).factory("Likes", function(Restangular, 
       return Users.ToTextMappings.SentimentalStatus[this.sentimental_status];
     };
     user.sexHR = function() {
-      return Users.ToTextMappings.SentimentalStatus[this.sex];
+      return Users.ToTextMappings.Sex[this.sex];
     };
     user.relInterestHR = function() {
-      return Users.ToTextMappings.SentimentalStatus[this.r_interest];
+      return Users.ToTextMappings.RelInterest[this.r_interest];
     };
     user.refreshLikesTo = function() {
       var promise;
@@ -490,11 +560,19 @@ angular.module("barachiel.services", []).factory("Likes", function(Restangular, 
         return likes;
       });
     };
+    user.isLikedByMe = function() {
+      return Users.me().getLikeByUserId(user.id) != null;
+    };
+    user.getLikeByUserId = function(user_id) {
+      return _(this.likes_from).find(function(like) {
+        return like.user.id === user_id;
+      });
+    };
     if (user.liked != null) {
       user.likes_to = Restangular.restangularizeCollection('', user.liked, 'likes', {});
     }
     if (user.likes != null) {
-      user.likes_from = Restangular.restangularizeCollection('', user.likes, 'likes', {});
+      user.likes_from = Restangular.restangularizeCollection('', user.likes, 'likes/from', {});
     }
     user.s_picture = Users.getPicture(user);
     return user;

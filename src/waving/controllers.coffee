@@ -78,7 +78,6 @@ angular.module("barachiel.controllers", [])
 .controller("WaverDetailCtrl", (_, $scope, $stateParams, Likes) ->
     $scope.waver = { id: 0, name: 'Scruff McGruff', user_id: 0 }
     $scope.waver.__safe__name = _.escape $scope.waver.name
-    # "imgs/avatars/u_anonym.png"
 )
 
 .controller("ProfileCtrl", ($rootScope, $scope, $stateParams, $state,
@@ -141,24 +140,66 @@ angular.module("barachiel.controllers", [])
                 true
 )
 
-.controller("UserDetailCtrl", ($scope, $stateParams, Users, analytics) ->
+.controller("UserDetailCtrl", ($scope, $stateParams, Users, Me, Likes, analytics) ->
     userPromise = Users.get $stateParams.userId
     $scope.user = userPromise.$object
+    $scope.me = Me
+    userPromise.then ->
+        $scope.liked = $scope.user.isLikedByMe()
 
     $scope.sendLike = ->
         anonymous = false
-        $scope.wave_loading = not $scope.wave_loading
-        analytics.track "action.likes.send", 'type': if anonymous then 'anonymous' else 'direct'
+        $scope.wave_loading = true
 
-        (jqXHR)->
-            error_message = switch jqXHR.status
-                when 0 then l("%global.error.server_not_found")
-                else "#{jqXHR.statusText} - #{jqXHR.responseText}"
+        Likes.send($scope.user.id, anonymous)
+            .then(
+                ((like)->
+                    $scope.wave_loading = false
+                    $scope.liked = true
+                    analytics.track "action.likes.send", 'type': if anonymous then 'anonymous' else 'direct'
+                ), ((jqXHR)->
+                    $scope.wave_loading = false
+                    error_message = switch jqXHR.status
+                        when 0 then l("%global.error.server_not_found")
+                        else jqXHR.data or jqXHR.statusText
 
-            analytics.track("action.likes.send.error",
-                "type": "Server Request",
-                "description": error_message,
-                "status": jqXHR.status
+                    if jqXHR.status == 400 then $scope.liked = true
+
+                    analytics.track("action.likes.send.error",
+                        "type": "Server Request",
+                        "description": error_message,
+                        "status": jqXHR.status
+                    )
+
+                    alert("Error: #{error_message}")
+                )
             )
 
+    $scope.unLike = ->
+        if confirm l("%profile.unlike_confirm")
+            $scope.wave_loading = true
+
+            Likes.unlike($scope.user.id)
+                .then(
+                    (()-> 
+                        $scope.wave_loading = false
+                        $scope.liked = false
+                        analytics.track "action.likes.unlike"
+                    ), ((jqXHR)-> 
+                        $scope.wave_loading = false
+                        error_message = switch jqXHR.status
+                            when 0 then l("%global.error.server_not_found")
+                            else jqXHR.data or jqXHR.statusText
+
+                        if jqXHR.status == 404 then $scope.liked = false
+
+                        analytics.track("action.likes.send.error",
+                            "type": "Server Request",
+                            "description": error_message,
+                            "status": jqXHR.status
+                        )
+
+                        alert("Error: #{error_message}")
+                    )
+                )
 )

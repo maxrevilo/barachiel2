@@ -134,6 +134,8 @@
     "%profile.loading" : "Cargando Perfil...",
     "%profile.change_picture" : "Cambiar foto",
     "%profile.send_wave" : "Enviar un Wave",
+    "%profile.unwave" : "Quitar Wave",
+    "%profile.unlike_confirm": "Vas a retirar tu Wave ¿estás seguro?",
     "%profile.form.title" : "Datos de perfil",
     "%profile.form.name" : "Nombre",
     "%profile.form.password" : "Contraseña",

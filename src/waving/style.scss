@@ -196,17 +196,44 @@ yg-waver-item, [yg-waver-item], .yg-waver-item, {
         }
     }
 
-    #send_wave_btn {
-        font-weight: bold;
-        .loading {
-            font-size: 24px;
-            opacity: 0;
-            @include transition(opacity, ease, 0.6s);
-            &.on {
-                opacity: 1;
+    .send_wave_container {
+        position:relative;
+        overflow:hidden;
+        height: 70px;
+
+        #send_wave_btn {
+            font-weight: bold;
+
+            .loading {
+                font-size: 24px;
+                opacity: 0;
+                margin-right: -32px;
+                @include transition(top, ease, 0.6s);
+                &.on {
+                    opacity: 1;
+                }
+            }
+
+            &.ng-animate {
+                @include transition(all, cubic-bezier(0.250, 0.460, 0.450, 0.940), 0.6s);
+                position: absolute;
+                top:0;
+                right: 0;
+                left: 0;
+            }
+
+            &.ng-leave.ng-leave-active, &.ng-enter {
+                top:-50px;
+                font-size: 0;
+            }
+            &.ng-leave, &.ng-enter.ng-enter-active {
+                top:0;
+                font-size: 20px;
             }
         }
     }
+
+
 
     .list {
         .item {

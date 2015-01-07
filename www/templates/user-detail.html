@@ -5,21 +5,34 @@
             <img ng-src="{{ user.s_picture.xBig }}" />
         </div>
 
-        <a  id="send_wave_btn"
-            class="button button-large button-block button-clear button-calm"
-            ng-click="sendLike()">
-            
-            <span translate>%profile.send_wave</span>
+        <div class="send_wave_container" ng-switch="liked">
+            <a  id="send_wave_btn"
+                class="button button-large button-block button-clear button-calm"
+                ng-switch-when="false"
+                ng-click="sendLike()">
+                
+                <span translate>%profile.send_wave</span>
 
-            <i class="loading icon ion-loading-c" 
-                ng-class="{on: wave_loading}"></i>
-        </a>
+                <i class="loading icon ion-loading-c" 
+                    ng-class="{on: wave_loading}"></i>
+            </a>
+
+            <a  id="send_wave_btn"
+                class="button button-large button-block button-clear button-assertive"
+                ng-switch-when="true"
+                ng-click="unLike()">
+                
+                <span translate>%profile.unwave</span>
+
+                <i class="loading icon ion-loading-c" 
+                    ng-class="{on: wave_loading}"></i>
+            </a>
+        </div>
         
         <div class="list">
             <div class="item">
-                <span class="content name" translate>
+                <span class="content name">
                     {{ user.name }}
-                    Oliver a perez c
                 </span>
             </div>
 
@@ -37,11 +50,11 @@
                 <span class="content">{{ user.email }}</span>
             </label>
 
-            <label class="item item-input"  ng-if="user.sex_str">
+            <label class="item item-input"  ng-if="user.sex">
                 <span class="input-label" translate>
                     %profile.form.sex
                 </span>
-                <span class="content" translate>{{ user.sex_str }}</span>
+                <span class="content" translate>{{ user.sexHR() }}</span>
             </label>
 
             <label class="item item-input"  ng-if="user.age">
@@ -51,18 +64,18 @@
                 <span class="content">{{ user.age }}</span>
             </label>
 
-            <label class="item item-input"  ng-if="user.interested_str">
+            <label class="item item-input"  ng-if="user.interested">
                 <span class="input-label" translate>
                     %profile.form.interested
                 </span>
-                <span class="content" translate>{{ user.interested_str }}</span>
+                <span class="content" translate>{{ user.relInterestHR() }}</span>
             </label>
             
-            <label class="item item-input" ng-if="user.sentimental_status_str">
+            <label class="item item-input" ng-if="user.sentimental_status">
                 <span class="input-label" translate>
                     %profile.form.sentimental_status
                 </span>
-                <span class="content" translate>{{ user.sentimental_status_str }}</span>
+                <span class="content" translate>{{ user.sentimentalStatusHR() }}</span>
             </label>
 
             <label class="item item-input" ng-if="user.bio">

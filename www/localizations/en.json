@@ -134,6 +134,8 @@
     "%profile.loading" : "Loading profile...",
     "%profile.change_picture" : "Change picture",
     "%profile.send_wave" : "Send a Wave!",
+    "%profile.unwave" : "UnWave",
+    "%profile.unlike_confirm": "You will withdraw your Wave, Are you shoure?",
     "%profile.form.title" : "Profile",
     "%profile.form.name" : "Name",
     "%profile.form.password" : "Password",

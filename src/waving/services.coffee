@@ -1,10 +1,34 @@
 angular.module("barachiel.services", [])
 
-.factory "Likes", (Restangular, Users)->
+.factory "Likes", (Restangular, Users, utils)->
     Likes = Restangular.service 'likes'
 
     Likes.toMe = ()-> @getList()
     Likes.get = (id)-> @one(id).get()
+
+    Likes.send = (user_id, is_anonymous)->
+        postPromise = Restangular.all('likes/from').customPOST(
+            utils.to_form_params('user_id': user_id, 'anonym': is_anonymous),
+            '', {},
+            "Content-Type":'application/x-www-form-urlencoded'
+        )
+        postPromise = postPromise.then(
+            (like) ->
+                Users.me().likes.unshift like
+                return like
+        )
+        return postPromise
+
+    Likes.unlike = (user_id)->
+        me = Users.me()
+        like = me.getLikeByUserId user_id
+        removePromise = like.remove().then((deletedLike) ->
+            index = me.likes_from.indexOf(like)
+            me.likes_from.splice(index, 1) if index != -1
+            return deletedLike
+        )
+
+        return removePromise
 
     Restangular.extendModel "likes", (waver) ->
         waver.s_picture = Users.getPicture waver.user
@@ -96,10 +120,9 @@ angular.module("barachiel.services", [])
                 )
 
         user.sentimentalStatusHR = () -> Users.ToTextMappings.SentimentalStatus[@sentimental_status]
-        user.sexHR = () -> Users.ToTextMappings.SentimentalStatus[@sex]
-        user.relInterestHR = () -> Users.ToTextMappings.SentimentalStatus[@r_interest]
+        user.sexHR = () -> Users.ToTextMappings.Sex[@sex]
+        user.relInterestHR = () -> Users.ToTextMappings.RelInterest[@r_interest]
 
-        # Hydratation:
         user.refreshLikesTo = () ->
             promise = Likes.toMe()
             return promise.then (likes) ->
@@ -107,8 +130,13 @@ angular.module("barachiel.services", [])
                 Array.prototype.push.apply(user.likes_to, likes)
                 return likes
 
+        user.isLikedByMe = -> Users.me().getLikeByUserId(user.id)?
+
+        user.getLikeByUserId = (user_id) -> _(@likes_from).find (like)-> like.user.id == user_id
+
+        # Hydratation:
         user.likes_to =  Restangular.restangularizeCollection '', user.liked, 'likes', {} if user.liked?
-        user.likes_from =  Restangular.restangularizeCollection '', user.likes, 'likes', {} if user.likes?
+        user.likes_from =  Restangular.restangularizeCollection '', user.likes, 'likes/from', {} if user.likes?
 
         user.s_picture = Users.getPicture user
 
