@@ -3,6 +3,8 @@ base_describe "New User enters to the App and signs up:", (ptor, params)->
     #Page objects
     SignupForm = require("../page_objects/signup_form.po.coffee")
 
+    id = Date.now().toString(36)
+
     #beforeEach ->
 
     it "Should automatically redirect to signup when location hash is empty", ->
@@ -15,8 +17,8 @@ base_describe "New User enters to the App and signs up:", (ptor, params)->
         expect(ptor.isElementPresent(signup_form.user_password)).toBe true
 
     it "Should be able to allow signup", ->
-        signup_form.setName "New User Test"
-        signup_form.setEmail "valid@email.com"
+        signup_form.setName "TestUser-#{id}" 
+        signup_form.setEmail "valid#{id}@email.com"
         signup_form.setPassword "123456"
         signup_form.signup()
 

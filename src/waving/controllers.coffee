@@ -140,7 +140,7 @@ angular.module("barachiel.controllers", [])
                 true
 )
 
-.controller("UserDetailCtrl", ($scope, $stateParams, Users, Me, Likes, analytics) ->
+.controller("UserDetailCtrl", ($scope, $stateParams, l, Users, Me, Likes, analytics) ->
     userPromise = Users.get $stateParams.userId
     $scope.user = userPromise.$object
     $scope.me = Me

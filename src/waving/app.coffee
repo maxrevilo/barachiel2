@@ -33,7 +33,7 @@ angular.module("barachiel", [
             StatusBar.styleDefault() if window.StatusBar
 
             #Loading user:
-            Users.me()
+            try Users.me()
 
             if AuthService.state_requires_auth($state.current) and not AuthService.isAuthenticated(true)
                 $state.transitionTo "st.signup"

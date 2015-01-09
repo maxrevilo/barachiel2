@@ -8,6 +8,7 @@ base_describe "User enters to the App and logs in with existing account:", (ptor
 
     it "Should automatically redirect to login when location hash is empty", ->
         expect(browser.getLocationAbsUrl()).toMatch "/signup"
+        # ptor.sleep(50000000);
 
     signup_form = new SignupForm()
     it "Should move to login screen when the go to loggin button is pressed", ->
@@ -20,8 +21,8 @@ base_describe "User enters to the App and logs in with existing account:", (ptor
         expect(ptor.isElementPresent(login_form.user_password)).toBe true
 
     it "Should be able to allow login", ->
-        login_form.setEmail "valid@email.com"
-        login_form.setPassword "123456"
+        login_form.setEmail "test1@t.com"
+        login_form.setPassword "1234"
         login_form.login()
 
     it "Should redirect to the radar screen", ->

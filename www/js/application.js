@@ -8,7 +8,9 @@ angular.module("barachiel", ["barachiel.config", "ngCordova", "restangular", "io
     if (window.StatusBar) {
       StatusBar.styleDefault();
     }
-    Users.me();
+    try {
+      Users.me();
+    } catch (_error) {}
     if (AuthService.state_requires_auth($state.current) && !AuthService.isAuthenticated(true)) {
       $state.transitionTo("st.signup");
     }
@@ -292,7 +294,7 @@ angular.module("barachiel.controllers", []).controller("TabCtrl", function($scop
       }
     });
   };
-}).controller("UserDetailCtrl", function($scope, $stateParams, Users, Me, Likes, analytics) {
+}).controller("UserDetailCtrl", function($scope, $stateParams, l, Users, Me, Likes, analytics) {
   var userPromise;
   userPromise = Users.get($stateParams.userId);
   $scope.user = userPromise.$object;
@@ -443,11 +445,16 @@ angular.module("barachiel.services", []).factory("Likes", function(Restangular, 
     return waver;
   });
   return Likes;
-}).factory("Users", function(BASE_URL, _, l, $injector, Restangular, AuthService, MediaManipulation, $q) {
+}).factory("Users", function($rootScope, BASE_URL, _, l, $injector, Restangular, AuthService, MediaManipulation, $q) {
   var Likes, Users, me_deferred;
   Likes = null;
   Users = Restangular.service('users');
   me_deferred = $q.defer();
+  $rootScope.$watch("user", function(user) {
+    if (user != null) {
+      return Users.set_me(user);
+    }
+  });
   Users.all = function() {
     return this.getList();
   };

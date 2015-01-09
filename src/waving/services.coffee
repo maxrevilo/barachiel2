@@ -37,13 +37,15 @@ angular.module("barachiel.services", [])
 
     return Likes
 
-.factory "Users", (BASE_URL, _, l, $injector, Restangular, AuthService, MediaManipulation, $q) ->
+.factory "Users", ($rootScope, BASE_URL, _, l, $injector, Restangular, AuthService, MediaManipulation, $q) ->
     Likes = null #This will be the Likes restangular service.
 
     #Le Service
     Users = Restangular.service 'users'
 
-    me_deferred = $q.defer();
+    me_deferred = $q.defer()
+
+    $rootScope.$watch "user", (user) -> Users.set_me user if user?
 
     # Model Manager Methods
     Users.all = -> @getList()

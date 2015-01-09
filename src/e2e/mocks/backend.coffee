@@ -60,4 +60,4 @@ exports.httpBackendMock = ->
             else
                 [401, 'Invalid session', {}]
 
-        $httpBackend.whenGET(RegExp("\/.*")).passThrough()
+        $httpBackend.whenGET(/.*/).passThrough()

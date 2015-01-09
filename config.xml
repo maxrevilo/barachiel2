@@ -2,7 +2,7 @@
 <widget id="com.yougrups.barachiel" version="0.0.1" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
   <name>Waving</name>
   <description>
-        An Ionic Framework and Cordova project.
+        Made with Ionic and Cordova.
     </description>
   <author email="oliver.a.perez.c@gmail.com" href="http://ionicframework.com/">
       Oliver Pérez
