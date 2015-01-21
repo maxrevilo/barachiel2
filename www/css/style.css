@@ -8213,24 +8213,35 @@ $ios-transition-box-shadow-end: -200px 0px 200px rgba(0,0,0,0.15), -5px 0px 5px 
       margin: auto; }
 
 @font-face {
-  font-family: main_font;
-  src: url('fonts/trench.otf'); }
+  font-family: 'Trench';
+  font-weight: 100;
+  src: url("fonts/Trench/trench100nv.otf"); }
+
+@font-face {
+  font-family: 'Trench';
+  font-weight: 300;
+  src: url("fonts/Trench/trench300nv.otf"); }
+
+@font-face {
+  font-family: 'Trench';
+  font-weight: 500;
+  src: url("fonts/Trench/trench500nv.otf"); }
 
 body, input {
-  font-family: main_font;
+  font-family: Trench;
   font-size: 16px; }
 
 img {
   background-color: #f8f8f8; }
 
 h1, h2, h3, h4, h5, h6 {
-  font-family: main_font; }
+  font-family: Trench; }
 
 ion-nav-back-button {
   width: 40px; }
 
 .bar .title {
-  font-family: main_font;
+  font-family: 'Trench';
   font-size: 28px;
   font-weight: bold; }
 
@@ -8322,7 +8333,7 @@ yg-user-item, [yg-user-item], .yg-user-item, yg-waver-item, [yg-waver-item], .yg
       height: 100%;
       border-radius: 50%; }
   yg-user-item .name, [yg-user-item] .name, .yg-user-item .name, yg-waver-item .name, [yg-waver-item] .name, .yg-waver-item .name {
-    font-family: main_font;
+    font-family: 'Trench';
     font-size: 18px;
     color: black; }
   yg-user-item .status, [yg-user-item] .status, .yg-user-item .status, yg-waver-item .status, [yg-waver-item] .status, .yg-waver-item .status {

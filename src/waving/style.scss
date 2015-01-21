@@ -24,12 +24,25 @@ $dark:        #444 !default;
 @import "tutorial/tutorial";
 
 @font-face {
-    font-family: main_font;
-    src: url('fonts/trench.otf');
+    font-family: 'Trench';
+    font-weight: 100;
+    src: url("fonts/Trench/trench100nv.otf");
+}
+
+@font-face {
+    font-family: 'Trench';
+    font-weight: 300;
+    src: url("fonts/Trench/trench300nv.otf");
+}
+
+@font-face {
+    font-family: 'Trench';
+    font-weight: 500;
+    src: url("fonts/Trench/trench500nv.otf");
 }
 
 body, input {
-    font-family: main_font;
+    font-family: Trench;
     font-size: 16px;
 }
 
@@ -37,7 +50,7 @@ img {
     background-color: $stable;
 }
 
-h1, h2, h3, h4, h5, h6 { font-family: main_font; }
+h1, h2, h3, h4, h5, h6 { font-family: Trench; }
 
 @mixin tab-icon($icon_name) {
     background-repeat: no-repeat;
@@ -54,7 +67,7 @@ ion-nav-back-button {
 
 .bar {
     .title {
-        font-family: main_font;
+        font-family: 'Trench';
         font-size: 28px;
         font-weight: bold;
     }
@@ -131,7 +144,7 @@ yg-waver-item, [yg-waver-item], .yg-waver-item, {
         }
     }
     .name {
-        font-family: main_font;
+        font-family: 'Trench';
         font-size: 18px;
         color: black;
     }
