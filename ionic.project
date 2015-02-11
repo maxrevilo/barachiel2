@@ -1,4 +1,13 @@
 {
-  "name": "Waving",
-  "app_id": ""
+  "name": "Waving App",
+  "app_id": "com.yougrups.barachiel",
+  "gulpStartupTasks": [
+    "sass",
+    "coffee",
+    "watch"
+  ],
+  "watchPatterns": [
+    "www/**/*",
+    "!www/lib/**/*"
+  ]
 }

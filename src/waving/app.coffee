@@ -32,6 +32,8 @@ angular.module("barachiel", [
             # org.apache.cordova.statusbar required
             StatusBar.styleDefault() if window.StatusBar
 
+            window.cordova.logger.__onDeviceReady()
+
             #Loading user:
             try Users.me()
 
@@ -56,14 +58,13 @@ angular.module("barachiel", [
 
         ####### Internationalization ########
         i18nProvider.lang('en')
-        # i18nProvider.translations('%radar.title': 'Radar')
 
         ####### Routing ########
         $stateProvider
             .state("st",
                 abstract: true
-                template: '<ui-view/>'
-                resolve: i18n: (i18n) -> i18n.loadTranslations "/localizations/#{i18n.lang}.json"
+                template: '<ion-nav-view/>'
+                resolve: i18n: (i18n) -> i18n.loadTranslations "localizations/#{i18n.lang}.json"
             )
             .state("st.login",
                 url: "/login"

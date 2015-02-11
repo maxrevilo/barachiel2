@@ -8,6 +8,7 @@ angular.module("barachiel", ["barachiel.config", "ngCordova", "restangular", "io
     if (window.StatusBar) {
       StatusBar.styleDefault();
     }
+    window.cordova.logger.__onDeviceReady();
     try {
       Users.me();
     } catch (_error) {}
@@ -28,10 +29,10 @@ angular.module("barachiel", ["barachiel.config", "ngCordova", "restangular", "io
   i18nProvider.lang('en');
   $stateProvider.state("st", {
     abstract: true,
-    template: '<ui-view/>',
+    template: '<ion-nav-view/>',
     resolve: {
       i18n: function(i18n) {
-        return i18n.loadTranslations("/localizations/" + i18n.lang + ".json");
+        return i18n.loadTranslations("localizations/" + i18n.lang + ".json");
       }
     }
   }).state("st.login", {
@@ -831,16 +832,20 @@ angular.module("barachiel.i18n", ['barachiel.i18n.directives', 'barachiel.i18n.s
     }
   };
   this.$get = [
-    '$http', function($http) {
+    '$http', '$q', function($http, $q) {
       return {
         lang: lang,
         translations: translations,
         loadTranslations: function(url) {
-          return $http.get(url).success((function(_this) {
+          var deferred;
+          deferred = $q.defer();
+          $http.get(url).success((function(_this) {
             return function(result) {
-              return _this.translations = JSON.parse(JSON.stringify(result));
+              _this.translations = JSON.parse(JSON.stringify(result));
+              return deferred.resolve(_this);
             };
           })(this));
+          return deferred.promise;
         },
         translate: function(key, args) {
           var a, arg, value, _i, _len;

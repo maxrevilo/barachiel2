@@ -1,4 +1,4 @@
-base_describe "New User enters to the App and signs up:", (ptor, params)->
+base_describe "New User enters to the App and signs up:", (browser, params)->
 
     #Page objects
     SignupForm = require("../page_objects/signup_form.po.coffee")
@@ -12,9 +12,9 @@ base_describe "New User enters to the App and signs up:", (ptor, params)->
 
     signup_form = new SignupForm()
     it "Should consist of the 3 signup fields", ->
-        expect(ptor.isElementPresent(signup_form.user_name)).toBe true
-        expect(ptor.isElementPresent(signup_form.user_email)).toBe true
-        expect(ptor.isElementPresent(signup_form.user_password)).toBe true
+        expect(browser.isElementPresent(signup_form.user_name)).toBe true
+        expect(browser.isElementPresent(signup_form.user_email)).toBe true
+        expect(browser.isElementPresent(signup_form.user_password)).toBe true
 
     it "Should be able to allow signup", ->
         signup_form.setName "TestUser-#{id}" 

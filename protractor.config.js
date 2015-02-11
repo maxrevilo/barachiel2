@@ -10,15 +10,14 @@ exports.config = {
     ],
     jasmineNodeOpts: {
         showColors: true,
-        // defaultTimeoutInterval: 30000,
-        defaultTimeoutInterval: 1800000,
+        defaultTimeoutInterval: 30000,
+        // defaultTimeoutInterval: 1800000,
         isVerbose: true,
     },
-    // allScriptsTimeout: 20000,
-    allScriptsTimeout: 1800000,
+    allScriptsTimeout: 20000,
+    // allScriptsTimeout: 1800000,
     onPrepare: function(){
         browser.driver.get('http://localhost:8100');
-        ptor = protractor.getInstance();
         params = browser.params;
 
         afterEach(function () {
@@ -36,7 +35,7 @@ exports.config = {
         base_describe = function(text, callback) {
             describe(text, function() {
                 it("Will start from begining", function() {
-                    ptor.ignoreSynchronization = false; 
+                    browser.ignoreSynchronization = false; 
                     browser.addMockModule('barachiel.config', function () {
                         var module = angular.module('barachiel.config').config(function($provide) {
                             $provide.constant('BASE_URL', 'http://localhost:8000');
@@ -46,12 +45,12 @@ exports.config = {
                     browser.get("http://localhost:8100");
                     browser.executeScript('window.sessionStorage.clear();');
                     browser.executeScript('window.localStorage.clear();');
-                    ptor.refresh();
+                    browser.refresh();
 
                     
                 });
 
-                callback(ptor, params);
+                callback(browser, params);
             });
         };
     },

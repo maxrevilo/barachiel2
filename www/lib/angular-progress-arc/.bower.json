@@ -36,6 +36,5 @@
   },
   "_source": "git://github.com/mathewbyrne/angular-progress-arc.git",
   "_target": "~0.5.0",
-  "_originalSource": "angular-progress-arc",
-  "_direct": true
+  "_originalSource": "angular-progress-arc"
 }

@@ -19,9 +19,6 @@ angular.module("barachiel.controllers", [])
     .then (modal) ->
         $scope.modal = modal
         modal_scope.modal = modal
-
-    # $scope.$on '$destroy', () -> $scope.modal.remove()
-    # $scope.$on 'modal.hidden', () ->
 )
 
 .controller("TutorialCtrl", ($scope, $state, $ionicSlideBoxDelegate) ->
@@ -33,7 +30,7 @@ angular.module("barachiel.controllers", [])
 .controller("RadarCtrl", ($scope, l, Users, analytics) ->
     $scope.state = 'loading'
     $scope.error = {}
-    last_mixpanel_detection = 0;
+    last_mixpanel_detection = 0
 
     $scope.refreshUsers = ->
         promise = null
@@ -45,9 +42,9 @@ angular.module("barachiel.controllers", [])
 
         return promise.then(
             (users)->
-                detections = users.length;
+                detections = users.length
                 if last_mixpanel_detection != detections
-                    last_mixpanel_detection = detections;
+                    last_mixpanel_detection = detections
                     analytics.track "radar.detections", "number": detections
 
                 $scope.state = 'ready'
@@ -181,11 +178,11 @@ angular.module("barachiel.controllers", [])
 
             Likes.unlike($scope.user.id)
                 .then(
-                    (()-> 
+                    (()->
                         $scope.wave_loading = false
                         $scope.liked = false
                         analytics.track "action.likes.unlike"
-                    ), ((jqXHR)-> 
+                    ), ((jqXHR)->
                         $scope.wave_loading = false
                         error_message = switch jqXHR.status
                             when 0 then l("%global.error.server_not_found")

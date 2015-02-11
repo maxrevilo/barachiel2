@@ -12,22 +12,25 @@ var paths = {
   sass_index: ['./src/waving/style.scss'],
   sass: ['./src/**/*.scss'],
   coffee: [
-    './src/waving/*.coffee', // ** is NOT recursive -.-
     './src/waving/**/*.coffee',
     //Ignore tests
-    '!./src/waving/*.spec.coffee',
     '!./src/waving/**/*.spec.coffee'
-  ]
+  ],
+  js_folder: './www/js/',
+  css_folder: './www/css/',
 };
 
-gulp.task('default', ['sass']);
+gulp.task('default', ['sass', 'coffee']);
 
 gulp.task('sass', function(done) {
   gulp.src(paths.sass_index)
-    .pipe(sass({ errLogToConsole: true}))
-    .pipe(rename({ extname: '.css' }))
-    .pipe(concat('style.css'))
-    .pipe(gulp.dest('./www/css'))
+    .pipe(sass())
+    .pipe(gulp.dest(paths.css_folder))
+    .pipe(minifyCss({
+      keepSpecialComments: 0
+    }))
+    .pipe(rename({ extname: '.min.css' }))
+    .pipe(gulp.dest(paths.css_folder))
     .on('end', done);
 });
 
@@ -35,7 +38,7 @@ gulp.task('coffee', function(done) {
   gulp.src(paths.coffee)
   .pipe(coffee({bare: true}).on('error', gutil.log))
   .pipe(concat('application.js'))
-  .pipe(gulp.dest('./www/js'))
+  .pipe(gulp.dest(paths.js_folder))
   .on('end', done);
 });
 

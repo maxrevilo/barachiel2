@@ -10,11 +10,15 @@ angular.module("barachiel.i18n", [
     @lang = (val) -> lang = val if val?
     @translations = (val) -> lang = val if val?
 
-    @$get = ['$http', ($http) ->
+    @$get = ['$http', '$q', ($http, $q) ->
         lang: lang,
         translations: translations,
         loadTranslations: (url) ->
-            $http.get(url).success (result) => @translations = JSON.parse JSON.stringify result
+            deferred = $q.defer()
+            $http.get(url).success (result) =>
+                @translations = JSON.parse JSON.stringify result
+                deferred.resolve this
+            return deferred.promise
 
         translate: (key, args) ->
             if not (typeof args is "object" and args instanceof Array)

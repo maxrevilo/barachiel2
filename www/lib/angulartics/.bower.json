@@ -1,6 +1,6 @@
 {
   "name": "angulartics",
-  "version": "0.17.1",
+  "version": "0.17.2",
   "main": [
     "src/angulartics.js",
     "src/angulartics-adobe.js",
@@ -22,7 +22,7 @@
   ],
   "dependencies": {
     "angular": ">= 1.1.5",
-    "jquery-waypoints": "~v2.0.3",
+    "waypoints": "~2.0.3",
     "SHA-1": "*"
   },
   "devDependencies": {
@@ -31,14 +31,13 @@
     "angular-ui-router": "~0.2"
   },
   "homepage": "https://github.com/luisfarzati/angulartics",
-  "_release": "0.17.1",
+  "_release": "0.17.2",
   "_resolution": {
     "type": "version",
-    "tag": "0.17.1",
-    "commit": "e634b74ab6bf36bf3e8e3fb18256bc1ec2229fba"
+    "tag": "0.17.2",
+    "commit": "1b8bbf0608bec2c23105e2b31e86293e9c0ed5d6"
   },
   "_source": "git://github.com/luisfarzati/angulartics.git",
   "_target": "~0.17.1",
-  "_originalSource": "angulartics",
-  "_direct": true
+  "_originalSource": "angulartics"
 }

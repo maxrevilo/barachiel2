@@ -1,4 +1,4 @@
-base_describe "User enters to the App and logs in with existing account:", (ptor, params)->
+base_describe "User enters to the App and logs in with existing account:", (browser, params)->
     
     #Page objects
     LoginForm = require("../page_objects/login_form.po.coffee")
@@ -8,7 +8,7 @@ base_describe "User enters to the App and logs in with existing account:", (ptor
 
     it "Should automatically redirect to login when location hash is empty", ->
         expect(browser.getLocationAbsUrl()).toMatch "/signup"
-        # ptor.sleep(50000000);
+        # browser.sleep(50000000);
 
     signup_form = new SignupForm()
     it "Should move to login screen when the go to loggin button is pressed", ->
@@ -17,8 +17,8 @@ base_describe "User enters to the App and logs in with existing account:", (ptor
 
     login_form = new LoginForm()
     it "Should consist of the 2 login fields", ->
-        expect(ptor.isElementPresent(login_form.user_email)).toBe true
-        expect(ptor.isElementPresent(login_form.user_password)).toBe true
+        expect(browser.isElementPresent(login_form.user_email)).toBe true
+        expect(browser.isElementPresent(login_form.user_password)).toBe true
 
     it "Should be able to allow login", ->
         login_form.setEmail "test1@t.com"
@@ -33,7 +33,7 @@ base_describe "User enters to the App and logs in with existing account:", (ptor
 
         it "reload the page", ->
             browser.get "http://localhost:8100"
-            ptor.refresh()
+            browser.refresh()
 
         it "should redirect to radar screen", ->
             expect(browser.getLocationAbsUrl()).toMatch "/tab/radar"
