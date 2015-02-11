@@ -8,7 +8,6 @@ angular.module("barachiel", ["barachiel.config", "ngCordova", "restangular", "io
     if (window.StatusBar) {
       StatusBar.styleDefault();
     }
-    window.cordova.logger.__onDeviceReady();
     try {
       Users.me();
     } catch (_error) {}
@@ -542,7 +541,8 @@ angular.module("barachiel.services", []).factory("Likes", function(Restangular, 
     user.change_image = function(image_uri) {
       return MediaManipulation.upload_file(BASE_URL + '/multimedia/user/', image_uri).then(((function(_this) {
         return function(result) {
-          return _this.picture = JSON.parse(result.response);
+          _this.picture = JSON.parse(result.response);
+          return _this.s_picture = Users.getPicture(_this);
         };
       })(this)), ((function(_this) {
         return function(error) {

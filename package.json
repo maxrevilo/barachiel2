@@ -28,12 +28,12 @@
     "shelljs": "^0.3.0"
   },
   "cordovaPlugins": [
-    "https://github.com/CSullivan102/cordova-imageResizer.git",
     "com.ionic.keyboard",
     "org.apache.cordova.camera",
     "org.apache.cordova.console",
     "org.apache.cordova.device",
     "org.apache.cordova.file",
-    "org.apache.cordova.file-transfer"
+    "org.apache.cordova.file-transfer",
+    "https://github.com/CSullivan102/cordova-imageResizer.git"
   ]
 }

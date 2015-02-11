@@ -117,6 +117,7 @@ angular.module("barachiel.services", [])
                 .then(
                     ((result)=>
                         @picture = JSON.parse result.response
+                        @s_picture = Users.getPicture @
                     ),
                     ((error)=> error),
                 )

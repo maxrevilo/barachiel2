@@ -32,8 +32,6 @@ angular.module("barachiel", [
             # org.apache.cordova.statusbar required
             StatusBar.styleDefault() if window.StatusBar
 
-            window.cordova.logger.__onDeviceReady()
-
             #Loading user:
             try Users.me()
 
