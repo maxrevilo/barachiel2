@@ -30,7 +30,7 @@ angular.module("barachiel.i18n", [
             value = key if not value?
 
             for arg, a in args
-                value = value.replace '{#{a}}', arg
+                value = value.replace "{#{a}}", arg
 
             return value
     ]

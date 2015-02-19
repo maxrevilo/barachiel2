@@ -7630,10 +7630,18 @@ yg-user-item, [yg-user-item], .yg-user-item, yg-waver-item, [yg-waver-item], .yg
 #profile-view #logout_btn, #user-detail #logout_btn {
   font-weight: bold; }
 
-#wave-detail .picture img {
-  width: 100%;
-  height: auto;
-  border-radius: 5px; }
+#wave-detail .picture {
+  position: relative;
+  margin: 10px 0;
+  text-align: center;
+  height: 300px;
+  overflow: hidden; }
+  #wave-detail .picture img {
+    height: 100%;
+    width: 100%;
+    max-width: 300px;
+    font-size: 18px;
+    border-radius: 5px; }
 #wave-detail p {
   text-align: justify; }
   #wave-detail p .name {

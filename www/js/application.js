@@ -209,13 +209,11 @@ angular.module("barachiel.controllers", []).controller("TabCtrl", function($scop
 }).controller("WaversCtrl", function($scope, Users, Me) {
   $scope.wavers = Me.likes_to;
   return Me.refreshLikesTo();
-}).controller("WaverDetailCtrl", function(_, $scope, $stateParams, Likes) {
-  $scope.waver = {
-    id: 0,
-    name: 'Scruff McGruff',
-    user_id: 0
-  };
-  return $scope.waver.__safe__name = _.escape($scope.waver.name);
+}).controller("WaverDetailCtrl", function(_, $scope, $stateParams, Me, Likes) {
+  $scope.waver = _(Me.likes_to).findWhere({
+    'id': Number($stateParams.waverId)
+  });
+  return $scope.waver.__safe__name = _.escape($scope.waver.user.name);
 }).controller("ProfileCtrl", function($rootScope, $scope, $stateParams, $state, $ionicActionSheet, l, AuthService, Users, MediaManipulation, $timeout) {
   var user;
   user = Users.me(true);
@@ -862,7 +860,7 @@ angular.module("barachiel.i18n", ['barachiel.i18n.directives', 'barachiel.i18n.s
           }
           for (a = _i = 0, _len = args.length; _i < _len; a = ++_i) {
             arg = args[a];
-            value = value.replace('{#{a}}', arg);
+            value = value.replace("{" + a + "}", arg);
           }
           return value;
         }

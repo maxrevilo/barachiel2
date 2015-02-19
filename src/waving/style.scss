@@ -273,9 +273,17 @@ yg-waver-item, [yg-waver-item], .yg-waver-item, {
 
 #wave-detail {
     .picture {
+        position: relative;
+        margin: 10px 0;
+        text-align: center;
+        height: 300px;
+        overflow: hidden;
+
         img {
+            height: 100%;
             width: 100%;
-            height: auto;
+            max-width: 300px;
+            font-size: 18px;
             border-radius: 5px;
         }
     }

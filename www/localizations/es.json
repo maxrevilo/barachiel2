@@ -101,6 +101,7 @@
     "%wavers.nothing_yet" : "Todavía nadie te ha enviado ningún Wave.</br>Sal por ahí y seguro alguien lo hace! ;D.",
 
     "__WAVE__" : "",
+    "%wave.title" : "Wave",
     "%wave.direct" : "Directo",
     "%wave.direct.desc" : "Esta persona recibirá un Wave directo, mostrándole tu perfil y permitiéndole devolverte el Wave.",
     "%wave.anonymous" : "Anónimo",
@@ -135,6 +136,7 @@
     "%profile.loading" : "Cargando Perfil...",
     "%profile.change_picture" : "Cambiar foto",
     "%profile.send_wave" : "Enviar un Wave",
+    "%profile.unwave" : "Retirar Wave",
     "%profile.form.title" : "Datos de perfil",
     "%profile.form.name" : "Nombre",
     "%profile.form.password" : "Contraseña",

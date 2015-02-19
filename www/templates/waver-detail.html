@@ -5,25 +5,25 @@
         </h3>
 
         <div class="picture">
-            <img src="http://placehold.it/1024" />
+            <img ng-src="{{ waver.user.s_picture.xBig }}" />
         </div>
 
 
-        <div ng-if="!anonymous">
+        <div ng-if="!waver.anonymous">
             <p ng-bind-html="
-                '%wave.profile.details.not_anon_[val]'
-                | translate:'{\'val\': waver.__safe__name}'
+                '%wave.profile.details.not_anon_{0}'
+                | translate: waver.__safe__name
                 ">
             </p>
 
             <a class="button button-large button-clear button-block button-positive" 
-                ui-sref="st.tab.waver-user-detail({userId: waver.user_id})"
+                ui-sref="st.tab.waver-user-detail({userId: waver.user.id})"
                 translate>
                 %global.see_full_profile
             </a>
         </div>
 
-        <div ng-if="anonymous">
+        <div ng-if="waver.anonymous">
             <p translate>
                 %wave.profile.details.anon
             </p>

@@ -72,9 +72,9 @@ angular.module("barachiel.controllers", [])
     Me.refreshLikesTo()
 )
 
-.controller("WaverDetailCtrl", (_, $scope, $stateParams, Likes) ->
-    $scope.waver = { id: 0, name: 'Scruff McGruff', user_id: 0 }
-    $scope.waver.__safe__name = _.escape $scope.waver.name
+.controller("WaverDetailCtrl", (_, $scope, $stateParams, Me, Likes) ->
+    $scope.waver = _(Me.likes_to).findWhere 'id': Number($stateParams.waverId)
+    $scope.waver.__safe__name = _.escape $scope.waver.user.name
 )
 
 .controller("ProfileCtrl", ($rootScope, $scope, $stateParams, $state,
