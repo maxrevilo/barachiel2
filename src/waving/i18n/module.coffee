@@ -22,7 +22,7 @@ angular.module("barachiel.i18n", [
 
         translate: (key, args) ->
             if not (typeof args is "object" and args instanceof Array)
-                if typeof args is "string"
+                if typeof args is "string" or typeof args is "number"
                     args = [args]
                 else args = []
 
