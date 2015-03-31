@@ -846,9 +846,9 @@ angular.module("barachiel.i18n", ['barachiel.i18n.directives', 'barachiel.i18n.s
           return deferred.promise;
         },
         translate: function(key, args) {
-          var a, arg, value, _i, _len;
+          var a, arg, i, len, value;
           if (!(typeof args === "object" && args instanceof Array)) {
-            if (typeof args === "string") {
+            if (typeof args === "string" || typeof args === "number") {
               args = [args];
             } else {
               args = [];
@@ -858,7 +858,7 @@ angular.module("barachiel.i18n", ['barachiel.i18n.directives', 'barachiel.i18n.s
           if (value == null) {
             value = key;
           }
-          for (a = _i = 0, _len = args.length; _i < _len; a = ++_i) {
+          for (a = i = 0, len = args.length; i < len; a = ++i) {
             arg = args[a];
             value = value.replace("{" + a + "}", arg);
           }
