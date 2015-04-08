@@ -1,4 +1,4 @@
-base_describe "User enters to the App and logs in with existing account:", (browser, params)->
+describe "User enters to the App and logs in with existing account:", (browser, params)->
     
     #Page objects
     LoginForm = require("../page_objects/login_form.po.coffee")
