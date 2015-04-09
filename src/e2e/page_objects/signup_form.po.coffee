@@ -1,7 +1,9 @@
 SignupForm = ->
-    @user_name = element(By.model("user.name"))
-    @user_email = element(By.model("user.email"))
-    @user_password = element(By.model("user.password"))
+    @base = element(By.id("signupForm"))
+
+    @user_name = @base.element(By.model("user.name"))
+    @user_email = @base.element(By.model("user.email"))
+    @user_password = @base.element(By.model("user.password"))
 
     @setName = (value) -> @user_name.sendKeys value
 
