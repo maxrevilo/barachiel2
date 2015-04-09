@@ -120,7 +120,7 @@ var config, config_module;
 
 config = {
   APP_NAME: 'Waving',
-  BASE_URL: 'https://barachiel.herokuapp.com'
+  BASE_URL: 'https://barachiel-dev.herokuapp.com'
 };
 
 config_module = angular.module("barachiel.config", []);
@@ -848,7 +848,7 @@ angular.module("barachiel.i18n", ['barachiel.i18n.directives', 'barachiel.i18n.s
         translate: function(key, args) {
           var a, arg, value, _i, _len;
           if (!(typeof args === "object" && args instanceof Array)) {
-            if (typeof args === "string") {
+            if (typeof args === "string" || typeof args === "number") {
               args = [args];
             } else {
               args = [];
