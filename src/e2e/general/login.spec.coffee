@@ -1,4 +1,4 @@
-describe "User enters to the App and logs in with existing account:", (browser, params)->
+describe "User enters to the App and logs in with existing account:", ->
     
     #Page objects
     LoginForm = require("../page_objects/login_form.po.coffee")
@@ -17,23 +17,31 @@ describe "User enters to the App and logs in with existing account:", (browser, 
 
     login_form = new LoginForm()
     it "Should consist of the 2 login fields", ->
-        expect(browser.isElementPresent(login_form.user_email)).toBe true
-        expect(browser.isElementPresent(login_form.user_password)).toBe true
+        expect(login_form.user_email.isPresent()).toBe true
+        expect(login_form.user_password.isPresent()).toBe true
 
-    it "Should be able to allow login", ->
-        login_form.setEmail "test1@t.com"
-        login_form.setPassword "1234"
-        login_form.login()
+    #it "Should not allow login with an email that does not exist", -> 
 
-    it "Should redirect to the radar screen", ->
-        expect(browser.getLocationAbsUrl()).toMatch "/tab/radar"
-        browser.get "http://localhost:8100/#/tab/profile"
+    #it "Should not allow login with the wrong password" ->
 
-    describe "Logged user should have a session", ->
+    it "Should allow login with the right params", ->
+        #browser.pause()
+        
+        login_form.user_email.sendKeys browser.params.login.email
+        #browser.pause()
+        #login_form.setPassword browser.params.login.password 
+        #browser.pause()
+        #login_form.login()
 
-        it "reload the page", ->
-            browser.get "http://localhost:8100"
-            browser.refresh()
+    #it "Should redirect to the radar screen", ->
+        #expect(browser.getLocationAbsUrl()).toMatch "/tab/radar"
+        #browser.get "http://localhost:8100/#/tab/profile"
 
-        it "should redirect to radar screen", ->
-            expect(browser.getLocationAbsUrl()).toMatch "/tab/radar"
+    #describe "Logged user should have a session", ->
+
+        #it "reload the page", ->
+            #browser.get "http://localhost:8100"
+            #browser.refresh()
+
+        #it "should redirect to radar screen", ->
+            #expect(browser.getLocationAbsUrl()).toMatch "/tab/radar"

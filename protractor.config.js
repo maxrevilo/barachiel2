@@ -54,4 +54,10 @@ exports.config = {
             });
         };
     },
+    params: {
+        login: {
+            email: 'test1@tcom',
+            password: '1234'
+        }
+    },
 };
