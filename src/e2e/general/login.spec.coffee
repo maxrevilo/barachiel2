@@ -3,6 +3,7 @@ describe "User enters to the App and logs in with existing account:", ->
     #Page objects
     LoginForm = require("../page_objects/login_form.po.coffee")
     SignupForm = require("../page_objects/signup_form.po.coffee")
+    AlertModal = require("../page_objects/alert_modal.po.coffee")
     helper = require('./helper.coffee')
     
     #beforeEach ->
@@ -20,13 +21,29 @@ describe "User enters to the App and logs in with existing account:", ->
         expect(login_form.user_email.isPresent()).toBe true
         expect(login_form.user_password.isPresent()).toBe true
 
-    #it "Should not allow login with an email that does not exist", -> 
+    alert_modal = new AlertModal()
+    id = Date.now().toString(36)
+    it "Should not allow login with an email that does not exist", -> 
+        login_form.setEmail "#{id}@email.com" 
+        login_form.setPassword browser.params.login.password 
+        login_form.login()
+        expect(alert_modal.ok_btn.isPresent()).toBe true
+        alert_modal.close()
 
-    #it "Should not allow login with the wrong password", ->
+    it "Should not allow login with the wrong password", ->
+        login_form.user_email.clear()
+        .then () -> login_form.setEmail browser.params.login.email
+        login_form.user_password.clear()
+        .then () -> login_form.setPassword(browser.params.login.password + "a")
+        login_form.login()
+        expect(alert_modal.ok_btn.isPresent()).toBe true
+        alert_modal.close()
 
     it "Should allow login with the right params", ->
-        login_form.user_email.sendKeys browser.params.login.email
-        login_form.setPassword browser.params.login.password 
+        login_form.user_email.clear()
+        .then () -> login_form.setEmail browser.params.login.email
+        login_form.user_password.clear()
+        .then () -> login_form.setPassword browser.params.login.password
         login_form.login()
 
     it "Should redirect the logged user to the radar screen", ->
