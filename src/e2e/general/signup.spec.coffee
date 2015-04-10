@@ -1,8 +1,9 @@
 describe "New User enters to the App and signs up:", ->
-
+    
     #Page objects
     SignupForm = require("../page_objects/signup_form.po.coffee")
     TutorialPage = require("../page_objects/tutorial_page.po.coffee")
+    helper = require('./helper.coffee')
 
     id = Date.now().toString(36)
 
@@ -27,3 +28,4 @@ describe "New User enters to the App and signs up:", ->
     it "Should redirect to the tutorial", ->
         expect(browser.getLocationAbsUrl()).toMatch "/tutorial"
         expect(tutorial_page.title.isPresent()).toBe true
+        helper.logout()
