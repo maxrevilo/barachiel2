@@ -23,27 +23,23 @@ describe "User enters to the App and logs in with existing account:", ->
 
     alert_modal = new AlertModal()
     id = Date.now().toString(36)
-    it "Should not allow login with an email that does not exist", -> 
-        login_form.setEmail "#{id}@email.com" 
-        login_form.setPassword browser.params.login.password 
+    it "Should not allow login with an email that does not exist", ->
+        login_form.setEmail "#{id}@email.com"
+        login_form.setPassword browser.params.login.password
         login_form.login()
         expect(alert_modal.ok_btn.isPresent()).toBe true
         alert_modal.close()
 
     it "Should not allow login with the wrong password", ->
-        login_form.user_email.clear()
-        .then () -> login_form.setEmail browser.params.login.email
-        login_form.user_password.clear()
-        .then () -> login_form.setPassword(browser.params.login.password + "a")
+        helper.clearAndSendKeys login_form.user_email, browser.params.login.email
+        helper.clearAndSendKeys login_form.user_password, (browser.params.login.password + "a")
         login_form.login()
         expect(alert_modal.ok_btn.isPresent()).toBe true
         alert_modal.close()
 
     it "Should allow login with the right params", ->
-        login_form.user_email.clear()
-        .then () -> login_form.setEmail browser.params.login.email
-        login_form.user_password.clear()
-        .then () -> login_form.setPassword browser.params.login.password
+        helper.clearAndSendKeys login_form.user_email, browser.params.login.email
+        helper.clearAndSendKeys login_form.user_password, browser.params.login.password
         login_form.login()
 
     it "Should redirect the logged user to the radar screen", ->

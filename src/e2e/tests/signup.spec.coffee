@@ -19,7 +19,7 @@ describe "New User enters to the App and signs up:", ->
         expect(signup_form.user_password.isPresent()).toBe true
 
     it "Should be able to allow signup", ->
-        signup_form.setName "TestUser-#{id}" 
+        signup_form.setName "TestUser-#{id}"
         signup_form.setEmail "valid#{id}@email.com"
         signup_form.setPassword "123456"
         signup_form.signup()

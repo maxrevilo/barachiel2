@@ -1,8 +1,12 @@
- module.exports = 
+ module.exports =
     scrollTo: (filter) ->
-        scrollIntoView = -> 
+        scrollIntoView = ->
           arguments[0].scrollIntoView()
-        browser.executeScript(scrollIntoView, filter);
+        browser.executeScript(scrollIntoView, filter)
+        
+    clearAndSendKeys: (element, string) ->
+        element.clear().then () ->
+            element.sendKeys string
         
     logout: ->
         ProfileTab = require("../page_objects/profile_tab.po.coffee")
