@@ -1,3 +1,7 @@
+## Endpoints
+In Postman:
+https://www.getpostman.com/collections/cf2aecdfc547cf40fa74
+
 
 ## Develop with the App's local server.
 
