@@ -7,6 +7,17 @@
     clearAndSendKeys: (element, string) ->
         element.clear().then () ->
             element.sendKeys string
+
+    login: (email, password) ->
+        LoginForm = require("../page_objects/login_form.po.coffee")
+        SignupForm = require("../page_objects/signup_form.po.coffee")
+        signup_form = new SignupForm()
+        login_form = new LoginForm()
+        signup_form.go_login()
+        login_form.setEmail email
+        login_form.setPassword password
+        login_form.login()
+        return
         
     logout: ->
         ProfileTab = require("../page_objects/profile_tab.po.coffee")

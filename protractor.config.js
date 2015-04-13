@@ -57,7 +57,7 @@ exports.config = {
     params: {
         baseUrl: 'http://localhost:8100',
         login: {
-            email: 'test1@t.com',
+            email: 'authtest@t.com',
             password: '1234'
         }
     },
