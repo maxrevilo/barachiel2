@@ -1,6 +1,8 @@
 LoginForm = ->
-    @user_email = element(By.model("user.email"))
-    @user_password = element(By.model("user.password"))
+    @base = element(By.id("loginForm"))
+
+    @user_email = @base.element(By.model("user.email"))
+    @user_password = @base.element(By.model("user.password"))
 
     @setEmail = (value) -> @user_email.sendKeys value
 

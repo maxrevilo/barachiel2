@@ -55,8 +55,9 @@ exports.config = {
         };
     },
     params: {
+        baseUrl: 'http://localhost:8100',
         login: {
-            email: 'test1@tcom',
+            email: 'test1@t.com',
             password: '1234'
         }
     },
