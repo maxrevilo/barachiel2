@@ -32,6 +32,10 @@ angular.module("barachiel.controllers", [])
     $scope.error = {}
     last_mixpanel_detection = 0
 
+    $scope.$on '$ionicView.beforeEnter', () ->
+        # Loading users
+        $scope.refreshUsers()
+
     $scope.refreshUsers = ->
         promise = null
         if $scope.users? and $scope.users.length > 0
@@ -62,14 +66,13 @@ angular.module("barachiel.controllers", [])
     # Call window.$rootScope.$broadcast("REFRESH_RADAR") to trigger.
     $scope.$on "REFRESH_RADAR", (ev, data)->
         $scope.refreshUsers()
-
-    # Loading users
-    $scope.refreshUsers()
 )
 
 .controller("WaversCtrl", ($scope, Users, Me) ->
     $scope.wavers = Me.likes_to
-    Me.refreshLikesTo()
+
+    $scope.$on '$ionicView.beforeEnter', () ->
+        Me.refreshLikesTo() 
 )
 
 .controller("WaverDetailCtrl", (_, $scope, $stateParams, Me, Likes) ->
@@ -79,8 +82,10 @@ angular.module("barachiel.controllers", [])
 
 .controller("ProfileCtrl", ($rootScope, $scope, $stateParams, $state,
         $ionicActionSheet, l, AuthService, Users, MediaManipulation, $timeout) ->
-
-    user = Users.me true
+    $scope.$on '$ionicView.beforeEnter', () ->
+        user = Users.me true
+    
+    user = Users.me false
     $scope.profile = user
 
     if not $rootScope.uploadingPicture?
