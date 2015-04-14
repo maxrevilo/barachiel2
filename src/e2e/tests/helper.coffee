@@ -14,8 +14,8 @@
         signup_form = new SignupForm()
         login_form = new LoginForm()
         signup_form.go_login()
-        login_form.setEmail email
-        login_form.setPassword password
+        this.clearAndSendKeys login_form.user_email, email
+        this.clearAndSendKeys login_form.user_password, password
         login_form.login()
         return
         

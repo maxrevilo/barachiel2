@@ -166,6 +166,9 @@ angular.module("barachiel.controllers", []).controller("TabCtrl", function($scop
   $scope.state = 'loading';
   $scope.error = {};
   last_mixpanel_detection = 0;
+  $scope.$on('$ionicView.beforeEnter', function() {
+    return $scope.refreshUsers();
+  });
   $scope.refreshUsers = function() {
     var promise;
     promise = null;
@@ -202,13 +205,14 @@ angular.module("barachiel.controllers", []).controller("TabCtrl", function($scop
       return $scope.$broadcast("scroll.refreshComplete");
     });
   };
-  $scope.$on("REFRESH_RADAR", function(ev, data) {
+  return $scope.$on("REFRESH_RADAR", function(ev, data) {
     return $scope.refreshUsers();
   });
-  return $scope.refreshUsers();
 }).controller("WaversCtrl", function($scope, Users, Me) {
   $scope.wavers = Me.likes_to;
-  return Me.refreshLikesTo();
+  return $scope.$on('$ionicView.beforeEnter', function() {
+    return Me.refreshLikesTo();
+  });
 }).controller("WaverDetailCtrl", function(_, $scope, $stateParams, Me, Likes) {
   $scope.waver = _(Me.likes_to).findWhere({
     'id': Number($stateParams.waverId)
@@ -216,7 +220,11 @@ angular.module("barachiel.controllers", []).controller("TabCtrl", function($scop
   return $scope.waver.__safe__name = _.escape($scope.waver.user.name);
 }).controller("ProfileCtrl", function($rootScope, $scope, $stateParams, $state, $ionicActionSheet, l, AuthService, Users, MediaManipulation, $timeout) {
   var user;
-  user = Users.me(true);
+  $scope.$on('$ionicView.beforeEnter', function() {
+    var user;
+    return user = Users.me(true);
+  });
+  user = Users.me(false);
   $scope.profile = user;
   if ($rootScope.uploadingPicture == null) {
     $rootScope.uploadingPicture = {
