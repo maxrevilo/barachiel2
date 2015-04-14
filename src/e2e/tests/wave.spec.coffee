@@ -21,7 +21,7 @@ describe "User enters to the App and logs in with existing account:", ->
     it "Should be able to send a wave to a nearby user", ->
         radar_tab.get_user_by_name(browser.params.wave.waved_name).click()
         user_profile.send_wave()
-        #expect(user_profile.whitdraw_btn.isPresent()).toBe true
+        expect(user_profile.whitdraw_btn.isPresent()).toBe true
         helper.logout()
 
     wavers_tab = new WaversTab()
@@ -30,4 +30,5 @@ describe "User enters to the App and logs in with existing account:", ->
         expect(browser.getLocationAbsUrl()).toMatch "/tab/radar"
         browser.setLocation('/tab/wavers')
         expect(wavers_tab.wavers_list.count()).toEqual 1
+        helper.logout()
 
