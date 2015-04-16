@@ -32,3 +32,18 @@ describe "User enters to the App and logs in with existing account:", ->
         expect(wavers_tab.wavers_list.count()).toEqual 1
         helper.logout()
 
+    it "Should be able to whitdraw a wave", ->
+        helper.login browser.params.wave.email, browser.params.wave.password
+        radar_tab.get_user_by_name(browser.params.wave.waved_name).click()
+        user_profile.whitdraw_wave()
+        alertDialog = browser.switchTo().alert()
+        alertDialog.accept()
+        expect(user_profile.wave_btn.isPresent()).toBe true
+        helper.logout()
+
+    it "The waved user that had the wave whitdrawed, should not see a the wave", ->
+        helper.login browser.params.wave.waved_email, browser.params.wave.waved_password
+        expect(browser.getLocationAbsUrl()).toMatch "/tab/radar"
+        browser.setLocation('/tab/wavers')
+        expect(wavers_tab.wavers_list.count()).toEqual 0
+        helper.logout()

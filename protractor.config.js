@@ -66,6 +66,12 @@ exports.config = {
             waved_name: 'wavetest1',
             waved_email: 'wavetest1@t.com',
             waved_password: '1234'
+        },
+        waveback: {
+            liker_email: 'wavebacktest1@t.com',
+            password: '1234',
+            liked_email: 'wavebacktest1@t.com',
+            password: '1234'
         }
     },
 };
