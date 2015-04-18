@@ -1,4 +1,4 @@
-describe "User enters to the App and logs in with existing account:", ->
+describe "User enters to the App and waves to another user:", ->
     
     #Page objects
     RadarTab = require("../page_objects/radar_tab.po.coffee")

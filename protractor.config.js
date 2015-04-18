@@ -69,8 +69,7 @@ exports.config = {
         },
         waveback: {
             liker_email: 'wavebacktest1@t.com',
-            password: '1234',
-            liked_email: 'wavebacktest1@t.com',
+            liked_email: 'wavebacktest2@t.com',
             password: '1234'
         }
     },
