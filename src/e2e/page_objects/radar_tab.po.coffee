@@ -1,6 +1,6 @@
 RadarTab = ->
     By.addLocator 'userItemText', (text, opt_parentElement, opt_rootSelector) ->
-        using = opt_parentElement
+        using = if opt_parentElement then opt_parentElement else document
         items = using.querySelectorAll('yg-user-item > h2')
         Array.prototype.filter.call items, (item) ->
              item.textContent is text

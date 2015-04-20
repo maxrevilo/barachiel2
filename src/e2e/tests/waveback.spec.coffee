@@ -23,7 +23,7 @@ describe "User enters to the App and waves back to an existing user:", ->
         wavers_tab.wavers_list.first().click()
         expect(wave_detail.base.isPresent()).toBe true
 
-    user_profile = new RadarUserProfile()
+    user_profile = new RadarUserProfile(browser.params.waveback.liker_email)
     it "Should be able to wave back", ->
         wave_detail.see_profile()
         user_profile.send_wave()
