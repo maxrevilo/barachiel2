@@ -1,7 +1,7 @@
 config =
     APP_NAME: 'Waving'
-    API_URL: 'http://127.0.0.1:8000'
-    ENVIRONMENT: 'development'
+    API_URL: '@@apiUrl'
+    ENVIRONMENT: '@@env'
     #BASE_URL: 'http://barachiel.yougrups.webfactional.com'
     #BASE_URL: 'https://barachiel-dev.herokuapp.com'
     #BASE_URL: 'http://127.0.0.1:8000'

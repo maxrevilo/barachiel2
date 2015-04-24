@@ -37,7 +37,7 @@ angular.module("barachiel.services", [])
 
     return Likes
 
-.factory "Users", ($rootScope, BASE_URL, _, l, $injector, Restangular, AuthService, MediaManipulation, $q) ->
+.factory "Users", ($rootScope, API_URL, _, l, $injector, Restangular, AuthService, MediaManipulation, $q) ->
     Likes = null #This will be the Likes restangular service.
 
     #Le Service
@@ -113,7 +113,7 @@ angular.module("barachiel.services", [])
         Likes = $injector.get "Likes"
 
         user.change_image = (image_uri) ->
-            return MediaManipulation.upload_file BASE_URL + '/multimedia/user/', image_uri
+            return MediaManipulation.upload_file API_URL + '/multimedia/user/', image_uri
                 .then(
                     ((result)=>
                         @picture = JSON.parse result.response
