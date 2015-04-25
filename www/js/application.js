@@ -622,8 +622,7 @@ angular.module("barachiel.auth.controllers", []).controller("SignupCtrl", functi
       });
     }
   };
-}).controller("LoginCtrl", function(_, $scope, $state, AuthService, Loader, utils, ENVIRONMENT) {
-  console.log(ENVIRONMENT);
+}).controller("LoginCtrl", function(_, $scope, $state, AuthService, Loader, utils) {
   $scope.forms = {};
   return $scope.login = function(user) {
     var creds;
@@ -782,24 +781,28 @@ angular.module("barachiel.auth.services", []).factory("AuthService", function($r
   };
 });
 
-angular.module("barachiel.device.services", []).factory("StorageService", function($window) {
-  return {
-    all: function() {
-      return $window.localStorage;
-    },
-    get: function(key) {
-      return $window.localStorage[key];
-    },
-    set: function(key, value) {
-      return $window.localStorage[key] = value;
-    },
-    "delete": function(key) {
-      return delete $window.localStorage[key];
-    },
-    delete_all: function() {
-      return delete $window.localStorage.clear();
-    }
-  };
+angular.module("barachiel.device.services", []).factory("StorageService", function($window, $cordovaPreferences, ENVIRONMENT) {
+  if (ENVIRONMENT === 'production') {
+
+  } else {
+    return {
+      all: function() {
+        return $window.localStorage;
+      },
+      get: function(key) {
+        return $window.localStorage[key];
+      },
+      set: function(key, value) {
+        return $window.localStorage[key] = value;
+      },
+      "delete": function(key) {
+        return delete $window.localStorage[key];
+      },
+      delete_all: function() {
+        return delete $window.localStorage.clear();
+      }
+    };
+  }
 });
 
 angular.module("barachiel.i18n.directives", []).directive('translate', function(l) {

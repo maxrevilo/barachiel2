@@ -22,8 +22,7 @@ angular.module("barachiel.auth.controllers", [])
             )
 )
 
-.controller("LoginCtrl", (_, $scope, $state, AuthService, Loader, utils, ENVIRONMENT) ->
-    console.log ENVIRONMENT
+.controller("LoginCtrl", (_, $scope, $state, AuthService, Loader, utils) ->
     $scope.forms = {}
 
     $scope.login = (user)->

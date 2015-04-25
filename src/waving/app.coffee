@@ -48,7 +48,7 @@ angular.module("barachiel", [
     .config(($stateProvider, $urlRouterProvider, i18nProvider, $httpProvider, RestangularProvider, API_URL) ->
 
         ####### Interceptors ########
-        $httpProvider.interceptors.push('authHttpResponseInterceptor');
+        $httpProvider.interceptors.push('authHttpResponseInterceptor')
 
         # RESTANGULAR
         RestangularProvider.setBaseUrl(API_URL)
