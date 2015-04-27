@@ -4,12 +4,7 @@ angular.module("barachiel.auth.services", [])
         if $rootScope.user?
             yes
         else
-            raw_ls_user = StorageService.get 'user'
-            if raw_ls_user?
-                $rootScope.user = JSON.parse raw_ls_user
-                yes
-            else
-                no
+            no
 
     _set_user = (user) ->
         StorageService.set 'user', JSON.stringify user

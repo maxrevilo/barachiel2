@@ -60,8 +60,14 @@ angular.module("barachiel", ["barachiel.config", "ngCordova", "restangular", "io
     templateUrl: "templates/tabs.html",
     controller: 'TabCtrl',
     resolve: {
-      Me: function(Users) {
-        return Users.me_promise();
+      Me: function($rootScope, Users, StorageService) {
+        return StorageService.get('user').then(function(raw_user) {
+          if (raw_user) {
+            console.log(raw_user);
+            $rootScope.user = JSON.parse(raw_user);
+          }
+          return Users.me_promise();
+        });
       }
     }
   }).state("st.tab.radar", {
@@ -675,17 +681,10 @@ angular.module("barachiel.auth.controllers", []).controller("SignupCtrl", functi
 angular.module("barachiel.auth.services", []).factory("AuthService", function($rootScope, $http, $log, _, utils, StorageService, analytics, API_URL) {
   var _is_auth, _set_user, _unset_user;
   _is_auth = function() {
-    var raw_ls_user;
     if ($rootScope.user != null) {
       return true;
     } else {
-      raw_ls_user = StorageService.get('user');
-      if (raw_ls_user != null) {
-        $rootScope.user = JSON.parse(raw_ls_user);
-        return true;
-      } else {
-        return false;
-      }
+      return false;
     }
   };
   _set_user = function(user) {
@@ -781,16 +780,35 @@ angular.module("barachiel.auth.services", []).factory("AuthService", function($r
   };
 });
 
-angular.module("barachiel.device.services", []).factory("StorageService", function($window, $cordovaPreferences, ENVIRONMENT) {
+angular.module("barachiel.device.services", []).factory("StorageService", function($window, $q, $cordovaPreferences, $ionicPlatform, ENVIRONMENT) {
   if (ENVIRONMENT === 'production') {
-
+    return {
+      get: function(key) {
+        return $ionicPlatform.ready(function() {
+          return $cordovaPreferences.get(key).then(function(value) {
+            return value;
+          });
+        });
+      },
+      set: function(key, value) {
+        return $ionicPlatform.ready(function() {
+          return $cordovaPreferences.set(key, value);
+        });
+      },
+      "delete": function(key) {
+        return delete $ionicPlatform.ready(function() {
+          return $cordovaPreferences.set(key, value);
+        });
+      }
+    };
   } else {
     return {
       all: function() {
         return $window.localStorage;
       },
       get: function(key) {
-        return $window.localStorage[key];
+        console.log("LOCALSOTRAGE");
+        return $q.when($window.localStorage[key]);
       },
       set: function(key, value) {
         return $window.localStorage[key] = value;
