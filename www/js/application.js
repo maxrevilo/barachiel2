@@ -126,8 +126,8 @@ var config, config_module;
 
 config = {
   APP_NAME: 'Waving',
-  API_URL: 'http://127.0.0.1:8000',
-  ENVIRONMENT: 'development'
+  API_URL: 'https://barachiel-dev.herokuapp.com',
+  ENVIRONMENT: 'phonedev'
 };
 
 config_module = angular.module("barachiel.config", []);
@@ -781,7 +781,7 @@ angular.module("barachiel.auth.services", []).factory("AuthService", function($r
 });
 
 angular.module("barachiel.device.services", []).factory("StorageService", function($window, $q, $cordovaPreferences, $ionicPlatform, ENVIRONMENT) {
-  if (ENVIRONMENT === 'production') {
+  if (ENVIRONMENT === 'production' || ENVIRONMENT === 'phonedev') {
     return {
       get: function(key) {
         return $ionicPlatform.ready(function() {

@@ -1,7 +1,7 @@
 angular.module("barachiel.device.services", [])
 
 .factory "StorageService", ($window, $q, $cordovaPreferences, $ionicPlatform, ENVIRONMENT) ->
-    if (ENVIRONMENT == 'production')
+    if (ENVIRONMENT == 'production' || ENVIRONMENT == 'phonedev')
         get: (key) ->
             $ionicPlatform.ready ->
                  return $cordovaPreferences.get(key).then (value) ->
