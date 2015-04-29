@@ -43,8 +43,6 @@ angular.module("barachiel.services", [])
     #Le Service
     Users = Restangular.service 'users'
 
-    me_deferred = $q.defer()
-
     $rootScope.$watch "user", (user) -> Users.set_me user if user?
 
     # Model Manager Methods
@@ -62,11 +60,10 @@ angular.module("barachiel.services", [])
             @_me.get()
         return @_me
 
-    Users.me_promise = () -> me_deferred.promise
+    Users.me_promise = () -> $q.when(@_me)
 
     Users.set_me = (rawUserJSON) ->
         @_me = Restangular.restangularizeElement '', rawUserJSON, 'users', {}
-        me_deferred.resolve @_me
         return @_me
 
     Users.getPicture = (user) ->

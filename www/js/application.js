@@ -63,7 +63,6 @@ angular.module("barachiel", ["barachiel.config", "ngCordova", "restangular", "io
       Me: function($rootScope, Users, StorageService) {
         return StorageService.get('user').then(function(raw_user) {
           if (raw_user) {
-            console.log(raw_user);
             $rootScope.user = JSON.parse(raw_user);
           }
           return Users.me_promise();
@@ -126,7 +125,7 @@ var config, config_module;
 
 config = {
   APP_NAME: 'Waving',
-  API_URL: 'http://127.0.0.1:8000',
+  API_URL: 'https://barachiel-dev.herokuapp.com',
   ENVIRONMENT: 'development'
 };
 
@@ -459,10 +458,9 @@ angular.module("barachiel.services", []).factory("Likes", function(Restangular, 
   });
   return Likes;
 }).factory("Users", function($rootScope, API_URL, _, l, $injector, Restangular, AuthService, MediaManipulation, $q) {
-  var Likes, Users, me_deferred;
+  var Likes, Users;
   Likes = null;
   Users = Restangular.service('users');
-  me_deferred = $q.defer();
   $rootScope.$watch("user", function(user) {
     if (user != null) {
       return Users.set_me(user);
@@ -490,11 +488,10 @@ angular.module("barachiel.services", []).factory("Likes", function(Restangular, 
     return this._me;
   };
   Users.me_promise = function() {
-    return me_deferred.promise;
+    return $q.when(this._me);
   };
   Users.set_me = function(rawUserJSON) {
     this._me = Restangular.restangularizeElement('', rawUserJSON, 'users', {});
-    me_deferred.resolve(this._me);
     return this._me;
   };
   Users.getPicture = function(user) {
@@ -807,7 +804,6 @@ angular.module("barachiel.device.services", []).factory("StorageService", functi
         return $window.localStorage;
       },
       get: function(key) {
-        console.log("LOCALSOTRAGE");
         return $q.when($window.localStorage[key]);
       },
       set: function(key, value) {

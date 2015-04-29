@@ -96,7 +96,6 @@ angular.module("barachiel", [
                 resolve: Me: ($rootScope, Users, StorageService) ->
                     StorageService.get('user').then (raw_user) ->
                         if (raw_user)
-                            console.log(raw_user)
                             $rootScope.user = JSON.parse raw_user
                         Users.me_promise()
             )

@@ -15,7 +15,6 @@ angular.module("barachiel.device.services", [])
     else
         all: -> $window.localStorage
         get: (key) ->
-            console.log("LOCALSOTRAGE")
             $q.when $window.localStorage[key]
         #get: (key) -> $window.localStorage[key]
         set: (key, value) -> $window.localStorage[key] = value
