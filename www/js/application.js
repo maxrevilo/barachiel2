@@ -60,13 +60,8 @@ angular.module("barachiel", ["barachiel.config", "ngCordova", "restangular", "io
     templateUrl: "templates/tabs.html",
     controller: 'TabCtrl',
     resolve: {
-      Me: function($rootScope, Users, StorageService) {
-        return StorageService.get('user').then(function(raw_user) {
-          if (raw_user) {
-            $rootScope.user = JSON.parse(raw_user);
-          }
-          return Users.me_promise();
-        });
+      Me: function(Users) {
+        return Users.me_promise();
       }
     }
   }).state("st.tab.radar", {
@@ -458,9 +453,10 @@ angular.module("barachiel.services", []).factory("Likes", function(Restangular, 
   });
   return Likes;
 }).factory("Users", function($rootScope, API_URL, _, l, $injector, Restangular, AuthService, MediaManipulation, $q) {
-  var Likes, Users;
+  var Likes, Users, me_deferred;
   Likes = null;
   Users = Restangular.service('users');
+  me_deferred = $q.defer();
   $rootScope.$watch("user", function(user) {
     if (user != null) {
       return Users.set_me(user);
@@ -488,10 +484,15 @@ angular.module("barachiel.services", []).factory("Likes", function(Restangular, 
     return this._me;
   };
   Users.me_promise = function() {
-    return $q.when(this._me);
+    if (AuthService.isAuthenticated()) {
+      return me_deferred.promise;
+    } else {
+      return $q.when(null);
+    }
   };
   Users.set_me = function(rawUserJSON) {
     this._me = Restangular.restangularizeElement('', rawUserJSON, 'users', {});
+    me_deferred.resolve(this._me);
     return this._me;
   };
   Users.getPicture = function(user) {

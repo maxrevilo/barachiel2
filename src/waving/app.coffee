@@ -93,11 +93,7 @@ angular.module("barachiel", [
                 abstract: true
                 templateUrl: "templates/tabs.html"
                 controller: 'TabCtrl'
-                resolve: Me: ($rootScope, Users, StorageService) ->
-                    StorageService.get('user').then (raw_user) ->
-                        if (raw_user)
-                            $rootScope.user = JSON.parse raw_user
-                        Users.me_promise()
+                resolve: Me: (Users) -> Users.me_promise()
             )
             .state("st.tab.radar",
                 url: "/radar"
