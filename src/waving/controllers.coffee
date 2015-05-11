@@ -68,11 +68,11 @@ angular.module("barachiel.controllers", [])
         $scope.refreshUsers()
 )
 
-.controller("WaversCtrl", ($scope, Users, Me) ->
+.controller("WaversCtrl", ($scope, $window, Users, Me) ->
     $scope.wavers = Me.likes_to
 
     $scope.$on '$ionicView.beforeEnter', () ->
-        Me.refreshLikesTo() 
+        Me.refreshLikesTo()
 )
 
 .controller("WaverDetailCtrl", (_, $scope, $stateParams, Me, Likes) ->

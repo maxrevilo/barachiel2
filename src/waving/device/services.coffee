@@ -11,7 +11,7 @@ angular.module("barachiel.device.services", [])
                  $cordovaPreferences.set(key, value)
         delete: (key) -> delete
             $ionicPlatform.ready ->
-                $cordovaPreferences.set(key, value)
+                $cordovaPreferences.set(key, null)
     else
         all: -> $window.localStorage
         get: (key) ->

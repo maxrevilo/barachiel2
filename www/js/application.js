@@ -121,7 +121,7 @@ var config, config_module;
 config = {
   APP_NAME: 'Waving',
   API_URL: 'https://barachiel-dev.herokuapp.com',
-  ENVIRONMENT: 'development'
+  ENVIRONMENT: 'phonedev'
 };
 
 config_module = angular.module("barachiel.config", []);
@@ -209,7 +209,7 @@ angular.module("barachiel.controllers", []).controller("TabCtrl", function($scop
   return $scope.$on("REFRESH_RADAR", function(ev, data) {
     return $scope.refreshUsers();
   });
-}).controller("WaversCtrl", function($scope, Users, Me) {
+}).controller("WaversCtrl", function($scope, $window, Users, Me) {
   $scope.wavers = Me.likes_to;
   return $scope.$on('$ionicView.beforeEnter', function() {
     return Me.refreshLikesTo();
@@ -795,7 +795,7 @@ angular.module("barachiel.device.services", []).factory("StorageService", functi
       },
       "delete": function(key) {
         return delete $ionicPlatform.ready(function() {
-          return $cordovaPreferences.set(key, value);
+          return $cordovaPreferences.set(key, null);
         });
       }
     };
