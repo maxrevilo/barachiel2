@@ -21,9 +21,9 @@ angular.module("barachiel", ["barachiel.config", "ngCordova", "restangular", "io
       }
     });
   });
-}).config(function($stateProvider, $urlRouterProvider, i18nProvider, $httpProvider, RestangularProvider, BASE_URL) {
+}).config(function($stateProvider, $urlRouterProvider, i18nProvider, $httpProvider, RestangularProvider, API_URL) {
   $httpProvider.interceptors.push('authHttpResponseInterceptor');
-  RestangularProvider.setBaseUrl(BASE_URL);
+  RestangularProvider.setBaseUrl(API_URL);
   RestangularProvider.setRequestSuffix('/');
   i18nProvider.lang('en');
   $stateProvider.state("st", {
@@ -120,7 +120,8 @@ var config, config_module;
 
 config = {
   APP_NAME: 'Waving',
-  BASE_URL: 'http://127.0.0.1:8000'
+  API_URL: 'http://127.0.0.1:8000',
+  ENVIRONMENT: 'development'
 };
 
 config_module = angular.module("barachiel.config", []);
@@ -208,7 +209,7 @@ angular.module("barachiel.controllers", []).controller("TabCtrl", function($scop
   return $scope.$on("REFRESH_RADAR", function(ev, data) {
     return $scope.refreshUsers();
   });
-}).controller("WaversCtrl", function($scope, Users, Me) {
+}).controller("WaversCtrl", function($scope, $window, Users, Me) {
   $scope.wavers = Me.likes_to;
   return $scope.$on('$ionicView.beforeEnter', function() {
     return Me.refreshLikesTo();
@@ -451,7 +452,7 @@ angular.module("barachiel.services", []).factory("Likes", function(Restangular, 
     return waver;
   });
   return Likes;
-}).factory("Users", function($rootScope, BASE_URL, _, l, $injector, Restangular, AuthService, MediaManipulation, $q) {
+}).factory("Users", function($rootScope, API_URL, _, l, $injector, Restangular, AuthService, MediaManipulation, $q) {
   var Likes, Users, me_deferred;
   Likes = null;
   Users = Restangular.service('users');
@@ -483,7 +484,11 @@ angular.module("barachiel.services", []).factory("Likes", function(Restangular, 
     return this._me;
   };
   Users.me_promise = function() {
-    return me_deferred.promise;
+    if (AuthService.isAuthenticated()) {
+      return me_deferred.promise;
+    } else {
+      return $q.when(null);
+    }
   };
   Users.set_me = function(rawUserJSON) {
     this._me = Restangular.restangularizeElement('', rawUserJSON, 'users', {});
@@ -545,7 +550,7 @@ angular.module("barachiel.services", []).factory("Likes", function(Restangular, 
   Restangular.extendModel("users", function(user) {
     Likes = $injector.get("Likes");
     user.change_image = function(image_uri) {
-      return MediaManipulation.upload_file(BASE_URL + '/multimedia/user/', image_uri).then(((function(_this) {
+      return MediaManipulation.upload_file(API_URL + '/multimedia/user/', image_uri).then(((function(_this) {
         return function(result) {
           _this.picture = JSON.parse(result.response);
           return _this.s_picture = Users.getPicture(_this);
@@ -671,20 +676,13 @@ angular.module("barachiel.auth.controllers", []).controller("SignupCtrl", functi
   };
 });
 
-angular.module("barachiel.auth.services", []).factory("AuthService", function($rootScope, $http, $log, _, utils, StorageService, analytics, BASE_URL) {
+angular.module("barachiel.auth.services", []).factory("AuthService", function($rootScope, $http, $log, _, utils, StorageService, analytics, API_URL) {
   var _is_auth, _set_user, _unset_user;
   _is_auth = function() {
-    var raw_ls_user;
     if ($rootScope.user != null) {
       return true;
     } else {
-      raw_ls_user = StorageService.get('user');
-      if (raw_ls_user != null) {
-        $rootScope.user = JSON.parse(raw_ls_user);
-        return true;
-      } else {
-        return false;
-      }
+      return false;
     }
   };
   _set_user = function(user) {
@@ -700,7 +698,7 @@ angular.module("barachiel.auth.services", []).factory("AuthService", function($r
     Authenticate: function(credentials) {
       return $http({
         method: 'POST',
-        url: BASE_URL + '/auth/login/',
+        url: API_URL + '/auth/login/',
         data: utils.to_form_params(credentials),
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
@@ -712,7 +710,7 @@ angular.module("barachiel.auth.services", []).factory("AuthService", function($r
       });
     },
     Logout: function() {
-      return $http.get(BASE_URL + '/auth/logout/', {}).success(function() {
+      return $http.get(API_URL + '/auth/logout/', {}).success(function() {
         return _unset_user();
       }).error(function(data) {
         return $log.error("Couldn't Logout: " + data);
@@ -721,7 +719,7 @@ angular.module("barachiel.auth.services", []).factory("AuthService", function($r
     Signup: function(credentials) {
       return $http({
         method: 'POST',
-        url: BASE_URL + '/auth/signup/',
+        url: API_URL + '/auth/signup/',
         data: utils.to_form_params(credentials),
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
@@ -742,7 +740,7 @@ angular.module("barachiel.auth.services", []).factory("AuthService", function($r
         http_check = false;
       }
       if (_is_auth() && http_check) {
-        $http.get(BASE_URL + '/users/me/').success(function(user) {
+        $http.get(API_URL + '/users/me/').success(function(user) {
           return _set_user(user);
         });
       }
@@ -751,7 +749,7 @@ angular.module("barachiel.auth.services", []).factory("AuthService", function($r
     resetPasswordOf: function(user_email) {
       return $http({
         method: 'POST',
-        url: BASE_URL + '/auth/reset_password/',
+        url: API_URL + '/auth/reset_password/',
         data: utils.to_form_params({
           "email": user_email
         }),
@@ -780,24 +778,46 @@ angular.module("barachiel.auth.services", []).factory("AuthService", function($r
   };
 });
 
-angular.module("barachiel.device.services", []).factory("StorageService", function($window) {
-  return {
-    all: function() {
-      return $window.localStorage;
-    },
-    get: function(key) {
-      return $window.localStorage[key];
-    },
-    set: function(key, value) {
-      return $window.localStorage[key] = value;
-    },
-    "delete": function(key) {
-      return delete $window.localStorage[key];
-    },
-    delete_all: function() {
-      return delete $window.localStorage.clear();
-    }
-  };
+angular.module("barachiel.device.services", []).factory("StorageService", function($window, $q, $cordovaPreferences, $ionicPlatform, ENVIRONMENT) {
+  if (ENVIRONMENT === 'production' || ENVIRONMENT === 'phonedev') {
+    return {
+      get: function(key) {
+        return $ionicPlatform.ready(function() {
+          return $cordovaPreferences.get(key).then(function(value) {
+            return value;
+          });
+        });
+      },
+      set: function(key, value) {
+        return $ionicPlatform.ready(function() {
+          return $cordovaPreferences.set(key, value);
+        });
+      },
+      "delete": function(key) {
+        return delete $ionicPlatform.ready(function() {
+          return $cordovaPreferences.set(key, null);
+        });
+      }
+    };
+  } else {
+    return {
+      all: function() {
+        return $window.localStorage;
+      },
+      get: function(key) {
+        return $q.when($window.localStorage[key]);
+      },
+      set: function(key, value) {
+        return $window.localStorage[key] = value;
+      },
+      "delete": function(key) {
+        return delete $window.localStorage[key];
+      },
+      delete_all: function() {
+        return delete $window.localStorage.clear();
+      }
+    };
+  }
 });
 
 angular.module("barachiel.i18n.directives", []).directive('translate', function(l) {

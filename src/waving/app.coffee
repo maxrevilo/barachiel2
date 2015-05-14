@@ -45,13 +45,13 @@ angular.module("barachiel", [
                     event.preventDefault()
                 return
     )
-    .config(($stateProvider, $urlRouterProvider, i18nProvider, $httpProvider, RestangularProvider, BASE_URL) ->
+    .config(($stateProvider, $urlRouterProvider, i18nProvider, $httpProvider, RestangularProvider, API_URL) ->
 
         ####### Interceptors ########
-        $httpProvider.interceptors.push('authHttpResponseInterceptor');
+        $httpProvider.interceptors.push('authHttpResponseInterceptor')
 
         # RESTANGULAR
-        RestangularProvider.setBaseUrl(BASE_URL)
+        RestangularProvider.setBaseUrl(API_URL)
         RestangularProvider.setRequestSuffix('/')
 
         ####### Internationalization ########

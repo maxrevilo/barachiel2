@@ -6,3 +6,4 @@ platforms/
 plugins/
 engine/
 resources/
+src/waving/config.coffee

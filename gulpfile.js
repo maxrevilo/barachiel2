@@ -7,6 +7,9 @@ var minifyCss = require('gulp-minify-css');
 var rename = require('gulp-rename');
 var sh = require('shelljs');
 var coffee = require('gulp-coffee');
+var replace = require('gulp-replace-task');  
+var args = require('yargs').argv;  
+var fs = require('fs');
 
 var paths = {
   sass_index: ['./src/waving/style.scss'],
@@ -65,4 +68,27 @@ gulp.task('git-check', function(done) {
     process.exit(1);
   }
   done();
+});
+
+gulp.task('replace', function () {  
+  var env = args.env || 'localdev';
+  /* Read the settings from the right file */
+  var filename = env + '.json';
+  var settings = JSON.parse(fs.readFileSync('./config/' + filename, 'utf8'));
+
+  // Replace each placeholder with the correct value for the variable.  
+  gulp.src('./config/config.coffee')  
+    .pipe(replace({
+      patterns: [
+        {
+          match: 'apiUrl',
+          replacement: settings.apiUrl
+        },
+        {
+          match: 'env',
+          replacement: settings.env
+        }
+      ]
+    }))
+    .pipe(gulp.dest('./src/waving'));
 });

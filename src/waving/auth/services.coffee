@@ -1,15 +1,10 @@
 angular.module("barachiel.auth.services", [])
-.factory "AuthService", ($rootScope, $http, $log, _, utils, StorageService, analytics, BASE_URL) ->
+.factory "AuthService", ($rootScope, $http, $log, _, utils, StorageService, analytics, API_URL) ->
     _is_auth = ->
         if $rootScope.user?
             yes
         else
-            raw_ls_user = StorageService.get 'user'
-            if raw_ls_user?
-                $rootScope.user = JSON.parse raw_ls_user
-                yes
-            else
-                no
+            no
 
     _set_user = (user) ->
         StorageService.set 'user', JSON.stringify user
@@ -24,7 +19,7 @@ angular.module("barachiel.auth.services", [])
     Authenticate: (credentials) ->
         $http(
             method: 'POST'
-            url: BASE_URL + '/auth/login/'
+            url: API_URL + '/auth/login/'
             data: utils.to_form_params credentials
             headers: 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
         )
@@ -32,14 +27,14 @@ angular.module("barachiel.auth.services", [])
             .error (data) -> $log.error "Couldn't Authenticate: " + data
 
     Logout: ->
-        $http.get BASE_URL + '/auth/logout/', {}
+        $http.get API_URL + '/auth/logout/', {}
             .success -> _unset_user()
             .error (data) -> $log.error "Couldn't Logout: " + data
 
     Signup: (credentials) ->
         $http(
             method: 'POST'
-            url: BASE_URL + '/auth/signup/'
+            url: API_URL + '/auth/signup/'
             data: utils.to_form_params credentials
             headers: 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
         )
@@ -50,14 +45,14 @@ angular.module("barachiel.auth.services", [])
 
     isAuthenticated: (http_check=false) ->
         if _is_auth() and http_check
-            $http.get BASE_URL + '/users/me/'
+            $http.get API_URL + '/users/me/'
                 .success (user) -> _set_user user
         _is_auth()
 
     resetPasswordOf: (user_email) ->
         $http(
             method: 'POST'
-            url: BASE_URL + '/auth/reset_password/'
+            url: API_URL + '/auth/reset_password/'
             data: utils.to_form_params {"email": user_email}
             headers: 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
         )
