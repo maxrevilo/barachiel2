@@ -120,8 +120,8 @@ var config, config_module;
 
 config = {
   APP_NAME: 'Waving',
-  API_URL: 'https://barachiel-dev.herokuapp.com',
-  ENVIRONMENT: 'phonedev'
+  API_URL: 'http://127.0.0.1:8000',
+  ENVIRONMENT: 'development'
 };
 
 config_module = angular.module("barachiel.config", []);
