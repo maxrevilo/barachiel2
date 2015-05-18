@@ -33,8 +33,7 @@ angular.module("barachiel", [
             StatusBar.styleDefault() if window.StatusBar
 
             #Loading user:
-            try Users.me()
-
+            try Users.get_me()
             if AuthService.state_requires_auth($state.current) and not AuthService.isAuthenticated(true)
                 $state.transitionTo "st.signup"
 
@@ -93,7 +92,7 @@ angular.module("barachiel", [
                 abstract: true
                 templateUrl: "templates/tabs.html"
                 controller: 'TabCtrl'
-                resolve: Me: (Users) -> Users.me_promise()
+                resolve: Me: (Users) -> Users.get_me()
             )
             .state("st.tab.radar",
                 url: "/radar"

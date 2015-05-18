@@ -37,37 +37,35 @@ angular.module("barachiel.services", [])
 
     return Likes
 
-.factory "Users", ($rootScope, API_URL, _, l, $injector, Restangular, AuthService, MediaManipulation, $q) ->
+.factory "Users", ($rootScope, API_URL, _, l, $injector, Restangular, StorageService, MediaManipulation, $q) ->
     Likes = null #This will be the Likes restangular service.
 
     #Le Service
     Users = Restangular.service 'users'
 
-    me_deferred = $q.defer()
-
-    $rootScope.$watch "user", (user) -> Users.set_me user if user?
-
     # Model Manager Methods
     Users.all = -> @getList()
     Users.get = (id)-> @one(id).get()
-    Users.me = (force_request)->
-        if not @_me?
-            AuthService.GetUser().then (userData) ->
-                if userData?
+    Users.me = null
+
+    Users.get_me = (force_request) ->
+        if not @me?
+            StorageService.get('user').then (raw_ls_user) ->
+                if raw_ls_user
+                    userData = JSON.parse raw_ls_user
                     Users.set_me(userData)
+                    return @me
                 else
-                    throw new Error("Local user not found")
+                    null
+
         if force_request
             # Forcing a request to the server
-            @_me.get()
-            return @_me
-
-    Users.me_promise = () -> if AuthService.isAuthenticated() then me_deferred.promise else $q.when(null)
-    
+            @me.get()
+        
     Users.set_me = (rawUserJSON) ->
-        @_me = Restangular.restangularizeElement '', rawUserJSON, 'users', {}
-        me_deferred.resolve @_me
-        return @_me
+        @me = Restangular.restangularizeElement '', rawUserJSON, 'users', {}
+
+    Users.unset_me = -> @me = null
 
     Users.getPicture = (user) ->
         if user and user.picture?

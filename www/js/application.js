@@ -9,7 +9,7 @@ angular.module("barachiel", ["barachiel.config", "ngCordova", "restangular", "io
       StatusBar.styleDefault();
     }
     try {
-      Users.me();
+      Users.get_me();
     } catch (_error) {}
     if (AuthService.state_requires_auth($state.current) && !AuthService.isAuthenticated(true)) {
       $state.transitionTo("st.signup");
@@ -61,7 +61,7 @@ angular.module("barachiel", ["barachiel.config", "ngCordova", "restangular", "io
     controller: 'TabCtrl',
     resolve: {
       Me: function(Users) {
-        return Users.me_promise();
+        return Users.get_me();
       }
     }
   }).state("st.tab.radar", {
@@ -452,48 +452,39 @@ angular.module("barachiel.services", []).factory("Likes", function(Restangular, 
     return waver;
   });
   return Likes;
-}).factory("Users", function($rootScope, API_URL, _, l, $injector, Restangular, AuthService, MediaManipulation, $q) {
-  var Likes, Users, me_deferred;
+}).factory("Users", function($rootScope, API_URL, _, l, $injector, Restangular, StorageService, MediaManipulation, $q) {
+  var Likes, Users;
   Likes = null;
   Users = Restangular.service('users');
-  me_deferred = $q.defer();
-  $rootScope.$watch("user", function(user) {
-    if (user != null) {
-      return Users.set_me(user);
-    }
-  });
   Users.all = function() {
     return this.getList();
   };
   Users.get = function(id) {
     return this.one(id).get();
   };
-  Users.me = function(force_request) {
-    if (this._me == null) {
-      AuthService.GetUser().then(function(userData) {
-        if (userData != null) {
-          return Users.set_me(userData);
+  Users.me = null;
+  Users.get_me = function(force_request) {
+    if (this.me == null) {
+      StorageService.get('user').then(function(raw_ls_user) {
+        var userData;
+        if (raw_ls_user) {
+          userData = JSON.parse(raw_ls_user);
+          Users.set_me(userData);
+          return this.me;
         } else {
-          throw new Error("Local user not found");
+          return null;
         }
       });
     }
     if (force_request) {
-      this._me.get();
-      return this._me;
-    }
-  };
-  Users.me_promise = function() {
-    if (AuthService.isAuthenticated()) {
-      return me_deferred.promise;
-    } else {
-      return $q.when(null);
+      return this.me.get();
     }
   };
   Users.set_me = function(rawUserJSON) {
-    this._me = Restangular.restangularizeElement('', rawUserJSON, 'users', {});
-    me_deferred.resolve(this._me);
-    return this._me;
+    return this.me = Restangular.restangularizeElement('', rawUserJSON, 'users', {});
+  };
+  Users.unset_me = function() {
+    return this.me = null;
   };
   Users.getPicture = function(user) {
     var default_img, sex;
@@ -676,10 +667,10 @@ angular.module("barachiel.auth.controllers", []).controller("SignupCtrl", functi
   };
 });
 
-angular.module("barachiel.auth.services", []).factory("AuthService", function($rootScope, $http, $log, _, utils, StorageService, analytics, API_URL) {
+angular.module("barachiel.auth.services", []).factory("AuthService", function($rootScope, $http, $log, _, utils, StorageService, Users, analytics, API_URL) {
   var _is_auth, _set_user, _unset_user;
   _is_auth = function() {
-    if ($rootScope.user != null) {
+    if (Users.me != null) {
       return true;
     } else {
       return false;
@@ -688,10 +679,10 @@ angular.module("barachiel.auth.services", []).factory("AuthService", function($r
   _set_user = function(user) {
     StorageService.set('user', JSON.stringify(user));
     analytics.setUser(user);
-    return $rootScope.user = user;
+    return Users.set_me(user);
   };
   _unset_user = function() {
-    $rootScope.user = null;
+    Users.unset_me();
     return StorageService["delete"]('user');
   };
   return {
@@ -729,20 +720,6 @@ angular.module("barachiel.auth.services", []).factory("AuthService", function($r
       }).error(function(data) {
         return $log.error("Couldn't Signup: " + data);
       });
-    },
-    GetUser: function() {
-      if (_is_auth()) {
-        return $q.when($rootScope.user);
-      } else {
-        return StorageService.get('user').then(function(raw_ls_user) {
-          if (raw_ls_user) {
-            $rootScope.user = JSON.parse(raw_ls_user);
-            return $rootScope.user;
-          } else {
-            return null;
-          }
-        });
-      }
     },
     isAuthenticated: function(http_check) {
       if (http_check == null) {
