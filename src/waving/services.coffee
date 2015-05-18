@@ -58,9 +58,12 @@ angular.module("barachiel.services", [])
                 else
                     null
 
-        if force_request
+        else if force_request
             # Forcing a request to the server
             @me.get()
+
+        else
+            $q.when @me
         
     Users.set_me = (rawUserJSON) ->
         @me = Restangular.restangularizeElement '', rawUserJSON, 'users', {}

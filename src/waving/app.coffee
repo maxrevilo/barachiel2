@@ -92,7 +92,7 @@ angular.module("barachiel", [
                 abstract: true
                 templateUrl: "templates/tabs.html"
                 controller: 'TabCtrl'
-                resolve: Me: (Users) -> Users.get_me()
+                resolve: Me: (Users) -> Users.get_me().then -> return Users.me
             )
             .state("st.tab.radar",
                 url: "/radar"

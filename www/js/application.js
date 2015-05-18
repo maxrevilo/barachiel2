@@ -61,7 +61,9 @@ angular.module("barachiel", ["barachiel.config", "ngCordova", "restangular", "io
     controller: 'TabCtrl',
     resolve: {
       Me: function(Users) {
-        return Users.get_me();
+        return Users.get_me().then(function() {
+          return Users.me;
+        });
       }
     }
   }).state("st.tab.radar", {
@@ -465,7 +467,7 @@ angular.module("barachiel.services", []).factory("Likes", function(Restangular, 
   Users.me = null;
   Users.get_me = function(force_request) {
     if (this.me == null) {
-      StorageService.get('user').then(function(raw_ls_user) {
+      return StorageService.get('user').then(function(raw_ls_user) {
         var userData;
         if (raw_ls_user) {
           userData = JSON.parse(raw_ls_user);
@@ -475,9 +477,10 @@ angular.module("barachiel.services", []).factory("Likes", function(Restangular, 
           return null;
         }
       });
-    }
-    if (force_request) {
+    } else if (force_request) {
       return this.me.get();
+    } else {
+      return $q.when(this.me);
     }
   };
   Users.set_me = function(rawUserJSON) {
