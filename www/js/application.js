@@ -180,6 +180,7 @@ angular.module("barachiel.controllers", []).controller("TabCtrl", function($scop
     } else {
       promise = Users.all();
       $scope.users = promise.$object;
+      window.users = $scope.users;
     }
     return promise.then(function(users) {
       var detections;
@@ -222,13 +223,12 @@ angular.module("barachiel.controllers", []).controller("TabCtrl", function($scop
   });
   return $scope.waver.__safe__name = _.escape($scope.waver.user.name);
 }).controller("ProfileCtrl", function($rootScope, $scope, $stateParams, $state, $ionicActionSheet, l, AuthService, Users, MediaManipulation, $timeout) {
-  var user;
   $scope.$on('$ionicView.beforeEnter', function() {
-    var user;
-    return user = Users.me(true);
+    return Users.get_me(true);
   });
-  user = Users.me(false);
-  $scope.profile = user;
+  Users.get_me().then(function(user) {
+    return $scope.profile = user;
+  });
   if ($rootScope.uploadingPicture == null) {
     $rootScope.uploadingPicture = {
       'on': false,
@@ -429,14 +429,14 @@ angular.module("barachiel.services", []).factory("Likes", function(Restangular, 
       "Content-Type": 'application/x-www-form-urlencoded'
     });
     postPromise = postPromise.then(function(like) {
-      Users.me().likes.unshift(like);
+      Users.me.likes.unshift(like);
       return like;
     });
     return postPromise;
   };
   Likes.unlike = function(user_id) {
     var like, me, removePromise;
-    me = Users.me();
+    me = Users.me;
     like = me.getLikeByUserId(user_id);
     removePromise = like.remove().then(function(deletedLike) {
       var index;
@@ -574,7 +574,7 @@ angular.module("barachiel.services", []).factory("Likes", function(Restangular, 
       });
     };
     user.isLikedByMe = function() {
-      return Users.me().getLikeByUserId(user.id) != null;
+      return Users.me.getLikeByUserId(user.id) != null;
     };
     user.getLikeByUserId = function(user_id) {
       return _(this.likes_from).find(function(like) {

@@ -14,13 +14,13 @@ angular.module("barachiel.services", [])
         )
         postPromise = postPromise.then(
             (like) ->
-                Users.me().likes.unshift like
+                Users.me.likes.unshift like
                 return like
         )
         return postPromise
 
     Likes.unlike = (user_id)->
-        me = Users.me()
+        me = Users.me
         like = me.getLikeByUserId user_id
         removePromise = like.remove().then((deletedLike) ->
             index = me.likes_from.indexOf(like)
@@ -134,7 +134,7 @@ angular.module("barachiel.services", [])
                 Array.prototype.push.apply(user.likes_to, likes)
                 return likes
 
-        user.isLikedByMe = -> Users.me().getLikeByUserId(user.id)?
+        user.isLikedByMe = -> Users.me.getLikeByUserId(user.id)?
 
         user.getLikeByUserId = (user_id) -> _(@likes_from).find (like)-> like.user.id == user_id
 

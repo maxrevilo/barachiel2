@@ -43,6 +43,7 @@ angular.module("barachiel.controllers", [])
         else
             promise = Users.all()
             $scope.users = promise.$object
+            window.users = $scope.users
 
         return promise.then(
             (users)->
@@ -83,10 +84,10 @@ angular.module("barachiel.controllers", [])
 .controller("ProfileCtrl", ($rootScope, $scope, $stateParams, $state,
         $ionicActionSheet, l, AuthService, Users, MediaManipulation, $timeout) ->
     $scope.$on '$ionicView.beforeEnter', () ->
-        user = Users.me true
+         Users.get_me true
     
-    user = Users.me false
-    $scope.profile = user
+    Users.get_me().then (user)->
+        $scope.profile = user
 
     if not $rootScope.uploadingPicture?
         $rootScope.uploadingPicture =
