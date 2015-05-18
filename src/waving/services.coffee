@@ -52,15 +52,15 @@ angular.module("barachiel.services", [])
     Users.get = (id)-> @one(id).get()
     Users.me = (force_request)->
         if not @_me?
-            userData = AuthService.GetUser()
-            if userData?
-                @set_me(userData)
-            else
-                throw new Error("Local user not found")
+            AuthService.GetUser().then (userData) ->
+                if userData?
+                    Users.set_me(userData)
+                else
+                    throw new Error("Local user not found")
         if force_request
             # Forcing a request to the server
             @_me.get()
-        return @_me
+            return @_me
 
     Users.me_promise = () -> if AuthService.isAuthenticated() then me_deferred.promise else $q.when(null)
     

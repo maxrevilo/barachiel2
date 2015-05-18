@@ -16,7 +16,12 @@ angular.module("barachiel.device.services", [])
         all: -> $window.localStorage
         get: (key) ->
             $q.when $window.localStorage[key]
-        #get: (key) -> $window.localStorage[key]
-        set: (key, value) -> $window.localStorage[key] = value
-        delete: (key) -> delete $window.localStorage[key]
+        set: (key, value) -> $q.when($window.localStorage[key] = value)
+        delete: (key) -> $q.when delete $window.localStorage[key]
         delete_all: () -> delete $window.localStorage.clear()
+
+#.factory "WaversPrefService", StorageService ->
+    #get_wavers: -> StorageService.set 'wavers'
+    #get_wave_attr: (id, attr) ->
+    #set_wavers: (value)->
+    #set_wave_attr: (id, attr, value) ->

@@ -469,19 +469,19 @@ angular.module("barachiel.services", []).factory("Likes", function(Restangular, 
     return this.one(id).get();
   };
   Users.me = function(force_request) {
-    var userData;
     if (this._me == null) {
-      userData = AuthService.GetUser();
-      if (userData != null) {
-        this.set_me(userData);
-      } else {
-        throw new Error("Local user not found");
-      }
+      AuthService.GetUser().then(function(userData) {
+        if (userData != null) {
+          return Users.set_me(userData);
+        } else {
+          throw new Error("Local user not found");
+        }
+      });
     }
     if (force_request) {
       this._me.get();
+      return this._me;
     }
-    return this._me;
   };
   Users.me_promise = function() {
     if (AuthService.isAuthenticated()) {
@@ -732,7 +732,16 @@ angular.module("barachiel.auth.services", []).factory("AuthService", function($r
     },
     GetUser: function() {
       if (_is_auth()) {
-        return $rootScope.user;
+        return $q.when($rootScope.user);
+      } else {
+        return StorageService.get('user').then(function(raw_ls_user) {
+          if (raw_ls_user) {
+            $rootScope.user = JSON.parse(raw_ls_user);
+            return $rootScope.user;
+          } else {
+            return null;
+          }
+        });
       }
     },
     isAuthenticated: function(http_check) {
@@ -808,10 +817,10 @@ angular.module("barachiel.device.services", []).factory("StorageService", functi
         return $q.when($window.localStorage[key]);
       },
       set: function(key, value) {
-        return $window.localStorage[key] = value;
+        return $q.when($window.localStorage[key] = value);
       },
       "delete": function(key) {
-        return delete $window.localStorage[key];
+        return $q.when(delete $window.localStorage[key]);
       },
       delete_all: function() {
         return delete $window.localStorage.clear();

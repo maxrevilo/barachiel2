@@ -41,7 +41,17 @@ angular.module("barachiel.auth.services", [])
             .success (user, status, headers, config) -> _set_user user
             .error (data) -> $log.error "Couldn't Signup: " + data
 
-    GetUser: -> $rootScope.user if _is_auth()
+    GetUser: ->
+        if _is_auth()
+            $q.when $rootScope.user
+        else
+            StorageService.get('user').then (raw_ls_user) ->
+                if raw_ls_user
+                    $rootScope.user = JSON.parse raw_ls_user
+                    $rootScope.user
+                else
+                    null
+
 
     isAuthenticated: (http_check=false) ->
         if _is_auth() and http_check
